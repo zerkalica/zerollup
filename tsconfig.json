@@ -1,0 +1,31 @@
+{
+	"compilerOptions": {
+		"baseUrl": "packages",
+		"paths": {
+			"@zerollup/*": [ "./*/src" ]
+		},
+		"allowSyntheticDefaultImports": false,
+		"declaration": true,
+		"module": "esnext",
+		"target": "es5",
+		"moduleResolution": "node",
+		"sourceMap": true,
+		"lib": [
+			"dom",
+			"esnext"
+		],
+		"jsx": "react",
+		"noImplicitAny": false,
+		"noUnusedLocals": true,
+		"noImplicitReturns": true,
+		"alwaysStrict": true,
+		"strictNullChecks": false,
+		"strictFunctionTypes": true,
+		"removeComments": false,
+		"experimentalDecorators": true
+	},
+	"include": [
+		"packages/*/src"
+	],
+	"exclude": ["node_modules", "**/node_modules/*"]
+}
