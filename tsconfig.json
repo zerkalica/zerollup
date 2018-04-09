@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
-		"baseUrl": "packages",
+		"baseUrl": ".",
 		"paths": {
-			"@zerollup/*": [ "./*/src" ]
+			"@zerollup/*": ["packages/*/src"]	
 		},
 		"allowSyntheticDefaultImports": false,
 		"declaration": true,
@@ -24,8 +24,5 @@
 		"removeComments": false,
 		"experimentalDecorators": true
 	},
-	"include": [
-		"packages/*/src"
-	],
 	"exclude": ["node_modules", "**/node_modules/*"]
 }

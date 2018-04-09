@@ -1,13 +1,9 @@
-import * as fs from 'fs'
 import * as path from 'path'
 import typescript from 'rollup-plugin-typescript2'
-import resolve from 'rollup-plugin-node-resolve'
-import sourcemaps from 'rollup-plugin-sourcemaps'
 
 const cwd = process.cwd()
 const pkg = require(path.join(cwd, 'package.json'))
-const lernaRoot = path.join(__dirname, 'packages')
-const dirs = fs.readdirSync(lernaRoot)
+const srcDir = path.join(cwd, 'src')
 
 export default {
     plugins: [
@@ -17,12 +13,11 @@ export default {
             exclude: ['*.spec*', '**/*.spec*'],
             tsconfig: path.join(__dirname, 'tsconfig.json'),
             tsconfigOverride: {
-                // compilerOptions: {
-                //     rootDir: cwd 
-                // },
-                include: [
-                    __dirname + '/packages/*/src'
-                ]
+                compilerOptions: {
+                    paths: [],
+                    rootDir: srcDir
+                },
+                include: [srcDir]
             }
         })
     ],

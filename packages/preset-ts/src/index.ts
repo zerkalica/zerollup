@@ -1,4 +1,4 @@
-import {Plugin} from 'rollup'
+import {Plugin, CachedChunkSet} from 'rollup'
 import * as path from 'path'
 import typescript from 'rollup-plugin-typescript2'
 import uglify from 'rollup-plugin-uglify'
@@ -13,7 +13,6 @@ import serve from 'rollup-plugin-serve'
 import livereload from 'rollup-plugin-livereload'
 import {minify} from 'uglify-es'
 
-import fixDts from '@zerollup/plugin-fix-dts'
 import template from '@zerollup/plugin-template'
 import assets from '@zerollup/plugin-assets'
 import {getRollupConfig, Config, CmdOptions} from '@zerollup/helpers'
@@ -21,11 +20,11 @@ import {getRollupConfig, Config, CmdOptions} from '@zerollup/helpers'
 export default function rollupConfig(options: CmdOptions): Promise<Config[]> {
     return getRollupConfig(options).then(rc => {
         const plugins: Plugin[] = [
-            resolve({
+            rc.isLib && resolve({
                 extensions: ['.ts', '.js', '.json'],
                 jsnext: true
             }),
-            commonjs({
+            rc.isLib && commonjs({
                 namedExports: rc.namedExports
             }),
             typescript({
@@ -35,14 +34,16 @@ export default function rollupConfig(options: CmdOptions): Promise<Config[]> {
                 //clean: true,
                 // verbosity: 5,
                 exclude: ['*.spec*', '**/*.spec*'],
-                tsconfig: path.join(rc.lernaRootDir, 'tsconfig.json'),
+                tsconfig: path.join(rc.repoRoot, 'tsconfig.json'),
                 tsconfigOverride: {
                     compilerOptions: {
-                        declaration: rc.isLib
-                    }
+                        declaration: rc.isLib,
+                        paths: [],
+                        rootDir: rc.srcDir
+                    },
+                    include: [rc.srcDir]
                 }
             }),
-            rc.isLib && fixDts(),
             alias(rc.aliases),
             builtins(),
             assets({
@@ -86,7 +87,8 @@ export default function rollupConfig(options: CmdOptions): Promise<Config[]> {
                 }
             }, minify)
         ].filter(Boolean)
+        const cache: CachedChunkSet = { chunks: {} }
 
-        return rc.baseConfig.map(cfg => ({...cfg, plugins}))
+        return rc.baseConfig.map(cfg => ({...cfg, cache, plugins}))
     })
 }
