@@ -1,6 +1,6 @@
 {
   "name": "@zerollup/helpers",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "description": "Zerollup helpers",
   "author": {
@@ -35,11 +35,11 @@
     "@types/fs-extra": "^5.0.1"
   },
   "dependencies": {
-    "rollup": "^0.57.1",
     "change-case": "^3.0.2",
     "fs-extra": "^5.0.0",
     "globby": "^8.0.1",
     "lerna-alias": "^3.0.2",
-    "node-eval": "^2.0.0"
+    "node-eval": "^2.0.0",
+    "rollup": "^0.57.1"
   }
 }

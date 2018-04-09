@@ -1,6 +1,6 @@
 {
   "name": "@zerollup/plugin-template",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "description": "Rollup template plugin",
   "author": {
@@ -32,7 +32,7 @@
     "assets path"
   ],
   "dependencies": {
-    "@zerollup/helpers": "^1",
+    "@zerollup/helpers": "^1.0.1",
     "fs-extra": "^5.0.0",
     "rollup": "^0.57.1"
   },
