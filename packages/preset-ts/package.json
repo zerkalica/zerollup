@@ -34,8 +34,8 @@
   ],
   "dependencies": {
     "@zerollup/helpers": "^1.0.1",
-    "@zerollup/plugin-notify": "^1.0.1",
     "@zerollup/plugin-assets": "^1.0.1",
+    "@zerollup/plugin-notify": "^1.0.1",
     "@zerollup/plugin-template": "^1.0.1",
     "rollup": "^0.57.1",
     "rollup-plugin-alias": "^1.4.0",
