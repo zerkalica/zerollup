@@ -1,19 +1,25 @@
-import {Pkg} from './interfaces'
-import {ModuleFormat} from 'rollup'
-import {dirname, basename} from 'path'
-import {cutExt} from './nameHelpers'
+import {ModuleFormat, Pkg} from './interfaces'
+import {dirname, join} from 'path'
+import {getName} from './nameHelpers'
+import {HelpersError} from './interfaces'
 
-export interface TargetFile {
-    file: string
-    format: ModuleFormat
+export class GetTargetsError extends HelpersError {}
+
+export interface SectionRec {
     key: string
+    format: ModuleFormat
+    ext: string
 }
 
-export const allSections: [string, ModuleFormat][] = [
-    ['module', 'es'],
-    ['main', 'cjs'],
-    ['umd:main', 'umd'],
-    ['iife:main', 'iife']
+export interface TargetFile extends SectionRec {
+    file: string
+}
+
+const allSections: SectionRec[] = [
+    {key: 'module', format: 'es', ext: 'mjs'},
+    {key: 'main', format: 'cjs', ext: 'cjs.js'},
+    {key: 'umd:main', format: 'umd', ext: 'umd.js'},
+    {key: 'iife:main', format: 'iife', ext: 'js'}
 ]
 
 export function getDistDir(
@@ -25,9 +31,9 @@ export function getDistDir(
     const targetDirs = targets.map(rec => dirname(rec.file))
     const distDir = targetDirs[0]
     if (targetDirs.indexOf(distDir) > 0) {
-        const keysStr = `"${allSections.map(([key, format]) => key).join('", "')}"`
-        throw new Error(
-            `Some of target directories ${targets.map(rec => rec.file).join(', ')} differs in keys ${keysStr} in ${pkgPath}`
+        const keysStr = `"${allSections.map(rec => rec.key).join('", "')}"`
+        throw new GetTargetsError(
+            `getDistDir: Some of target directories ${targets.map(rec => rec.file).join(', ')} differs in keys ${keysStr} in ${pkgPath}`
         )
     }
 
@@ -42,20 +48,23 @@ export function getTargets(
     }
 ): TargetFile[] {
     const targets = allSections
-        .map(([key, format]) => pkg[key] && {
+        .map(({key, format, ext}) => pkg[key] && {
             key,
             format,
-            file: pkg[key]
+            file: join(dirname(pkgPath), pkg[key]),
+            ext
         })
         .filter(Boolean)
 
-    const inputNames = inputs.map(input => cutExt(basename(input)))
-    const badOutputs = targets.filter(rec => inputNames.indexOf(cutExt(basename(rec.file))) === 0)
+    const inputNames = inputs.map(input => getName(input))
+    const badOutputs = targets.filter(rec =>
+        inputNames.indexOf(getName(rec.file)) === -1
+    )
 
     if (badOutputs.length > 0) {
         const badEntries = badOutputs.map(rec => `"${rec.key}": "${rec.file}"`)
-        throw new Error(
-            `File names in values of ${badEntries.join(', ')} must be one of ${inputNames.join(', ')} in ${pkgPath}`
+        throw new GetTargetsError(
+            `getTargets: File names in values of {${badEntries.join(', ')}} must be one of "${inputNames.join('", "')}" in ${pkgPath}`
         )
     }
 

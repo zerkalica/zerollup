@@ -1,7 +1,6 @@
-import {InputOptions, OutputOptions, WatcherOptions} from 'rollup'
-
-export type Config = OutputOptions & InputOptions & WatcherOptions
 export type Env = 'production' | 'development'
+
+export type ModuleFormat = 'amd' | 'cjs' | 'system' | 'es' | 'es6' | 'iife' | 'umd';
 
 export interface Pkg {
     name: string
@@ -18,4 +17,10 @@ export interface Pkg {
     peerDependencies?: Record<string, string>
     devDependencies?: Record<string, string>
     dependencies?: Record<string, string>
+}
+
+export class HelpersError extends Error {
+    constructor(message: string) {
+        super(`@zerollup/helpers: ${new.target.name}: ${message}`)
+    }
 }

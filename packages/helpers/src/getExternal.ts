@@ -1,7 +1,7 @@
 import {Pkg} from './interfaces'
 import getBuiltins from 'builtins'
 
-export function getExternals(
+export function getExternal(
     {devDependencies, peerDependencies, dependencies, rollup}: Pkg
 ): string[] {
     const deps = Object.assign({}, devDependencies, peerDependencies, dependencies)

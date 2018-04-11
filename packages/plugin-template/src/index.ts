@@ -41,8 +41,9 @@ function defaultTemplate({pkg: {name}, env, mainUrl}: TemplateFnOptions): Templa
 export default function template(
     opts: TemplateOptions
 ): Plugin {
-    const name = '@zerollup/template'
+    const name = '@zerollup/plugin-template'
     let inputs: string[]
+    const cache: Map<string, string> = new Map()
 
     return {
         name,
@@ -50,20 +51,27 @@ export default function template(
             inputs = typeof options.input === 'string' ? [options.input] : options.input
         },
         transformBundle(code: string, outputOptions: OutputOptions): Promise<null> {
-            const outputFile = outputOptions.file
+            const outputFile = path.resolve(outputOptions.file)
             return Promise.all(inputs.map(input => {
                 const templateInput = path.join(path.dirname(input), 'prerender', path.basename(input))
                 const srcExt = templateInput.substring(templateInput.lastIndexOf('.'))
                 const sourceTemplateFile = cutExt(templateInput) + '.html' + srcExt
                 const commonTemplateFile = cutExt(cutExt(templateInput)) + '.html' + srcExt
 
-                return Promise.all([fsExtra.stat(sourceTemplateFile), fsExtra.stat(commonTemplateFile)])
-                    .then(([stat, commonStat]) => {
-                        const templateFile = stat.isFile()
+                return Promise.all([fsExtra.pathExists(sourceTemplateFile), fsExtra.pathExists(commonTemplateFile)])
+                    .then(([sourceTemplateExists, commonTemplateExists]) => {
+                        const templateFile = sourceTemplateExists
                             ? sourceTemplateFile
-                            : (commonStat.isFile() ? commonTemplateFile : null)
-
-                        const template: TemplateFn = templateFile ? require(templateFile) : defaultTemplate
+                            : (commonTemplateExists ? commonTemplateFile : null)
+                        let template: TemplateFn = defaultTemplate
+                        
+                        if (templateFile) {
+                            try {
+                                template = require(templateFile)
+                            } catch (e) {
+                                if ((e.message || '').indexOf('Cannot find module') === -1) console.warn(e.stack || e)
+                            }
+                        }
 
                         const distDir = path.dirname(outputFile)
                         const distFileName = path.basename(outputFile)
@@ -74,7 +82,7 @@ export default function template(
                                 pkg: opts.pkg,
                                 distDir,
                                 env: opts.env || 'production',
-                                mainUrl: (opts.baseUrl || '/') + distFileName
+                                mainUrl: (opts.baseUrl || '') + distFileName
                             }))
                             .then(data => Promise.all(
                                 (data
@@ -84,7 +92,13 @@ export default function template(
                                     )
                                     : []
                                 )
-                                .map(rec => fsExtra.writeFile(path.join(distDir, rec.file), rec.data))
+                                .map(rec => {
+                                    const file = path.join(distDir, rec.file)
+                                    if (cache.get(file) === rec.data) return null
+
+                                    return fsExtra.ensureDir(path.dirname(file))
+                                        .then(() => fsExtra.writeFile(file, rec.data))
+                                })
                             ))
                     })
             }))

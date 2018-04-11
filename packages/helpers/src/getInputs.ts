@@ -1,36 +1,65 @@
 import * as fsExtra from 'fs-extra'
 import {basename, join} from 'path'
+import {HelpersError} from './interfaces'
+import {cutExt} from './nameHelpers'
+
+export class GetInputsError extends HelpersError {}
+
+const defaultResolveFiles = ['index.local', 'index.dev', 'index']
+
+export function filterInputs(
+    {
+        inputs,
+        srcDir,
+        resolveFiles = defaultResolveFiles
+    }: {
+        inputs: string[]
+        resolveFiles?: string[]
+        srcDir: string
+    }
+): string[] {
+    let targetInput = ''
+    for (let file of resolveFiles) {
+        for (let input of inputs) {
+            const inp = basename(cutExt(input))
+            if (file === inp) {
+                targetInput = input
+                break
+            }
+        }
+        if (targetInput) break
+    }
+
+    if (!targetInput) {
+        throw new GetInputsError(`filterInputs: No one index.* file found in "${inputs.join('", "')}" in ${srcDir}`)
+    }
+
+    return [targetInput]
+}
 
 export function getInputs(
-    {srcDir, target, watch}: {
+    {
+        srcDir,
+        resolveFiles = defaultResolveFiles
+    }: {
+        resolveFiles?: string[]
         srcDir: string
-        target?: string
-        watch?: boolean
     }
 ): Promise<string[]> {
-    return fsExtra.stat(srcDir)
-        .then(stat => {
-            if (!stat.isDirectory()) throw new Error(`Sources mast be in ${srcDir} directory`)
+    return fsExtra.pathExists(srcDir)
+        .then(exists => {
+            if (!exists) throw new GetInputsError(`getInputs: Sources must be in ${srcDir} directory`)
             return fsExtra.readdir(srcDir)
         })
         .then(srcFiles => {
             const rawInputs = srcFiles
+                .sort()
                 .filter(file => file.indexOf('index.') === 0)
                 .map(file => join(srcDir, file))
-            if (rawInputs.length === 0) throw new Error(`No index.* files found in ${srcDir}`)
-            let inputs = rawInputs
-            if (target) {
-                let input = rawInputs.find(input => basename(input).indexOf(target) === 0)
-                if (!input) throw new Error(`Need target ${target}.* file in ${srcDir}`)
-                inputs = [input]
-            } else if (watch) {
-                let input = rawInputs.find(input => basename(input).indexOf('index.local.') === 0)
-                if (!input) input = rawInputs.find(input => basename(input).indexOf('index.dev.') === 0)
-                if (!input) throw new Error(`Watch mode, need index.local.* or index.dev.* files in ${srcDir}`)
-                inputs = [input]
-            }
 
-            return inputs
+            if (rawInputs.length === 0)
+                throw new GetInputsError(`getInputs: No one of ${resolveFiles.join('.*, ')}.* file found in ${srcDir}`)
+            return rawInputs
         })
 }
 

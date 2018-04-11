@@ -4,22 +4,15 @@
   "description": "Zero rollup plugins and toolset",
   "private": true,
   "config": {
-    "pkg": "*",
-    "env": "production",
-    "rollup": "../../rollup.config.js"
+    "env": "production"
   },
   "scripts": {
     "clean": "rm -rf packages/*/.rpt2_cache packages/*/dist",
     "clean.all": "lerna clean --yes && rm -rf packages/*/package-lock.json node_modules packages/*/.rpt2_cache packages/*/dist docs/*",
-    "build": "NODE_ENV=$npm_package_config_env lerna exec --scope @$npm_package_name/$npm_package_config_pkg -- rollup -c $npm_package_config_rollup",
-    "dev": "NODE_ENV=development lerna exec --scope @$npm_package_name/$npm_package_config_pkg -- rollup -c $npm_package_config_rollup -w",
+    "build": "NODE_ENV=production rollup -c rollup.config.js",
+    "dev": "NODE_ENV=development rollup -w -c rollup.config.js",
     "postinstall": "lerna bootstrap --hoist",
-    "publish": "lerna publish",
-    "dev.helpers": "npm run dev --zerollup:pkg=helpers",
-    "dev.preset-ts": "npm run dev --zerollup:pkg=preset-ts",
-    "dev.injector": "npm run dev --zerollup:pkg=injector",
-    "dev.plugin-assets": "npm run dev --zerollup:pkg=plugin-assets",
-    "dev.plugin-template": "npm run dev --zerollup:pkg=plugin-template"
+    "publish": "lerna publish"
   },
   "author": "",
   "license": "ISC",
@@ -27,6 +20,7 @@
     "@types/node": "^9.6.1",
     "lerna": "^2.9.1",
     "rollup": "^0.57.1",
+    "source-map-support": "*",
     "typescript": "^2.8.1"
   },
   "dependencies": {}

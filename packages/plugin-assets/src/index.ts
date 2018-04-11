@@ -1,7 +1,7 @@
 import {Plugin, OutputOptions, InputOptions} from 'rollup'
 import * as fsExtra from 'fs-extra'
 import * as path from 'path'
-import { createFilter } from "rollup-pluginutils"
+import {createFilter} from 'rollup-pluginutils'
 import {regExpEscape, normalizeName} from '@zerollup/helpers'
 
 export interface AssetOptions {
@@ -44,7 +44,7 @@ export default function assets(
 
     const filter = createFilter(include, exclude)
     const nameDedupeMap: Map<string, number> = new Map()
-    const name = '@zerollup/assets'
+    const name = '@zerollup/plugin-assets'
 
     let dirsToSearch: Set<string> = new Set()
     let internalResources: Resource[] = []
@@ -76,8 +76,12 @@ export default function assets(
                 }
                 return undefined
             }
+            const name = path.basename(id)
+            const extPos = name.lastIndexOf('.')
+            const ext = name.substring(extPos)
+            const nameWithoutExt = name.substring(0, extPos)
 
-            let relativeUrl = (urlPrefix + '/' + normalizeName(path.basename(id)))
+            let relativeUrl = (urlPrefix + '/' + normalizeName(nameWithoutExt) + ext)
             const count = nameDedupeMap.get(relativeUrl) || 0
             if (count > 0) {
                 const pos = relativeUrl.lastIndexOf('.')
@@ -110,16 +114,16 @@ export default config.assetsUrl + ${JSON.stringify(relativeUrl)}
                 externalResources = Promise.all(extAssets.map(dir => {
                     const pkg = path.join(dir, 'package.json')
 
-                    return fsExtra.stat(pkg)
-                        .then(stat => stat.isFile() ? fsExtra.readJson(pkg) : null)
+                    return fsExtra.pathExists(pkg)
+                        .then(exists => exists ? fsExtra.readJson(pkg) : null)
                         .then(subPkg => {
                             const main = subPkg && (subPkg.module || subPkg.main)
                             if (!main) return null
                             const dist = path.join(dir, path.dirname(main), pathPrefix)
                             if (verbose > 1) console.log(`${name} try include: ${dist}`)
 
-                            return fsExtra.stat(dist)
-                                .then(stat => stat.isFile() || stat.isDirectory()
+                            return fsExtra.pathExists(dist)
+                                .then(exists => exists
                                     ? { id: dist, targetPath: pathPrefix }
                                     : null
                                 )
@@ -147,11 +151,11 @@ export default config.assetsUrl + ${JSON.stringify(relativeUrl)}
                     return Promise.all(resources.map(rec =>
                         fsExtra.copy(rec.id, path.join(targetRoot, rec.targetPath))
                             .catch(error => {
-                                console.error(error.message, {
+                                error.message += ' ' + JSON.stringify({
                                     from: rec.id,
                                     to: path.join(targetRoot, rec.targetPath),
                                     cwd: process.cwd()
-                                })
+                                }, null, '  ')
                                 throw error
                             })
                     ))
