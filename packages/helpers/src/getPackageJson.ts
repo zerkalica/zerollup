@@ -1,27 +1,131 @@
-import {Pkg} from './interfaces'
 import * as fsExtra from 'fs-extra'
-import {isJsExt} from './nameHelpers'
+import * as path from 'path'
+import {normalizeName, normalizeUmdName, fixPath} from './nameHelpers'
 import {HelpersError} from './interfaces'
+import getBuiltins from 'builtins'
 
 export class GetPackageJsonError extends HelpersError {}
 
-export function isLib(pkg: Pkg): boolean {
-    return !pkg['iife:main'] || isJsExt(pkg.main) || isJsExt(pkg.module)
+export type ModuleFormat = 'amd' | 'cjs' | 'system' | 'es' | 'es6' | 'iife' | 'umd'
+
+export interface Pkg {
+    version: string
+    name: string
+    main?: string
+    module?: string
+    'iife:main'?: string
+    'umd:main'?: string
+
+    rollup: {
+        app?: boolean
+        inputs?: string[]
+        srcDir?: string
+        configDir?: string
+        bundledDependencies?: string[]
+        productionStubs?: string[]
+        namedExportsFrom?: string[]
+        templateFile?: string
+    }
+
+    peerDependencies?: Record<string, string>
+    devDependencies?: Record<string, string>
+    dependencies?: Record<string, string>
 }
 
-export interface PkgFileRec {
+export interface SectionRec {
+    key: string
+    format: ModuleFormat
+    ext: string
+}
+
+export interface Target extends SectionRec {
     file: string
-    pkg: Pkg
 }
 
-export function getPackageJson(pkgPath: string): Promise<PkgFileRec> {
-    return fsExtra.readJson(pkgPath)
-        .then((pkg: Pkg) => {
-            if (!pkg.name) throw new GetPackageJsonError(`No "name" key in ${pkgPath}`)
-            if (!pkg.module && !pkg['iife:main']) throw new GetPackageJsonError(`No "module" or "iife:main" key in ${pkgPath}`)
-            if (!pkg.main && !pkg['iife:main']) throw new GetPackageJsonError(`No "main" or "iife:main" key in ${pkgPath}`)
-            if (!pkg.rollup) pkg.rollup = {}
+export interface NormalizedPkg {
+    json: Pkg
+    pkgRoot: string
+    pkgPath: string
+    lib: boolean
+    distDir: string
+    urlName: string
+    globalName: string
+    configGlobalName: string
+    srcDir: string
+    configDir: string
+    targets: Target[]
+    external: string[]
+}
 
-            return {pkg, file: pkgPath}
+const allSections: SectionRec[] = [
+    {key: 'module', format: 'es', ext: 'mjs'},
+    {key: 'main', format: 'cjs', ext: 'cjs.js'},
+    {key: 'umd:main', format: 'umd', ext: 'js'},
+    {key: 'iife:main', format: 'iife', ext: 'js'}
+]
+
+const builtins = getBuiltins()
+
+function normalizePkg(pkg: Pkg, pkgPath: string): NormalizedPkg {
+    const pkgRoot = path.dirname(pkgPath)
+    const targets = allSections
+        .map(({key, format, ext}) => pkg[key] && {
+            key,
+            format,
+            file: path.join(pkgRoot, fixPath(pkg[key])),
+            ext: '.' + ext
         })
+        .filter(Boolean)
+
+    if (targets.length === 0) {
+        throw new GetPackageJsonError(`No ${allSections.map(rec => rec.key).join(', ')} sections found in ${pkgPath}`)
+    }
+
+    const targetDirs = targets.map(rec => path.dirname(rec.file))
+    const distDir = targetDirs[0]
+    if (targetDirs.indexOf(distDir) > 0) {
+        const keysStr = `"${allSections.map(rec => rec.key).join('", "')}"`
+        throw new GetPackageJsonError(
+            `getDistDir: Some of target directories ${targets.map(rec => rec.file).join(', ')} differs in keys ${keysStr} in ${pkgPath}`
+        )
+    }
+
+    const rp = pkg.rollup = pkg.rollup || {}
+    const srcDir = rp.srcDir
+        ? path.join(pkgRoot, fixPath(rp.srcDir))
+        : path.join(pkgRoot, 'src')
+
+    const configDir = rp.configDir
+        ? path.join(pkgRoot, fixPath(rp.configDir))
+        : path.join(srcDir, 'config')
+
+    let lib = true
+    if (rp.app || pkg['iife:main'] || !pkg.main) lib = false
+
+    const deps = Object.assign({}, pkg.devDependencies, pkg.peerDependencies, pkg.dependencies)
+    const bundled: string[] = rp.bundledDependencies || []
+
+    const external = lib
+        ? Object.keys(deps).concat(builtins)
+            .filter(name => !bundled.includes(name))
+        : []
+
+    return {
+        json: pkg,
+        pkgRoot,
+        pkgPath,
+        lib,
+        external,
+        distDir,
+        targets,
+        urlName: normalizeName(pkg.name),
+        globalName: normalizeUmdName(pkg.name),
+        configGlobalName: normalizeUmdName(pkg.name + '_' + path.basename(configDir)),
+        srcDir,
+        configDir
+    }
+}
+
+export function getPackageJson(pkgPath: string): Promise<NormalizedPkg> {
+    return fsExtra.readJson(pkgPath).then(pkg => normalizePkg(pkg, pkgPath))
 }

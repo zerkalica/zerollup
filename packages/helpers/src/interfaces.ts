@@ -1,23 +1,21 @@
+import {ModuleFormat} from './getPackageJson'
+
 export type Env = 'production' | 'development'
 
-export type ModuleFormat = 'amd' | 'cjs' | 'system' | 'es' | 'es6' | 'iife' | 'umd';
-
-export interface Pkg {
-    name: string
-    main?: string
-    module?: string
-    'iife:main'?: string
-    'umd:main'?: string
-
-    rollup: {
-        bundledDependencies?: string[]
-        productionStubs?: string[]
-        namedExportsFrom?: string[]
-    }
-    peerDependencies?: Record<string, string>
-    devDependencies?: Record<string, string>
-    dependencies?: Record<string, string>
+export interface OutputOptions {
+    sourcemap: boolean
+    file: string
+    format: ModuleFormat
+    globals?: {[pkgName: string]: string}
+    name?: string
 }
+
+export interface Config {
+    external?: string[]
+    input: string
+    output: OutputOptions[]
+}
+
 
 export class HelpersError extends Error {
     constructor(message: string) {

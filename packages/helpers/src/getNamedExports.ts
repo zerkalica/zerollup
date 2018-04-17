@@ -7,7 +7,7 @@ function getModuleExports(moduleId: string): Promise<string[]> {
     return fsExtra.readFile(id)
         .then(data => {
             const moduleOut = nodeEval(data.toString(), id)
-            let result = []
+            let result: string[] = []
             const excludeExports = /^(default|__)/
             if (moduleOut && typeof moduleOut === 'object') {
                 result = Object.keys(moduleOut)

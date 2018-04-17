@@ -1,15 +1,19 @@
 import {Task, Plugin} from 'rollup'
 import * as nodeNotifier from 'node-notifier'
 
-function patchRollup() {
-    const onlyErrors = false
-    const pkgName = 'test'
-    const oldOn = Task.prototype.run
+export default function notify(
+    {onlyErrors = true}: {
+        onlyErrors?: boolean
+    }  = {}
+): Plugin {
+    const name = '@zerollup/plugin-notify'
+
+    const oldMethod = Task.prototype.run
 
     let attached = false
 
-    function newOn() {
-        const result = oldOn.call(this)
+    function newMethod() {
+        const result = oldMethod.call(this)
         if (attached) return result
         attached = true
 
@@ -18,14 +22,14 @@ function patchRollup() {
                 case 'START':
                     if (!onlyErrors) {
                         nodeNotifier.notify({
-                            title: `${pkgName}: Start`
+                            title: `Start`
                         })
                     }
                     break
                 case 'BUNDLE_START':
                     if (!onlyErrors) {
                         nodeNotifier.notify({
-                            title: `${pkgName}: Compiling`,
+                            title: `Compiling`,
                             message: typeof event.input === 'string' ? event.input : event.input.join(', ')
                         })
                     }
@@ -33,14 +37,14 @@ function patchRollup() {
                 case 'END':
                     if (!onlyErrors) {
                         nodeNotifier.notify({
-                            title: `${pkgName}: Done`
+                            title: `Done`
                         })
                     }
                     break
                 case 'ERROR':
                 case 'FATAL':
                     nodeNotifier.notify({
-                        title: `${pkgName}: Error`,
+                        title: `Error`,
                         message: event.error.stack || event.error
                     })
                     break
@@ -51,24 +55,9 @@ function patchRollup() {
         return result
     }
 
-    Task.prototype.run = newOn
-}
-
-patchRollup()
-
-export default function notify({onlyErrors = true, pkgName}: {
-    onlyErrors?: boolean
-    pkgName: string
-}): Plugin {
-    const name = '@zerollup/plugin-notify'
+    Task.prototype.run = newMethod
 
     return {
-        name,
-        // onwrite(options: OutputOptions, source: SourceDescription) {
-        //     nodeNotifier.notify({
-        //         title: `${pkgName}: UPDATE`,
-        //         message: options.file
-        //     })
-        // }
+        name
     }
 }

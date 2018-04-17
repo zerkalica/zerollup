@@ -13,6 +13,7 @@ export interface AssetOptions {
     configModule?: string
     moduleDirs?: string[]
     name?: string
+    distDir: string
 }
 
 export interface Resource {
@@ -37,10 +38,11 @@ export default function assets(
         pkgRoot = process.cwd(),
         configModule = '@zerollup/injector',
         moduleDirs = ['node_modules', 'packages'],
+        distDir,
         name: pkgName
-    }: AssetOptions = {}
+    }: AssetOptions
 ): Plugin {
-    let isLib: boolean = isLibRaw
+    let isLib: boolean | void = isLibRaw
 
     const filter = createFilter(include, exclude)
     const nameDedupeMap: Map<string, number> = new Map()
@@ -58,7 +60,7 @@ export default function assets(
 
     return {
         name,
-        options(options: InputOptions) {
+        options(options: InputOptions): void {
             if (isLib === undefined) {
                 isLib = options.external && (Array.isArray(options.external) ? options.external.filter(Boolean).length > 0: true)
             }
@@ -102,10 +104,10 @@ export default config.assetsUrl + ${JSON.stringify(relativeUrl)}
 `
         },
 
-        transformBundle(code: string, options: OutputOptions): Promise<null> {
+        transformBundle(code: string, options: OutputOptions): Promise<any> {
             if (internalResources.length  === 0 && dirsToSearch.size === 0) return Promise.resolve(null)
 
-            let externalResources = null
+            let externalResources: Promise<Resource[]> = Promise.resolve([])
             if (dirsToSearch.size > 0) {
                 const extAssets: string[] = Array.from(dirsToSearch)
 
@@ -115,36 +117,36 @@ export default config.assetsUrl + ${JSON.stringify(relativeUrl)}
                     const pkg = path.join(dir, 'package.json')
 
                     return fsExtra.pathExists(pkg)
-                        .then(exists => exists ? fsExtra.readJson(pkg) : null)
-                        .then(subPkg => {
+                        .then(exists => exists ? fsExtra.readJson(pkg) : undefined)
+                        .then((subPkg?: {module?: string, main?: string}) => {
                             const main = subPkg && (subPkg.module || subPkg.main)
-                            if (!main) return null
+                            if (!main) return undefined
                             const dist = path.join(dir, path.dirname(main), pathPrefix)
                             if (verbose > 1) console.log(`${name} try include: ${dist}`)
 
                             return fsExtra.pathExists(dist)
                                 .then(exists => exists
-                                    ? { id: dist, targetPath: pathPrefix }
-                                    : null
+                                    ? <Resource>{ id: dist, targetPath: pathPrefix }
+                                    : undefined
                                 )
                         })
                 }))
-                    .then(records => records.filter(Boolean))
+                    .then(records => <Resource[]>records.filter(Boolean))
             }
 
-            let targetRoot = path.dirname(options.file)
+            let targetRoot = options.file ? path.dirname(options.file) : distDir
 
-            const promise = Promise.all([internalResources, externalResources])
+            const intResources = internalResources
 
             // do not copy same files on next onwrite call if multiple outputs
             dirsToSearch = new Set()
             internalResources = []
 
-            return promise
-                .then(([intResources, extResources]) => {
-                    const resources = intResources.concat(extResources || [])
+            return externalResources
+                .then(extResources => {
+                    const resources = intResources.concat(extResources)
 
-                    if (!resources.length) return null
+                    if (!resources.length) return undefined
 
                     if (verbose) console.log(`${name} copy to ${path.resolve(targetRoot)}: \n${resources.map( v => v.id). join("\n")}`)
 
@@ -159,8 +161,8 @@ export default config.assetsUrl + ${JSON.stringify(relativeUrl)}
                                 throw error
                             })
                     ))
+                        .then(() => undefined)
                 })
-                .then(() => null)
         }
     }
 }
