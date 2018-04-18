@@ -35,9 +35,11 @@ export default function rollupConfig(
     return getPackageSet({
         pkgRoot: repoRoot,
         env,
-        oneOfHost: watch ? ['local', 'dev'] : undefined,
-        selectedNames: process.env.PKG
-            ? process.env.PKG.split(',').map(name => name.trim())
+        oneOfHost: process.env.BUILD_CONFIG
+            ? process.env.BUILD_CONFIG.split(',').map(n => n.trim())
+            : (watch ? ['local', 'dev'] : undefined),
+        selectedNames: process.env.BUILD_PKG
+            ? process.env.BUILD_PKG.split(',').map(name => name.trim())
             : undefined
     }).then(packageSet => {
         const commonPlugins: Plugin[] = [
@@ -117,6 +119,9 @@ export default function rollupConfig(
                     ...pkgPlugins,
                     ...commonPlugins,
                     config.baseUrl && replace({
+                        include: [
+                            `${pkg.configDir}/*`
+                        ],
                         values: {
                             'PKG_NAME': pkg.urlName,
                             'PKG_VERSION': pkg.json.version,

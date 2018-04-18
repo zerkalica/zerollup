@@ -14,23 +14,27 @@ export interface AdvancedInfo {
 }
 
 export function getAdvancedInfo(
-    {pkg, aliases, globals, oneOfHost, separateDirPerHost: rawSeparateDirPerHost}: {
+    {pkg, aliases, globals, oneOfHost}: {
         pkg: NormalizedPkg
         oneOfHost?: string[] | void
         aliases: Record<string, string>
         globals: Record<string, string>
-        separateDirPerHost?: boolean | void
     }
 ): Promise<AdvancedInfo> {
     const {lib, json: {rollup}} = pkg
-    const separateDirPerHost = rawSeparateDirPerHost || false
     return (lib
         ? Promise.resolve(<Configs | void>undefined)
-        : getConfigs({pkg, globals, oneOfHost, separateDirPerHost})
+        : getConfigs({pkg, globals, oneOfHost})
     )
         .then(cfg => Promise.all([
             cfg ? cfg.configs : [],
-            getInputs(pkg, globals, cfg && cfg.configPath),
+            getInputs({
+                pkg,
+                globals,
+                aliases,
+                configPath: cfg && cfg.configPath,
+                configs: cfg && cfg.configs
+            }),
             getNamedExports(rollup.namedExportsFrom)
         ]))
         .then(([configs, inputs, namedExports]) => {
@@ -41,8 +45,7 @@ export function getAdvancedInfo(
                             templateFile: input.templateFile,
                             mainFile: path.basename(input.ios.output[0].file),
                             configs,
-                            pkg,
-                            separateDirPerHost
+                            pkg
                         })
                     )
                     : []

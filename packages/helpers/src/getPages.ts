@@ -1,6 +1,6 @@
 import * as fsExtra from 'fs-extra'
 import * as path from 'path'
-import {cutExt, getExt} from './nameHelpers'
+import {cutExt} from './nameHelpers'
 import {NormalizedPkg} from './getPackageJson'
 import {SettingsConfig} from './getConfigs'
 
@@ -59,30 +59,33 @@ export function getTemplateFn(templateFile?: string): Promise<TemplateFn> {
 
 
 export function getPages(
-    {templateFile, mainFile, configs, separateDirPerHost, pkg}: {
+    {templateFile, mainFile, configs, pkg}: {
         templateFile?: string
         mainFile: string
         configs: SettingsConfig[]
         pkg: NormalizedPkg
-        separateDirPerHost: boolean
     }
 ): Promise<Page[]> {
     return getTemplateFn(templateFile)
         .then(templateFn => Promise.all(
             configs.map(config => {
+                const configPath = config.ios.output[0].file
+                let configDir = path.dirname(configPath)
+                if (configDir.indexOf(pkg.distDir) === 0) configDir = configDir.substring(pkg.distDir.length)
+
                 const opts = {
                     pkg,
                     hostId: config.hostId,
                     baseUrl: config.baseUrl,
                     mainFile,
-                    configFile: path.basename(config.ios.output[0].file)
+                    configFile: path.basename(configPath)
                 }
-                return Promise.all([opts, templateFn(opts)])
+                return Promise.all([opts, configDir, templateFn(opts)])
             })
         ))
         .then(pageSets => {
             const pages: Page[] = []
-            for (let [opts, data] of pageSets) {
+            for (let [opts, configDir, data] of pageSets) {
                 if (!data) continue
                 const pageData: TemplatePage[] = data instanceof Array
                     ? data
@@ -90,20 +93,10 @@ export function getPages(
 
                 for (let templatePage of pageData) {
                     const file = templatePage.file
-                    const fileName = path.basename(file)
                     pages.push({
                         ...opts,
                         ...templatePage,
-                        file: separateDirPerHost
-                            ? path.join(opts.hostId, file)
-                            : (
-                                opts.hostId === 'index'
-                                    ? file
-                                    : path.join(
-                                        path.dirname(file),
-                                        cutExt(fileName) + '.' + opts.hostId + getExt(fileName)
-                                    )
-                            )
+                        file: path.join(configDir, file)
                     })
                 }
             }

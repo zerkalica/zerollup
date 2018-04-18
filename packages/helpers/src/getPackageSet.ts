@@ -20,7 +20,7 @@ function getLernaPackages(repoRoot: string): Promise<NormalizedPkg[]> {
             : []
         )
         .then((pkgFiles: string[]) => pkgFiles.length
-            ? Promise.all(pkgFiles.map(getPackageJson))
+            ? Promise.all(pkgFiles.sort().map(getPackageJson))
             : []
         )
 }

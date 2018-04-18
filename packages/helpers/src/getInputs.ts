@@ -2,14 +2,15 @@ import * as fsExtra from 'fs-extra'
 import * as path from 'path'
 import {Config, HelpersError} from './interfaces'
 import {NormalizedPkg} from './getPackageJson'
-import {cutExt, getExt} from './nameHelpers'
+import {getExt} from './nameHelpers'
+import {SettingsConfig} from './getConfigs'
 
 export class GetInputsError extends HelpersError {}
 
 export interface MainConfig {
     ios: Config
     templateFile?: string
-    baseUrl: void
+    baseUrl?: void
 }
 
 function getRawInputs(srcDir: string, inputMatch: RegExp): Promise<string[]> {
@@ -27,9 +28,19 @@ function getRawInputs(srcDir: string, inputMatch: RegExp): Promise<string[]> {
 }
 
 export function getInputs(
-    {json: {rollup}, configGlobalName, globalName, external: rExternal, targets, lib, srcDir}: NormalizedPkg,
-    rGlobals: Record<string, string>,
-    configPath?: string | void
+    {
+        pkg: {json: {rollup}, configGlobalName, globalName, external: rExternal, targets, lib, srcDir},
+        globals: rGlobals,
+        configPath,
+        configs,
+        aliases
+    } : {
+        aliases: Record<string, string>
+        globals : Record<string, string>
+        pkg: NormalizedPkg
+        configPath?: string | void
+        configs?: SettingsConfig[] | void
+    }
 ): Promise<MainConfig[]> {
     const inputMatch = new RegExp('.*index\..+')
 
@@ -41,26 +52,51 @@ export function getInputs(
             const file = files[0]
             const defaultTemplate = file ? path.dirname(file) + 'default.html' + getExt(file) : undefined
             return (defaultTemplate ? fsExtra.pathExists(defaultTemplate) : Promise.resolve(false))
-                .then(defaultTemplateExists => Promise.all(files.map(file => {
+                .then(defaultTemplateExists => Promise.all(files.sort().map(file => {
                     const extPos = file.lastIndexOf('.')
-                    const templateFile = file.substring(0, extPos) + '.html' + file.substring(extPos)
+                    const fileName = file.substring(0, extPos)
+                    const templateFile = fileName + '.html' + file.substring(extPos)
 
-                    return fsExtra.pathExists(templateFile)
-                        .then(templateExists => <MainConfig>({
-                            templateFile: templateExists
-                                ? templateFile
-                                : (defaultTemplateExists ? defaultTemplate : undefined),
+                    const ios: Config = {
+                        input: file,
+                        external,
+                        output: targets.map(({file: outFile, format, ext}) => ({
+                            sourcemap: true,
+                            file: path.join(path.dirname(outFile), path.basename(fileName)) + ext,
+                            format,
+                            globals,
+                            name: globalName
+                        }))
+                    }
+/*
+                    const ioses = (configs || []).map((config?: SettingsConfig) => {
+                        return {
+                            aliases: configPath && config && {
+                                ...aliases,
+                                [configPath]: config.ios.input
+                            },
                             ios: {
                                 input: file,
                                 external,
                                 output: targets.map(({file: outFile, format, ext}) => ({
                                     sourcemap: true,
-                                    file: path.join(path.dirname(outFile), cutExt(path.basename(file))) + ext,
+                                    file: path.join(path.dirname(outFile), path.basename(fileName))
+                                        + (config ? ('.' + config.hostId) : '')
+                                        + ext,
                                     format,
                                     globals,
                                     name: globalName
                                 }))
                             }
+                        }
+                    })
+*/
+                    return fsExtra.pathExists(templateFile)
+                        .then(templateExists => <MainConfig>({
+                            templateFile: templateExists
+                                ? templateFile
+                                : (defaultTemplateExists ? defaultTemplate : undefined),
+                            ios
                         }))
                 })))
         })
