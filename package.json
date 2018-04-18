@@ -12,7 +12,7 @@
     "build": "NODE_ENV=production rollup -c rollup.config.js",
     "dev": "NODE_ENV=development rollup -w -c rollup.config.js",
     "postinstall": "lerna bootstrap --hoist",
-    "publish": "lerna publish"
+    "publish": "npm run build && lerna publish --yes"
   },
   "author": "",
   "license": "ISC",
