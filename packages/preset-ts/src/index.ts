@@ -80,7 +80,6 @@ export default function rollupConfig(
                     pkgRoot: pkg.pkgRoot,
                     isLib: pkg.lib
                 }),
-                alias(aliases),
                 typescript({
                     abortOnError: true,
                     check: !watch,
@@ -93,6 +92,7 @@ export default function rollupConfig(
                         }
                     }
                 }),
+                alias(aliases),
                 ...commonPlugins,
             ]
 
