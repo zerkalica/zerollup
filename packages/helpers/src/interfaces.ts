@@ -1,7 +1,5 @@
 import {ModuleFormat} from './getPackageJson'
 
-export type Env = 'production' | 'development'
-
 export interface OutputOptions {
     sourcemap: boolean
     file: string

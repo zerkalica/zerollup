@@ -2,8 +2,9 @@ import * as fsExtra from 'fs-extra'
 import * as path from 'path'
 import globby from 'globby'
 import {NormalizedPkg, getPackageJson} from './getPackageJson'
-import {Env, HelpersError} from './interfaces'
+import {HelpersError} from './interfaces'
 import {getAdvancedInfo, AdvancedInfo} from './getAdvancedInfo'
+import {Env, getEnv} from './nameHelpers'
 
 export class GetPackageSetError extends HelpersError {}
 
@@ -35,7 +36,7 @@ function getGlobals(pkgs: NormalizedPkg[]): Record<string, string> {
 function getAliases(
     {packages, pkg: {json: {name, rollup}, srcDir}, env}: {
         pkg: NormalizedPkg
-        env: Env
+        env?: Env | void
         packages?: NormalizedPkg[]
     }
 ): Record<string, string> {
@@ -64,12 +65,12 @@ function getAliases(
 export function getPackageSet(
     {pkgRoot, selectedNames, oneOfHost, env: rawEnv}: {
         pkgRoot: string
-        env: string
+        env?: string | void
         oneOfHost?: string[] | void
         selectedNames?: string[] | void
     }
 ): Promise<AdvancedInfo[]> {
-    const env: Env = rawEnv === 'production' ? rawEnv : 'development'
+    const env: Env | void = rawEnv ? getEnv(rawEnv) : undefined
 
     return getLernaPackages(pkgRoot)
         .then(packages => packages.length === 0
@@ -87,6 +88,7 @@ export function getPackageSet(
             return Promise.all(selectedPackages.map(pkg =>
                 getAdvancedInfo({
                     pkg,
+                    env,
                     aliases: getAliases({packages, env, pkg}),
                     globals,
                     oneOfHost

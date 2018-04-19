@@ -27,7 +27,7 @@ export default function rollupConfig(
 ): Promise<Config[]> {
     const cache: CachedChunkSet = { chunks: {} }
     const cwd = process.cwd()
-    const env = process.env.NODE_ENV || 'production'
+    const env: string | void = process.env.NODE_ENV
     const repoRoot = typeof config === 'string'
         ? path.resolve(path.dirname(config).replace(/^node:.*/, ''))
         : cwd
@@ -118,6 +118,11 @@ export default function rollupConfig(
                 plugins: [
                     ...pkgPlugins,
                     ...commonPlugins,
+                    config.env && replace({
+                        values: {
+                            'process.env.NODE_ENV': JSON.stringify(config.env)
+                        }
+                    }),
                     config.baseUrl && replace({
                         include: [
                             `${pkg.configDir}/*`

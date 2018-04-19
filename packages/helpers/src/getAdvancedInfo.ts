@@ -1,22 +1,23 @@
-import * as path from 'path'
 import {NormalizedPkg} from './getPackageJson'
-import {getInputs, MainConfig} from './getInputs'
+import {getInputs, MainEnv} from './getInputs'
 import {getPages, Page} from './getPages'
 import {getConfigs, Configs, SettingsConfig} from './getConfigs'
 import {getNamedExports} from './getNamedExports'
+import {Env} from './nameHelpers'
 
 export interface AdvancedInfo {
     pkg: NormalizedPkg
-    configs: (SettingsConfig | MainConfig)[]
+    configs: (SettingsConfig | MainEnv)[]
     pages: Page[]
     aliases: Record<string, string>
     namedExports: Record<string, string[]>
 }
 
 export function getAdvancedInfo(
-    {pkg, aliases, globals, oneOfHost}: {
+    {pkg, aliases, env, globals, oneOfHost}: {
         pkg: NormalizedPkg
         oneOfHost?: string[] | void
+        env?: Env | void
         aliases: Record<string, string>
         globals: Record<string, string>
     }
@@ -24,39 +25,36 @@ export function getAdvancedInfo(
     const {lib, json: {rollup}} = pkg
     return (lib
         ? Promise.resolve(<Configs | void>undefined)
-        : getConfigs({pkg, globals, oneOfHost})
+        : getConfigs({pkg, globals, env, oneOfHost})
     )
-        .then(cfg => Promise.all([
-            cfg ? cfg.configs : [],
+        .then(configs => Promise.all([
+            configs ? configs.configs : [],
             getInputs({
                 pkg,
                 globals,
                 aliases,
-                configPath: cfg && cfg.configPath,
-                configs: cfg && cfg.configs
+                configs
             }),
             getNamedExports(rollup.namedExportsFrom)
         ]))
         .then(([configs, inputs, namedExports]) => {
-            return Promise.all(
-                configs.length > 0
-                    ? inputs.map(input =>
-                        getPages({
-                            templateFile: input.templateFile,
-                            mainFile: path.basename(input.ios.output[0].file),
-                            configs,
-                            pkg
-                        })
-                    )
-                    : []
-            )
+            return Promise.all(inputs.map(input =>
+                getPages({
+                    input,
+                    configs,
+                    pkg
+                })
+            ))
                 .then(pageSets => {
                     return <AdvancedInfo> {
-                        pages: pageSets.reduce((acc, pages) => acc.concat(pages), []),
+                        pages: pageSets.reduce((acc, pages) => ([...acc, ...pages]), <Page[]>[]),
                         pkg,
                         aliases,
                         namedExports,
-                        configs: [...inputs, ...configs]
+                        configs: [
+                            ...inputs.reduce((acc, rec) => ([...acc, ...rec.envs]), <MainEnv[]>[]),
+                            ...configs
+                        ]
                     }
                 })
         })

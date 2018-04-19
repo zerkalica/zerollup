@@ -2,25 +2,29 @@ import * as path from 'path'
 import * as fsExtra from 'fs-extra'
 import {Config, HelpersError} from './interfaces'
 import {NormalizedPkg} from './getPackageJson'
-import {cutExt, normalizeName} from './nameHelpers'
+import {cutExt, normalizeName, Env, getEnv} from './nameHelpers'
 
 export class GetConfigsError extends HelpersError {}
 
 export interface SettingsConfig {
     ios: Config
     hostId: string
+    env: Env | void
     baseUrl: string
 }
 
 export interface Configs {
-    configPath?: string
+    defaultConfigPath: string
+    envs: Env[]
     configs: SettingsConfig[]
 }
 
-const defaultUrlMask = new RegExp('ZEROLLUP_CONFIG_BASE_URL\\s*[=\:]+\\s*([^\\s\'\*]+).*')
+const baseUrlMask = new RegExp('ZEROLLUP_CONFIG_BASE_URL\\s*[=\:]+\\s*([^\\s\'\*]+).*')
+const envMask = new RegExp('ZEROLLUP_ENV\\s*[=\:]+\\s*([\\w\\d]+)')
 
 export function getConfigs(
     {
+        env: defaultEnv,
         pkg: {
             json: {name, version, 'iife:main': iife, 'umd:main': umd},
             targets,
@@ -28,12 +32,11 @@ export function getConfigs(
         },
         globals,
         oneOfHost,
-        baseUrlMask = defaultUrlMask,
     }: {
+        env?: Env | void
         pkg: NormalizedPkg
         globals: Record<string, string>
         oneOfHost: string[] | void
-        baseUrlMask?: RegExp
     }
 ): Promise<Configs> {
     const defaultHosts = ['default', 'index']
@@ -43,7 +46,7 @@ export function getConfigs(
             if (fileNames.length === 0) throw new GetConfigsError(`No configs files found in ${configDir}`)
 
             const defaultConfig = fileNames.find(name => defaultHosts.indexOf(cutExt(name)) !== -1) || fileNames[0]
-            const configPath = path.join(configDir, defaultConfig)
+            const defaultConfigPath = path.join(configDir, defaultConfig)
 
             const filtered = oneOfHost
                 ? [fileNames.find(name => oneOfHost.indexOf(cutExt(name)) !== -1) || defaultConfig]
@@ -53,15 +56,20 @@ export function getConfigs(
                 const input = path.join(configDir, fileName)
     
                 return fsExtra.readFile(input)
-                    .then(data => {
-                        const matches = data.toString().match(baseUrlMask)
+                    .then(dataBuf => {
+                        const data = dataBuf.toString()
+                        const baseUrlMatch = data.match(baseUrlMask)
+
+                        const envMatch = data.match(envMask)
+                        const env = envMatch ? getEnv(envMatch[1]) : defaultEnv
                         const hostId = cutExt(fileName)
                         const configFileName = `config.${hostId}.js`
-                        return <SettingsConfig> {
+                        const config: SettingsConfig = {
                             hostId,
-                            baseUrl: ((matches ? matches[1] : null) || '/')
+                            baseUrl: ((baseUrlMatch ? baseUrlMatch[1] : null) || '/')
                                 .replace(/PKG_VERSION/g, version)
                                 .replace(/PKG_NAME/g, normalizeName(name)),
+                            env,
                             ios: {
                                 input,
                                 external,
@@ -73,18 +81,20 @@ export function getConfigs(
                                             : path.join(distDir, 'hosts', hostId, configFileName),
                                         format: iife
                                             ? 'iife'
-                                            : (umd
-                                                ? 'umd'
-                                                : targets[0].format
-                                            ),
+                                            : (umd ? 'umd' : targets[0].format),
                                         globals: globals,
                                         name: configGlobalName
                                     }
                                 ]
                             }
                         }
+                        return config
                     })
             }))
-            .then((configs: SettingsConfig[]) => ({configPath, configs}))
+            .then((configs: SettingsConfig[]) => ({
+                defaultConfigPath,
+                envs: Array.from(new Set(configs.map(config => <Env> config.env))),
+                configs
+            }))
         })
 }

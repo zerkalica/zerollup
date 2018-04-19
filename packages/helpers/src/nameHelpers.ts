@@ -1,5 +1,19 @@
+import {HelpersError} from './interfaces'
 import {camelCase} from 'change-case'
 import {sep, basename} from 'path'
+
+export class NameHelpersError extends HelpersError {}
+
+export type Env = 'production' | 'development'
+const availableEnvs = ['production', 'development']
+
+export function getEnv(env: string): Env {
+    if (availableEnvs.indexOf(env) === -1) {
+        throw new NameHelpersError(`getEnv: Valid env values: "${availableEnvs.join('", "')}", given "${env}"`)
+    }
+
+    return env as Env
+}
 
 export function isJsExt(name?: string, ext: string = '.js'): boolean {
     return name
