@@ -1,6 +1,6 @@
 {
   "name": "@zerollup/preset-ts",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "license": "MIT",
   "description": "Universal rollup config preset",
   "author": {
@@ -33,9 +33,9 @@
     "bundler"
   ],
   "dependencies": {
-    "@zerollup/helpers": "^1.0.4",
-    "@zerollup/plugin-assets": "^1.0.4",
-    "@zerollup/plugin-notify": "^1.0.3",
+    "@zerollup/helpers": "^1.0.5",
+    "@zerollup/plugin-assets": "^1.0.5",
+    "@zerollup/plugin-notify": "^1.0.5",
     "@zerollup/plugin-template": "^1.0.2",
     "rollup": "^0.57.1",
     "rollup-plugin-alias": "^1.4.0",
