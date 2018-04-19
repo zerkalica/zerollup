@@ -13,7 +13,6 @@ export interface AssetOptions {
     configModule?: string
     moduleDirs?: string[]
     name?: string
-    distDir: string
 }
 
 export interface Resource {
@@ -21,7 +20,9 @@ export interface Resource {
     targetPath: string
 }
 
-export default function assets(
+const tsTypes = path.resolve('..', '@types')
+
+function assets(
     {
         include = [
             "**/*.woff",
@@ -38,7 +39,6 @@ export default function assets(
         pkgRoot = process.cwd(),
         configModule = '@zerollup/injector',
         moduleDirs = ['node_modules', 'packages'],
-        distDir,
         name: pkgName
     }: AssetOptions
 ): Plugin {
@@ -134,7 +134,11 @@ export default config.assetsUrl + ${JSON.stringify(relativeUrl)}
                     .then(records => <Resource[]>records.filter(Boolean))
             }
 
-            let targetRoot = options.file ? path.dirname(options.file) : distDir
+
+            const targetRoot = options.file ? path.dirname(options.file) : options.dir
+            if (!targetRoot) {
+                throw new Error(`Can't find options.file or options.dir`)
+            }
 
             const intResources = internalResources
 
@@ -166,3 +170,12 @@ export default config.assetsUrl + ${JSON.stringify(relativeUrl)}
         }
     }
 }
+
+export interface Assets {
+    (opts: AssetOptions): Plugin
+    tsTypes: string
+}
+
+(<Assets>assets).tsTypes = tsTypes
+
+export default <Assets> assets

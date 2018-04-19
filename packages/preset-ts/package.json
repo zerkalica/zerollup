@@ -24,7 +24,7 @@
     "*.md",
     "package.json",
     "LICENSE",
-    "types",
+    "@types",
     "dist"
   ],
   "keywords": [

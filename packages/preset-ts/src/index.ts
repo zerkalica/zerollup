@@ -46,12 +46,6 @@ export default function rollupConfig(
             builtins(),
             sourcemaps(),
             globals(),
-            // replace({
-            //     exclude: [
-            //         'node_modules/mobx/**'
-            //     ],
-            //     'process.env.NODE_ENV': JSON.stringify(env)
-            // }),
             watch && notify(),
             process.env.UGLIFY && uglify({
                 warnings: true,
@@ -69,55 +63,44 @@ export default function rollupConfig(
             }, minify)
         ]
 
-        return Promise.all(packageSet.map(({pkg, namedExports, aliases, configs, pages}, pkgIndex) => {
+        return Promise.all(packageSet.map(({pkg, aliases, configs, pages}, pkgIndex) => {
             const pkgPlugins = [
                 resolve({
-                    extensions: ['.ts', '.js', '.json'],
+                    extensions: ['.mjs', '.js', '.json'],
                     jsnext: true
                 }),
                 commonjs({
-                    namedExports
+                    namedExports: packageSet.reduce(
+                        (acc, pkg) => ({...acc, ...pkg.namedExports}),
+                        {}
+                    )
                 }),
-                typescript({
-                    abortOnError: true,
-                    check: env === 'production',
-                    exclude: ['*.spec*', '**/*.spec*'],
-                    tsconfig: path.join(repoRoot, 'tsconfig.json'),
-                    // tsconfigOverride: rc.lib
-                    //     ? {
-                    //         compilerOptions: {
-                    //             declaration: true,
-                    //             paths: [],
-                    //             rootDir: rc.srcDir,
-                    //             typeRoots: [
-                    //                 path.join(rc.repoRoot, '@types')
-                    //             ]
-                    //         },
-                    //         include: [rc.srcDir]
-                    //     }
-                    //     : {
-                    //         compilerOptions: {
-                    //             declaration: false,
-                    //             typeRoots: [
-                    //                 path.join(rc.repoRoot, '@types')
-                    //             ]
-                    //         }
-                    //     }
-                }),
-                alias(aliases),
                 assets({
                     name: pkg.json.name,
-                    distDir: pkg.distDir,
                     pkgRoot: pkg.pkgRoot,
                     isLib: pkg.lib
-                })
+                }),
+                alias(aliases),
+                typescript({
+                    abortOnError: true,
+                    check: !watch,
+                    exclude: ['*.spec*', '**/*.spec*'],
+                    // verbosity: 3,
+                    tsconfig: path.join(pkg.pkgRoot, 'tsconfig.json'),
+                    tsconfigOverride: {
+                        compilerOptions: {
+                            declaration: pkg.lib
+                        }
+                    }
+                }),
+                ...commonPlugins,
             ]
+
             const configSet = configs.map((config, i) => ({
                 ...config.ios,
                 cache,
                 plugins: [
                     ...pkgPlugins,
-                    ...commonPlugins,
                     config.env && replace({
                         values: {
                             'process.env.NODE_ENV': JSON.stringify(config.env)

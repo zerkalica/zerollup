@@ -11,6 +11,7 @@ export type ModuleFormat = 'amd' | 'cjs' | 'system' | 'es' | 'es6' | 'iife' | 'u
 export interface Pkg {
     version: string
     name: string
+    description?: string
     main?: string
     module?: string
     'iife:main'?: string
