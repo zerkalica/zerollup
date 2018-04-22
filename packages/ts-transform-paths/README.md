@@ -11,12 +11,12 @@ Why? Problem described [here](https://github.com/Microsoft/TypeScript/issues/189
 my-lib/tsconfig.json:
 ```json
 {
-	"compilerOptions": {
-		"baseUrl": ".",
-		"paths": {
-			"my-lib/*": ["src/*"]
-		}
-	}
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "my-lib/*": ["src/*"]
+        }
+    }
 }
 ```
 
@@ -74,16 +74,16 @@ For path resolving used only first element in paths substitutions array, other e
 my-lib/tsconfig.json:
 ```json
 {
-	"compilerOptions": {
-		"paths": {
-			"my-lib/*": ["src/*", "ignored_paths/*"]
-		}
-	}
+    "compilerOptions": {
+        "paths": {
+            "my-lib/*": ["src/*", "ignored_paths/*"]
+        }
+    }
 }
 ```
 
 ## Related issues
 
-[tsconfig paths break...](https://github.com/Microsoft/TypeScript/issues/18972)
-[Transpile to JS considering paths from tsconifg](https://github.com/Microsoft/TypeScript/issues/18951)
-[Module path mapping is not working in generated js files](https://github.com/Microsoft/TypeScript/issues/16640)
+* [tsconfig paths break...](https://github.com/Microsoft/TypeScript/issues/18972)
+* [Transpile to JS considering paths from tsconifg](https://github.com/Microsoft/TypeScript/issues/18951)
+* [Module path mapping is not working in generated js files](https://github.com/Microsoft/TypeScript/issues/16640)
