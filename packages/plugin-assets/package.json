@@ -38,10 +38,10 @@
     "@zerollup/helpers": "^1.0.5",
     "fs-extra": "^5.0.0",
     "magic-string": "^0.24.0",
-    "rollup": "^0.57.1",
+    "rollup": "^0.58.1",
     "rollup-pluginutils": "^2.0.1"
   },
   "devDependencies": {
-    "@types/fs-extra": "^5.0.1"
+    "@types/fs-extra": "^5.0.2"
   }
 }

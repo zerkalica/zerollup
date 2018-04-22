@@ -17,11 +17,11 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^9.6.1",
-    "lerna": "^2.9.1",
-    "rollup": "^0.57.1",
+    "@types/node": "^9.6.6",
+    "lerna": "^2.10.2",
+    "rollup": "^0.58.1",
     "source-map-support": "*",
-    "typescript": "^2.8.1"
+    "typescript": "^2.8.3"
   },
   "dependencies": {}
 }

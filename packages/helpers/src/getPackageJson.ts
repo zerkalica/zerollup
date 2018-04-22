@@ -14,6 +14,7 @@ export interface Pkg {
     description?: string
     main?: string
     module?: string
+    typings?: string
     'iife:main'?: string
     'umd:main'?: string
 
@@ -50,6 +51,7 @@ export interface NormalizedPkg {
     lib: boolean
     distDir: string
     urlName: string
+    declarationDir: string
     globalName: string
     configGlobalName: string
     srcDir: string
@@ -116,6 +118,7 @@ function normalizePkg(pkg: Pkg, pkgPath: string): NormalizedPkg {
         pkgRoot,
         pkgPath,
         lib,
+        declarationDir: pkg.typings ? path.join(pkgRoot, path.dirname(pkg.typings)) : distDir,
         external,
         distDir,
         targets,

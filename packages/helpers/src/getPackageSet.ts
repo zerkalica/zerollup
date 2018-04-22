@@ -21,7 +21,7 @@ function getLernaPackages(repoRoot: string): Promise<NormalizedPkg[]> {
             : []
         )
         .then((pkgFiles: string[]) => pkgFiles.length
-            ? Promise.all(pkgFiles.sort().map(getPackageJson))
+            ? Promise.all(pkgFiles.map(getPackageJson))
             : []
         )
 }
@@ -62,6 +62,14 @@ function getAliases(
     return aliases
 }
 
+export function sortPackages({json: p1}: NormalizedPkg, {json: p2}: NormalizedPkg): number {
+    const deps1 = {...p1.dependencies, ...p1.devDependencies, ...p1.peerDependencies}
+    const deps2 = {...p2.dependencies, ...p2.devDependencies, ...p2.peerDependencies}
+    if (deps1[p2.name] || p1.name > p2.name) return 1
+    if (deps2[p1.name] || p1.name < p2.name) return -1
+    return 0
+}
+
 export function getPackageSet(
     {pkgRoot, selectedNames, oneOfHost, env: rawEnv}: {
         pkgRoot: string
@@ -77,7 +85,8 @@ export function getPackageSet(
             ? Promise.all([getPackageJson(pkgRoot)])
             : packages
         )
-        .then(packages => {
+        .then(rawPackages => {
+            const packages = rawPackages.sort(sortPackages)
             const selectedPackages = selectedNames
                 ? packages.filter(pkg =>
                     selectedNames.indexOf(path.basename(pkg.pkgRoot)) !== -1

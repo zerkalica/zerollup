@@ -1,8 +1,8 @@
 {
-  "name": "@zerollup/plugin-notify",
+  "name": "@zerollup/ts-transform-paths",
   "version": "1.0.5",
   "license": "MIT",
-  "description": "Rollup notify plugin",
+  "description": "Ts transform paths",
   "author": {
     "name": "Stefan Zerkalica",
     "email": "zerkalica@gmail.com"
@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/zerkalica/zerollup/issues"
   },
-  "homepage": "https://github.com/zerkalica/zerollup/packages/plugin-notify/#readme",
+  "homepage": "https://github.com/zerkalica/zerollup/packages/ts-transform-paths/#readme",
   "main": "dist/index.cjs.js",
   "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",
@@ -28,17 +28,13 @@
     "dist"
   ],
   "keywords": [
-    "rollup",
-    "configuration",
-    "bundler",
-    "assets",
-    "assets path"
+    "typescript",
+    "transform",
+    "path",
+    "alias"
   ],
   "dependencies": {
-    "node-notifier": "^5.2.1",
-    "rollup": "^0.58.1"
-  },
-  "devDependencies": {
-    "@types/node-notifier": "0.0.28"
+    "typescript": "^2.8.3",
+    "@zerollup/ts-helpers": "^1"
   }
 }

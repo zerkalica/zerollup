@@ -34,7 +34,7 @@ function assets(
             "**/*.gif"
         ],
         exclude,
-        verbose = 1,
+        verbose = 0,
         isLib: isLibRaw,
         pkgRoot = process.cwd(),
         configModule = '@zerollup/injector',

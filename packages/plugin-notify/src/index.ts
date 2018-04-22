@@ -1,14 +1,14 @@
-import {Task, Plugin} from 'rollup'
+import * as rollup from 'rollup'
 import * as nodeNotifier from 'node-notifier'
 
 export default function notify(
     {onlyErrors = true}: {
         onlyErrors?: boolean
     }  = {}
-): Plugin {
+): rollup.Plugin {
     const name = '@zerollup/plugin-notify'
 
-    const oldMethod = Task.prototype.run
+    const oldMethod = (rollup as any).Task.prototype.run
 
     let attached = false
 
@@ -55,7 +55,7 @@ export default function notify(
         return result
     }
 
-    Task.prototype.run = newMethod
+    (rollup as any).Task.prototype.run = newMethod
 
     return {
         name

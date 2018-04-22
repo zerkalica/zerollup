@@ -1,4 +1,4 @@
-import {InputOptions, OutputOptions, WatcherOptions, Plugin, CachedChunkSet} from 'rollup'
+import {InputOptions, OutputOptions, WatcherOptions, Plugin, RollupCache} from 'rollup'
 import * as path from 'path'
 import typescript from 'rollup-plugin-typescript2'
 import uglify from 'rollup-plugin-uglify'
@@ -7,7 +7,6 @@ import globals from 'rollup-plugin-node-globals'
 import replace from 'rollup-plugin-replace'
 import commonjs from 'rollup-plugin-commonjs'
 import sourcemaps from 'rollup-plugin-sourcemaps'
-import alias from 'rollup-plugin-alias'
 import builtins from 'rollup-plugin-node-builtins'
 import serve from 'rollup-plugin-serve'
 import livereload from 'rollup-plugin-livereload'
@@ -16,8 +15,12 @@ import {minify} from 'uglify-es'
 import notify from '@zerollup/plugin-notify'
 import assets from '@zerollup/plugin-assets'
 import {getPackageSet, writePages} from '@zerollup/helpers'
+import tsTransformPaths from '@zerollup/ts-transform-paths'
+import {createTransformerChain} from '@zerollup/ts-helpers'
 
 export type Config = OutputOptions & InputOptions & WatcherOptions
+
+const transformers = createTransformerChain([tsTransformPaths])
 
 export default function rollupConfig(
     {watch, config}: {
@@ -25,7 +28,7 @@ export default function rollupConfig(
         config?: string
     }
 ): Promise<Config[]> {
-    const cache: CachedChunkSet = { chunks: {} }
+    const cache: RollupCache = { modules: [] }
     const cwd = process.cwd()
     const env: string | void = process.env.NODE_ENV
     const repoRoot = typeof config === 'string'
@@ -42,6 +45,7 @@ export default function rollupConfig(
             ? process.env.BUILD_PKG.split(',').map(name => name.trim())
             : undefined
     }).then(packageSet => {
+        // @ts-ignore
         const commonPlugins: Plugin[] = [
             builtins(),
             sourcemaps(),
@@ -63,17 +67,29 @@ export default function rollupConfig(
             }, minify)
         ]
 
-        return Promise.all(packageSet.map(({pkg, aliases, configs, pages}, pkgIndex) => {
+        const namedExports = packageSet.reduce(
+            (acc, pkg) => ({...acc, ...pkg.namedExports}),
+            {}
+        )
+
+        const paths = packageSet.reduce(
+            (acc, info) => {
+                acc[info.pkg.json.name + '/*'] = [`${info.pkg.srcDir.substring(repoRoot.length + 1)}/*`]
+
+                return acc
+            },
+            <Record<string, string[]>>{}
+        )
+
+        return Promise.all(packageSet.map(({pkg, configs, pages}, pkgIndex) => {
             const pkgPlugins = [
                 resolve({
-                    extensions: ['.mjs', '.js', '.json'],
+                    extensions: ['.js', '.json'],
                     jsnext: true
                 }),
                 commonjs({
-                    namedExports: packageSet.reduce(
-                        (acc, pkg) => ({...acc, ...pkg.namedExports}),
-                        {}
-                    )
+                    include: 'node_modules/**',
+                    namedExports
                 }),
                 assets({
                     name: pkg.json.name,
@@ -83,16 +99,22 @@ export default function rollupConfig(
                 typescript({
                     abortOnError: true,
                     check: !watch,
+                    clean: true,
                     exclude: ['*.spec*', '**/*.spec*'],
-                    // verbosity: 3,
-                    tsconfig: path.join(pkg.pkgRoot, 'tsconfig.json'),
+                    tsconfig: path.join(repoRoot, 'tsconfig.base.json'),
+                    useTsconfigDeclarationDir: true,
+                    transformers,
                     tsconfigOverride: {
                         compilerOptions: {
-                            declaration: pkg.lib
-                        }
+                            baseUrl: repoRoot,
+                            paths,
+                            rootDir: pkg.srcDir,
+                            declarationDir: pkg.declarationDir,
+                            declaration: true
+                        },
+                        include: [pkg.srcDir]
                     }
                 }),
-                alias(aliases),
                 ...commonPlugins,
             ]
 
