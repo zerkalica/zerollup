@@ -1,67 +1,80 @@
 import * as path from 'path'
 import * as ts from 'typescript'
-import {Replacer, ImportPathsResolver, createTraverseVisitor, TraverseVisitor} from '@zerollup/ts-helpers'
+import {ImportPathsResolver, createTraverseVisitor} from '@zerollup/ts-helpers'
 
-interface ImportPathsVisitorArgs {
+interface ImportPathVisitorContext {
     resolver: ImportPathsResolver
-    replacer: Replacer
+    posMap: Map<string, number>
 }
 
-function createImportPathsVisitor({replacer, resolver}: ImportPathsVisitorArgs): TraverseVisitor {
-    return (node: ts.Node) => {
-        let newNode: ts.ExportDeclaration | void = undefined
-        switch(node.kind) {
-            case ts.SyntaxKind.ExportDeclaration: {
-                const n = node as ts.ExportDeclaration
-                const moduleSpecifier = n.moduleSpecifier
-                if (!moduleSpecifier) break
-                const matches = moduleSpecifier.getText().match(/^(['"\s]+)?(.*)(['"\s]+)?$/)
-                if (!matches) break
-                const [prefix, oldImport, suffix] = matches
-                const sf = n.getSourceFile()
-                const newImports = resolver.getImportSuggestions(oldImport, path.dirname(sf.fileName))
-                const replacement = newImports ? `${prefix}${newImports[0]}${suffix}` : null
-                if (!replacement) break
-                replacer.push({
-                    start: moduleSpecifier.pos,
-                    length: moduleSpecifier.end - moduleSpecifier.pos,
-                    replacement
-                })
-               break
-            }
-            case ts.SyntaxKind.ImportDeclaration: {
-                const n = node as ts.ImportDeclaration
-                const some = n.getText()
-                console.log(some)
-                break
-            }
-            default: break
-        }
+const importPathRegex = /^(['"\s]+)(.+)(['"\s]+)$/
+const commentPrefix = '\n//'
 
-        return newNode
+function importPathVisitor(node: ts.Node, {posMap, resolver}: ImportPathVisitorContext): ts.Node | void {
+    if (!ts.isImportDeclaration(node) && !ts.isExportDeclaration(node)) return
+
+    const moduleSpecifier = node.moduleSpecifier
+    if (!moduleSpecifier) return
+
+    const matches = moduleSpecifier.getFullText().match(importPathRegex)
+    if (!matches) return
+
+    const [, prefix, oldImport, suffix] = matches
+    const sf = node.getSourceFile()
+    const newImports = resolver.getImportSuggestions(oldImport, path.dirname(sf.fileName))
+    if (!newImports) return
+    const newImport = newImports[0]
+
+    /**
+     * TS plugin api still not a production ready.
+     * 
+     * This hack needed for properly d.ts paths rewrite.
+     * In d.ts moduleSpecifier value is obtained by moduleSpecifier.pos from original source file text.
+     * See emitExternalModuleSpecifier -> writeTextOfNode -> getTextOfNodeFromSourceText.
+     *
+     * We need to add new import path to the end of source file text and adjust moduleSpecifier.pos
+     */
+    const newStr = prefix + newImport + suffix
+    let cachedPos = posMap.get(newStr)
+    if (cachedPos === undefined) {
+        cachedPos = sf.text.length + commentPrefix.length
+        posMap.set(newStr, cachedPos)
+
+        const strToAdd = commentPrefix + newStr
+        sf.text += strToAdd
+        sf.end += strToAdd.length
     }
+    moduleSpecifier.pos = cachedPos
+    moduleSpecifier.end = moduleSpecifier.pos + newStr.length
+
+    const newSpec = ts.createLiteral(newImport)
+
+    if (ts.isImportDeclaration(node)) return ts.updateImportDeclaration(
+        node, undefined, undefined, undefined, newSpec
+    )
+
+    if (ts.isExportDeclaration(node)) return ts.updateExportDeclaration(
+        node, undefined, undefined, undefined, newSpec
+    )
 }
 
 export default function transformPaths(ls: ts.LanguageService) {
     return {
-        before(ctx: ts.TransformationContext): ts.Transformer<ts.SourceFile> {
-            const resolver = new ImportPathsResolver(ctx.getCompilerOptions())
+        before(transformationContext: ts.TransformationContext): ts.Transformer<ts.SourceFile> {
+            const resolver = new ImportPathsResolver(transformationContext.getCompilerOptions())
+
             return (sf: ts.SourceFile) => {
-                const args: ImportPathsVisitorArgs = {
-                    replacer: new Replacer(sf.text),
-                    resolver
+                const importPathVisitorContext: ImportPathVisitorContext = {
+                    resolver,
+                    posMap: new Map()
                 }
-                ts.visitNode(sf, createTraverseVisitor(createImportPathsVisitor(args), ctx))
-                const newText = args.replacer.getReplaced()
-                if (!newText) return sf
-                const newFile = ts.updateSourceFile(sf, newText, {
-                    span: {
-                        start: 0,
-                        length: sf.text.length
-                    },
-                    newLength: newText.length
-                })
-                return newFile
+                const visitor = createTraverseVisitor(
+                    importPathVisitor,
+                    importPathVisitorContext,
+                    transformationContext
+                )
+
+                return ts.visitNode(sf, visitor)
             }
         }
     }

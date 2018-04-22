@@ -1,9 +1,16 @@
 import * as ts from 'typescript'
 
-export type TraverseVisitor = (node: ts.Node) => ts.VisitResult<ts.Node> | void
+export type TraverseVisitor<VisitorContext> = (
+    node: ts.Node,
+    visitorContext: VisitorContext
+) => ts.VisitResult<ts.Node> | void
 
-export function createTraverseVisitor(rawVisitor: TraverseVisitor, ctx: ts.TransformationContext): ts.Visitor {
-    const visitor = (node: ts.Node) => rawVisitor(node) || ts.visitEachChild(node, visitor, ctx)
+export function createTraverseVisitor<VisitorContext>(
+    traverseVisitor: TraverseVisitor<VisitorContext>,
+    visitorContext: VisitorContext,
+    ctx: ts.TransformationContext
+): ts.Visitor {
+    const visitor = (node: ts.Node) => traverseVisitor(node, visitorContext) || ts.visitEachChild(node, visitor, ctx)
 
     return visitor
 }

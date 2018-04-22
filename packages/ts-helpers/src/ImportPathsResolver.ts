@@ -34,7 +34,7 @@ export class ImportPathsResolver {
                         p.replace(posixSepRegex, path.sep)
                     ).replace(winSepRegex, '\/')
 
-                    return newPath !== '.' ? ('./' + newPath) : newPath
+                    return newPath[0] !== '.' ? ('./' + newPath) : newPath
                 })
             }
         }
