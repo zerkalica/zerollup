@@ -1,6 +1,6 @@
 # Rollup configuration preset for typescript
 
-Zero setup rollup preset for libraries, and applications.
+Zero setup rollup preset for typescripted libraries, and applications.
 
 For example see [zerollup demo](https://github.com/zerkalica/zerollup-demo) project.
 

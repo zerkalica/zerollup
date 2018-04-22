@@ -1,6 +1,6 @@
 # Rollup assets plugin
 
-The best assets (fonts and images) management for rollup. Automatically gather assets from all packages, when building application.
+The best assets (fonts and images) management for rollup. Automatically gather assets from all packages/libraries, when building application.
 
 1. Detect asset in import ``` import faceAngel from './face-angel.png' ```
 2. Generate human-friendly unique asset path: ``` config.assetsUrl + 'my-package/face-angel.png' ```

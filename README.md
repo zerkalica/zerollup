@@ -10,6 +10,18 @@ Zero configuration web application or library bundler, built on top of rollup (B
 * Builds configured bundles per each configuration
 * Asynchronously prerenders templates from ts-modules per each configuration
 
+## Packages
+
+Zerollup is the set of packages. All of them used in preset-ts.
+
+* [helpers](./tree/master/packages/helpers) - Set of helpers for fast rollup bundler config building. Core of zerollup.
+* [injector](./tree/master/packages/injector) - Modularized [__webpack_public_path__](https://webpack.js.org/guides/public-path/#on-the-fly) analog.
+* [plugin-assets](./tree/master/packages/plugin-assets) - Automatically gather assets from all packages/libraries, when building application.
+* [preset-ts](./tree/master/packages/preset-ts) - Zero setup rollup preset for typescripted libraries, and applications.
+* [ts-helpers](./tree/master/packages/ts-helpers) - Helper for fast ts-plugins building.
+* [ts-transform-paths](./tree/master/packages/ts-transform-paths) - tsconfig baseUrl + paths alias rewriting in bundles and declaration files.
+
+
 ## Setup
 
 ``` npm install --dev @zerollup/preset-ts ```
