@@ -8,7 +8,7 @@ interface ImportPathVisitorContext {
 }
 
 const importPathRegex = /^(['"\s]+)(.+)(['"\s]+)$/
-const commentPrefix = '\n// ###'
+const commentPrefix = '\n//'
 
 function importPathVisitor(node: ts.Node, {posMap, resolver}: ImportPathVisitorContext): ts.Node | void {
     if (!ts.isImportDeclaration(node) && !ts.isExportDeclaration(node)) return
