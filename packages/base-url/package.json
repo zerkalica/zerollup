@@ -1,6 +1,6 @@
 {
   "name": "@zerollup/base-url",
-  "version": "1.0.2",
+  "version": "1.0.11",
   "license": "MIT",
   "description": "Configure assets base url in runtime",
   "author": {
