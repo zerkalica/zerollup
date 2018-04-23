@@ -35,7 +35,9 @@ export function getAdvancedInfo(
                 aliases,
                 configs
             }),
-            getNamedExports(rollup.namedExportsFrom)
+            rollup.namedExports instanceof Array
+                ? getNamedExports(rollup.namedExports)
+                : rollup.namedExports || {}
         ]))
         .then(([configs, inputs, namedExports]) => {
             return Promise.all(inputs.map(input =>

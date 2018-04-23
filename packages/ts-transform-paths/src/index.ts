@@ -8,7 +8,6 @@ interface ImportPathVisitorContext {
 }
 
 const importPathRegex = /^(['"\s]+)(.+)(['"\s]+)$/
-const commentPrefix = '\n//'
 
 function importPathVisitor(node: ts.Node, {posMap, resolver}: ImportPathVisitorContext): ts.Node | void {
     if (!ts.isImportDeclaration(node) && !ts.isExportDeclaration(node)) return
@@ -33,23 +32,24 @@ function importPathVisitor(node: ts.Node, {posMap, resolver}: ImportPathVisitorC
      * See emitExternalModuleSpecifier -> writeTextOfNode -> getTextOfNodeFromSourceText.
      *
      * We need to add new import path to the end of source file text and adjust moduleSpecifier.pos
+     * 
+     * ts remove quoted string from output
      */
     const newStr = prefix + newImport + suffix
-    let cachedPos = posMap.get(newStr)
+    let cachedPos = posMap.get(newImport)
     if (cachedPos === undefined) {
-        cachedPos = sf.text.length + commentPrefix.length
-        posMap.set(newStr, cachedPos)
-
-        const strToAdd = commentPrefix + newStr
-        sf.text += strToAdd
-        sf.end += strToAdd.length
+        cachedPos = sf.text.length
+        posMap.set(newImport, cachedPos)
+        sf.text += newStr
+        sf.end += newStr.length
     }
     moduleSpecifier.pos = cachedPos
-    moduleSpecifier.end = moduleSpecifier.pos + newStr.length
+    moduleSpecifier.end = cachedPos + newStr.length
 }
 
 export default function transformPaths(ls: ts.LanguageService) {
     return {
+        dts: true,
         before(transformationContext: ts.TransformationContext): ts.Transformer<ts.SourceFile> {
             const resolver = new ImportPathsResolver(transformationContext.getCompilerOptions())
 
@@ -64,7 +64,6 @@ export default function transformPaths(ls: ts.LanguageService) {
                     ctx,
                     transformationContext
                 )
-
                 return ts.visitNode(sf, visitor)
             }
         }

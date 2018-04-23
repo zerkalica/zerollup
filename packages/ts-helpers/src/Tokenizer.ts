@@ -26,7 +26,7 @@ export class Tokenizer {
     parse(str: string): string[] | void {
         const {mask, tokens, subs} = this
         const match = str.match(mask)
-        if (match && match.length > 1) {
+        if (match) {
             const parsedSubs: string[] = []
             for (let sub of subs) {
                 for (let i = 1; i < match.length; i++) {

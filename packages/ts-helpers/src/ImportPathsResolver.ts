@@ -17,7 +17,14 @@ export class ImportPathsResolver {
     ) {
         const paths = opts.paths || {}
         const baseUrl = opts.baseUrl ? opts.baseUrl.replace(winSepRegex, '\/') : null
-        const mapBaseUrl = baseUrl ? sub => `${baseUrl}/${sub}` : null
+
+        const mapBaseUrl = baseUrl
+            ? sub => (sub[0] === '/'
+                ? sub
+                : `${baseUrl}/${sub}`
+            )
+            : null
+
         this.tokenizers = Object.keys(paths).map(key => new Tokenizer(
             key,
             mapBaseUrl ? paths[key].map(mapBaseUrl) : paths[key]

@@ -25,7 +25,7 @@ export interface Pkg {
         configDir?: string
         bundledDependencies?: string[]
         productionStubs?: string[]
-        namedExportsFrom?: string[]
+        namedExports?: string[] | Record<string, string[]>
         templateFile?: string
     }
 

@@ -4,7 +4,7 @@
 		"paths": {
 			"@zerollup/*": ["packages/*/src"]	
 		},
-                "newLine": "LF",
+		"newLine": "LF",
 		"allowSyntheticDefaultImports": false,
 		"declaration": true,
 		"module": "esnext",

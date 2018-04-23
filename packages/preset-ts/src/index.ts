@@ -19,7 +19,7 @@ import tsTransformPaths from '@zerollup/ts-transform-paths'
 import {createTransformerChain} from '@zerollup/ts-helpers'
 
 export type Config = OutputOptions & InputOptions & WatcherOptions
-
+// @ts-ignore
 const transformers = createTransformerChain([tsTransformPaths])
 
 export default function rollupConfig(
@@ -71,7 +71,7 @@ export default function rollupConfig(
             (acc, pkg) => ({...acc, ...pkg.namedExports}),
             {}
         )
-
+        // @ts-ignore
         const paths = packageSet.reduce(
             (acc, info) => {
                 acc[info.pkg.json.name + '/*'] = [`${info.pkg.srcDir.substring(repoRoot.length + 1)}/*`]
@@ -101,13 +101,16 @@ export default function rollupConfig(
                     check: !watch,
                     clean: true,
                     exclude: ['*.spec*', '**/*.spec*'],
-                    tsconfig: path.join(repoRoot, 'tsconfig.base.json'),
+                    tsconfig: path.join(repoRoot, 'tsconfig.json'),
                     useTsconfigDeclarationDir: true,
                     transformers,
                     tsconfigOverride: {
                         compilerOptions: {
                             baseUrl: repoRoot,
-                            paths,
+                            paths: {
+                                ...paths,
+                                [pkg.json.name]: [pkg.srcDir]
+                            },
                             rootDir: pkg.srcDir,
                             declarationDir: pkg.declarationDir,
                             declaration: true
