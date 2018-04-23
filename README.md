@@ -17,8 +17,8 @@ Main idea of zerollup - generate deploy-ready configurations and templates for a
 Zerollup is the set of packages. All of them used in preset-ts.
 
 * [helpers](./packages/helpers) - Set of helpers for fast rollup bundler config building. Core of zerollup.
-* [injector](./packages/injector) - Modularized [__webpack_public_path__](https://webpack.js.org/guides/public-path/#on-the-fly) analog.
-* [plugin-assets](./packages/plugin-assets) - Automatically gather assets from all packages/libraries, when building application.
+* [base-url](./packages/base-url) - Configure assets base url in runtime.
+* [plugin-assets](./packages/plugin-assets) - Automatically gather assets from all packages/libraries.
 * [preset-ts](./packages/preset-ts) - Zero setup rollup preset for typescripted libraries and applications.
 * [ts-helpers](./packages/ts-helpers) - Helper for fast ts-plugins building.
 * [ts-transform-paths](./packages/ts-transform-paths) - tsconfig baseUrl + paths alias rewriting in bundles and declaration files.

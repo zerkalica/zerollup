@@ -1,6 +1,6 @@
 # Rollup assets plugin
 
-The best assets (fonts and images) management for rollup. Automatically gather assets from all packages/libraries, when building application.
+The best assets (fonts and images) management for rollup. Automatically gather assets from all packages/libraries.
 
 1. Detect asset in import ``` import faceAngel from './face-angel.png' ```
 2. Generate human-friendly unique asset path: ``` config.assetsUrl + 'my-package/face-angel.png' ```
@@ -8,7 +8,7 @@ The best assets (fonts and images) management for rollup. Automatically gather a
 4. Copy resources to ``` dist/i/<pkg.name>/* ``` directory of package
 5. When building application - extracts assets from packages and copy them to ``` dist/i/<pkg.names>/ ```
 
-For example see [zerollup demo site](https://github.com/zerkalica/zerollup-demo/tree/master/packages/site1).
+Example [zerollup demo site](https://github.com/zerkalica/zerollup-demo/tree/master/packages/site1).
 
 ## Library
 
@@ -52,11 +52,11 @@ my-unique-app/dist/index.js
 var myUniqueApp = (function () {
     'use strict';
 
-    var config$1 = {
-        assetsUrl: '/'
+    var baseUrl = {
+        assets: '/'
     };
 
-    var faceAngel = config$1.assetsUrl + "my-unique-lib/face_angel.png";
+    var faceAngel = baseUrl.assets + "my-unique-lib/face_angel.png";
 
     console.log(faceAngel);
 
@@ -93,7 +93,6 @@ For complex usage see zerollup [preset-ts](../preset-ts)
 
 ## For typescript
 
-Copy assets as module fixes to node_modules/@types directory:
+Install typescript asset module resolver fix:
 
-``` cp -rf ./node_modules/@zerollup/plugin-assets/@types/assets-fix ./node_modules/@types ```
-
+``` cp -rf ./node_modules/@zerollup/base-url/@types/assets-fix ./node_modules/@types ```

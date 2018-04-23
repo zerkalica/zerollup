@@ -37,7 +37,7 @@ function assets(
         verbose = 0,
         isLib: isLibRaw,
         pkgRoot = process.cwd(),
-        configModule = '@zerollup/injector',
+        configModule = '@zerollup/base-url',
         moduleDirs = ['node_modules', 'packages'],
         name: pkgName
     }: AssetOptions
@@ -99,8 +99,8 @@ function assets(
             }
 
             return `
-import {config} from '${configModule}'
-export default config.assetsUrl + ${JSON.stringify(relativeUrl)}
+import bu from '${configModule}'
+export default bu.assets + ${JSON.stringify(relativeUrl)}
 `
         },
 

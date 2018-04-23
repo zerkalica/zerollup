@@ -3,18 +3,18 @@
   "version": "1.0.0",
   "description": "Zero rollup plugins and toolset",
   "private": true,
-  "config": {
-    "env": "production"
-  },
   "scripts": {
     "clean": "rm -rf packages/*/.rpt2_cache packages/*/dist",
     "clean.all": "lerna clean --yes && rm -rf packages/*/package-lock.json node_modules packages/*/.rpt2_cache packages/*/dist docs/*",
-    "build": "NODE_ENV=production rollup -c rollup.config.js",
-    "dev": "NODE_ENV=development rollup -w -c rollup.config.js",
+    "build": "rollup -c rollup.config.js",
+    "dev": "rollup -w -c rollup.config.js",
     "postinstall": "lerna bootstrap --hoist",
     "publish": "npm run build && lerna publish --yes"
   },
-  "author": "",
+  "author": {
+    "name": "Stefan Zerkalica",
+    "email": "zerkalica@gmail.com"
+  },
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^9.6.6",
@@ -22,6 +22,5 @@
     "rollup": "^0.58.1",
     "source-map-support": "*",
     "typescript": "^2.8.3"
-  },
-  "dependencies": {}
+  }
 }

@@ -6,6 +6,12 @@ const cwd = process.cwd()
 const pkgDir = path.join(cwd, 'packages')
 const cache = {}
 
+const filter = process.env.BUILD_PKG ? process.env.BUILD_PKG.split(',').map(str => str.trim()) : null
+
+function packageFilter(dir) {
+  return filter ? filter.indexOf(dir) !== -1 : dir
+}
+
 function sortByExternal({pkg: p1}, {pkg: p2}) {
     const deps1 = {...p1.dependencies, ...p1.devDependencies, ...p1.peerDependencies}
     const deps2 = {...p2.dependencies, ...p2.devDependencies, ...p2.peerDependencies}
@@ -15,8 +21,9 @@ function sortByExternal({pkg: p1}, {pkg: p2}) {
     return 0
 }
 
+
 export default fsExtra.readdir(pkgDir)
-    .then(dirs => Promise.all(dirs.map(dir =>
+    .then(dirs => Promise.all(dirs.filter(packageFilter).map(dir =>
         fsExtra.readJson(path.join(pkgDir, dir, 'package.json'))
             .then(pkg => ({
                 pkg,

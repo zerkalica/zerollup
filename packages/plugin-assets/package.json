@@ -37,7 +37,6 @@
   "dependencies": {
     "@zerollup/helpers": "^1.0.7",
     "fs-extra": "^5.0.0",
-    "magic-string": "^0.24.0",
     "rollup": "^0.58.1",
     "rollup-pluginutils": "^2.0.1"
   },
