@@ -99,7 +99,7 @@ export function getPackageSet(
                     pkg,
                     env,
                     aliases: getAliases({packages, env, pkg}),
-                    globals,
+                    globals: pkg.lib ? globals : {},
                     oneOfHost
                 })
             ))

@@ -71,14 +71,17 @@ const builtins = getBuiltins()
 
 function normalizePkg(pkg: Pkg, pkgPath: string): NormalizedPkg {
     const pkgRoot = path.dirname(pkgPath)
-    const targets = allSections
-        .map(({key, format, ext}) => pkg[key] && {
-            key,
-            format,
-            file: path.join(pkgRoot, fixPath(pkg[key])),
-            ext: '.' + ext
+    const targets: Target[] = allSections
+        .filter(sec => !!pkg[sec.key])
+        .map(({key, format, ext}) => {
+            const val = pkg[key]
+            return <Target> {
+                key,
+                format,
+                file: path.join(pkgRoot, fixPath(val)),
+                ext: val.substring(val.indexOf('.'))
+            }
         })
-        .filter(Boolean)
 
     if (targets.length === 0) {
         throw new GetPackageJsonError(`No ${allSections.map(rec => rec.key).join(', ')} sections found in ${pkgPath}`)

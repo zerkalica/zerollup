@@ -54,7 +54,6 @@ export function getInputs(
     const external = configs ? [...rExternal, configs.defaultConfigPath] : rExternal
     const globals = configs ? {...rGlobals, [configs.defaultConfigPath]: configGlobalName} : rGlobals
     const envs: Env[] = configs ? configs.envs : ['production']
-
     return (rollup.inputs ? Promise.resolve(rollup.inputs) : getRawInputs(srcDir, inputMatch))
         .then(files => files.map(file => <MainConfig>({
                 input: file,
@@ -66,7 +65,7 @@ export function getInputs(
                         output: targets.map(({file: outFile, format, ext}) => ({
                             sourcemap: true,
                             file: path.join(path.dirname(outFile), cutExt(path.basename(file)))
-                                + (env === 'production' ? '' : `.${env}`)
+                                + (!env || env === 'production' ? '' : `.${env}`)
                                 + ext,
                             format,
                             globals,

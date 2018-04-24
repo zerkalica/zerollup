@@ -45,7 +45,6 @@ export default function rollupConfig(
             ? process.env.BUILD_PKG.split(',').map(name => name.trim())
             : undefined
     }).then(packageSet => {
-        // @ts-ignore
         const commonPlugins: Plugin[] = [
             builtins(),
             sourcemaps(),
@@ -71,7 +70,6 @@ export default function rollupConfig(
             (acc, pkg) => ({...acc, ...pkg.namedExports}),
             {}
         )
-        // @ts-ignore
         const paths = packageSet.reduce(
             (acc, info) => {
                 acc[info.pkg.json.name + '/*'] = [`${info.pkg.srcDir.substring(repoRoot.length + 1)}/*`]
@@ -84,7 +82,7 @@ export default function rollupConfig(
         return Promise.all(packageSet.map(({pkg, configs, pages}, pkgIndex) => {
             const pkgPlugins = [
                 resolve({
-                    extensions: ['.js', '.json'],
+                    extensions: ['.js', '.mjs', '.json'],
                     jsnext: true
                 }),
                 commonjs({
@@ -101,7 +99,7 @@ export default function rollupConfig(
                     check: !watch,
                     clean: true,
                     exclude: ['*.spec*', '**/*.spec*'],
-                    tsconfig: path.join(repoRoot, 'tsconfig.json'),
+                    tsconfig: path.join(repoRoot, 'tsconfig.base.json'),
                     useTsconfigDeclarationDir: true,
                     transformers,
                     tsconfigOverride: {
