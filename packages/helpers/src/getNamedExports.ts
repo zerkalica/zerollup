@@ -18,12 +18,24 @@ function getModuleExports(moduleId: string): Promise<string[]> {
         })
 }
 
-export function getNamedExports(moduleIds?: string[]): Promise<Record<string, string[]>> {
-    return Promise.all((moduleIds || []).map(id => 
-        getModuleExports(id).then(moduleExports => ({id, moduleExports}))
-    ))
-        .then(recs => recs.reduce((acc, rec) => ({
-            ...acc,
-            [rec.id]: rec.moduleExports
-        }), {}))
+export function getNamedExports(
+    rawModuleIds?: string[] | Record<string, string[] | string>
+): Promise<Record<string, string[]>> {
+    const moduleIds = rawModuleIds instanceof Array
+        ? rawModuleIds.reduce(
+            (acc, item) => ({...acc, [item]: '*'}),
+            {}
+        )
+        : <Record<string, string[] | string>>{}
+
+        return Promise.all(Object.keys(moduleIds).map(id => {
+            const val = moduleIds[id]
+            return val instanceof Array
+                ? {id, moduleExports: val}
+                : getModuleExports(id).then(moduleExports => ({id, moduleExports}))
+        }))
+            .then(recs => recs.reduce((acc, rec) => ({
+                ...acc,
+                [rec.id]: rec.moduleExports
+            }), <Record<string, string[]>>{}))
 }

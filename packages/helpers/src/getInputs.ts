@@ -49,7 +49,7 @@ export function getInputs(
         configs?: Configs | void
     }
 ): Promise<MainConfig[]> {
-    const inputMatch = new RegExp('.*index\..+')
+    const inputMatch = new RegExp('.*index(?!\.html)\..+')
 
     const external = configs ? [...rExternal, configs.defaultConfigPath] : rExternal
     const globals = configs ? {...rGlobals, [configs.defaultConfigPath]: configGlobalName} : rGlobals
