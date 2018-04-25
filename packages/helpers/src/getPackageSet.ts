@@ -103,7 +103,13 @@ export function getPackageSet(
             Promise.all((rec ? rec.pkgFiles : [pkgRoot]).map(getPackageJson))
         ]))
         .then(([repoRoot, rawPackages]) => {
-            const selectedNames = selNames || (repoRoot === pkgRoot ? null : path.basename(pkgRoot))
+
+            const selectedNames: string[] | void = selNames || (
+                repoRoot === pkgRoot
+                    ? undefined
+                    : [path.basename(pkgRoot)]
+                )
+
             const packages = rawPackages.sort(sortPackages)
             const selectedPackages = selectedNames
                 ? packages.filter(pkg =>
@@ -113,6 +119,7 @@ export function getPackageSet(
             const globals = getGlobals(packages)
 
             console.log('repoRoot', repoRoot)
+            // console.log('selectedNames', selectedNames)
             console.log('Build', selectedPackages.map(pkg => pkg.json.name).join(', '))
 
             return Promise.all(selectedPackages.map(pkg =>

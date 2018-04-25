@@ -9,7 +9,8 @@
     "build": "rollup -c rollup.config.js",
     "dev": "rollup -w -c rollup.config.js",
     "postinstall": "lerna bootstrap --hoist",
-    "publish": "npm run build && lerna publish --yes"
+    "publish": "npm run build && lerna publish --yes",
+    "watch": "chokidar --initial -d 2000 -t 1000 'packages/*/dist/**' -c 'npm run build && cp -rvf packages/*/dist/* $npm_package_config_dest/node_modules/@zerollup'"
   },
   "author": {
     "name": "Stefan Zerkalica",
@@ -18,6 +19,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^9.6.6",
+    "chokidar-cli": "^1.2.0",
     "lerna": "^2.10.2",
     "rollup": "^0.58.1",
     "source-map-support": "*",

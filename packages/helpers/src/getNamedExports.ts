@@ -26,16 +26,18 @@ export function getNamedExports(
             (acc, item) => ({...acc, [item]: '*'}),
             {}
         )
-        : <Record<string, string[] | string>>{}
+        : <Record<string, string[] | string>>(rawModuleIds || {})
 
-        return Promise.all(Object.keys(moduleIds).map(id => {
-            const val = moduleIds[id]
-            return val instanceof Array
-                ? {id, moduleExports: val}
-                : getModuleExports(id).then(moduleExports => ({id, moduleExports}))
-        }))
-            .then(recs => recs.reduce((acc, rec) => ({
-                ...acc,
-                [rec.id]: rec.moduleExports
-            }), <Record<string, string[]>>{}))
+    return Promise.all(Object.keys(moduleIds).map(id => {
+        const val = moduleIds[id]
+        return val instanceof Array
+            ? {id, moduleExports: val}
+            : getModuleExports(id).then(moduleExports => {
+                return {id, moduleExports}
+            })
+    }))
+        .then(recs => recs.reduce((acc, rec) => ({
+            ...acc,
+            [rec.id]: rec.moduleExports
+        }), <Record<string, string[]>>{}))
 }
