@@ -19,8 +19,10 @@ import tsTransformPaths from '@zerollup/ts-transform-paths'
 import {createTransformerChain} from '@zerollup/ts-helpers'
 
 export type Config = OutputOptions & InputOptions & WatcherOptions
-// @ts-ignore
+
 const transformers = createTransformerChain([tsTransformPaths])
+
+const nodePrefix = 'node:'
 
 export default function rollupConfig(
     {watch, config}: {
@@ -29,22 +31,22 @@ export default function rollupConfig(
     }
 ): Promise<Config[]> {
     const cache: RollupCache = { modules: [] }
-    const cwd = process.cwd()
-    const env: string | void = process.env.NODE_ENV
-    const repoRoot = typeof config === 'string'
-        ? path.resolve(path.dirname(config).replace(/^node:.*/, ''))
-        : cwd
 
     return getPackageSet({
-        pkgRoot: repoRoot,
-        env,
+        pkgRoot: config && config.indexOf(nodePrefix) === -1
+            ? path.resolve(path.dirname(config))
+            : process.cwd(),
+
+        env: process.env.NODE_ENV,
+
         oneOfHost: process.env.BUILD_CONFIG
             ? process.env.BUILD_CONFIG.split(',').map(n => n.trim())
             : (watch ? ['local', 'dev'] : undefined),
+
         selectedNames: process.env.BUILD_PKG
-            ? process.env.BUILD_PKG.split(',').map(name => name.trim())
+            ? process.env.BUILD_PKG.split(',').map(n => n.trim())
             : undefined
-    }).then(packageSet => {
+    }).then(({repoRoot, packageSet}) => {
         const commonPlugins: Plugin[] = [
             builtins(),
             sourcemaps(),
@@ -111,7 +113,7 @@ export default function rollupConfig(
                             },
                             rootDir: pkg.srcDir,
                             declarationDir: pkg.declarationDir,
-                            declaration: true
+                            declaration: pkg.lib
                         },
                         include: [pkg.srcDir]
                     }

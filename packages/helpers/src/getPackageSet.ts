@@ -12,17 +12,30 @@ export interface LernaJson {
     packages: string[]
 }
 
-function getLernaPackages(repoRoot: string): Promise<NormalizedPkg[]> {
-    const lernaConfigPath = path.join(repoRoot, 'lerna.json')
-    return fsExtra.pathExists(lernaConfigPath)
-        .then(exists => exists ? fsExtra.readJson(lernaConfigPath): null)
-        .then((lernaConfig?: LernaJson) => lernaConfig && lernaConfig.packages
-            ? globby(lernaConfig.packages + '/package.json', {absolute: true})
-            : []
-        )
-        .then((pkgFiles: string[]) => pkgFiles.length
-            ? Promise.all(pkgFiles.map(getPackageJson))
-            : []
+function pathExistsUpLoop([config, exists, step]) {
+    if (exists) return config
+    const newStep = step - 1
+    if (newStep <= 0) return
+    const newConfig = path.join(path.dirname(path.dirname(config)), path.basename(config))
+
+    return pathExistsUp(newConfig, newStep)
+}
+
+function pathExistsUp(config: string, step: number = 3): Promise<string | void> {
+    return Promise.all([config, fsExtra.pathExists(config), step])
+        .then(pathExistsUpLoop)
+}
+
+function getLernaPackages(repoRoot: string): Promise<{pkgFiles: string[], repoRoot: string} | void> {
+    return pathExistsUp(path.join(repoRoot, 'lerna.json'))
+        .then(configFile => configFile
+            ? fsExtra.readJson(configFile)
+                .then((data: LernaJson) => globby(
+                    path.dirname(configFile) + '/' + (data.packages || 'packages/*') + '/package.json',
+                    {absolute: true}
+                ))
+                .then((pkgFiles: string[]) => ({pkgFiles, repoRoot: path.dirname(configFile)}))
+            : undefined as any
         )
 }
 
@@ -70,22 +83,27 @@ export function sortPackages({json: p1}: NormalizedPkg, {json: p2}: NormalizedPk
     return 0
 }
 
+export interface PackageSetInfo {
+    packageSet: AdvancedInfo[]
+    repoRoot: string
+}
+
 export function getPackageSet(
-    {pkgRoot, selectedNames, oneOfHost, env: rawEnv}: {
+    {pkgRoot, selectedNames: selNames, oneOfHost, env: rawEnv}: {
         pkgRoot: string
         env?: string | void
         oneOfHost?: string[] | void
         selectedNames?: string[] | void
     }
-): Promise<AdvancedInfo[]> {
+): Promise<PackageSetInfo> {
     const env: Env | void = rawEnv ? getEnv(rawEnv) : undefined
-
     return getLernaPackages(pkgRoot)
-        .then(packages => packages.length === 0
-            ? Promise.all([getPackageJson(pkgRoot)])
-            : packages
-        )
-        .then(rawPackages => {
+        .then(rec => Promise.all([
+            rec ? rec.repoRoot : pkgRoot,
+            Promise.all((rec ? rec.pkgFiles : [pkgRoot]).map(getPackageJson))
+        ]))
+        .then(([repoRoot, rawPackages]) => {
+            const selectedNames = selNames || (repoRoot === pkgRoot ? null : path.basename(pkgRoot))
             const packages = rawPackages.sort(sortPackages)
             const selectedPackages = selectedNames
                 ? packages.filter(pkg =>
@@ -93,6 +111,9 @@ export function getPackageSet(
                 )
                 : packages
             const globals = getGlobals(packages)
+
+            console.log('repoRoot', repoRoot)
+            console.log('Build', selectedPackages.map(pkg => pkg.json.name).join(', '))
 
             return Promise.all(selectedPackages.map(pkg =>
                 getAdvancedInfo({
@@ -103,5 +124,9 @@ export function getPackageSet(
                     oneOfHost
                 })
             ))
+                .then(packageSet => ({
+                    packageSet,
+                    repoRoot
+                }))
         })
 }
