@@ -9,7 +9,7 @@ export class GetConfigsError extends HelpersError {}
 export interface SettingsConfig {
     ios: Config
     hostId: string
-    env: Env | void
+    env: Env
     baseUrl: string
 }
 
@@ -33,7 +33,7 @@ export function getConfigs(
         globals,
         oneOfHost,
     }: {
-        env?: Env | void
+        env: Env
         pkg: NormalizedPkg
         globals: Record<string, string>
         oneOfHost: string[] | void

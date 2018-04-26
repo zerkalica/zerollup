@@ -17,7 +17,7 @@ export function getAdvancedInfo(
     {pkg, aliases, env, globals, oneOfHost}: {
         pkg: NormalizedPkg
         oneOfHost?: string[] | void
-        env?: Env | void
+        env: Env
         aliases: Record<string, string>
         globals: Record<string, string>
     }

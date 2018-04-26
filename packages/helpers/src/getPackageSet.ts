@@ -49,7 +49,7 @@ function getGlobals(pkgs: NormalizedPkg[]): Record<string, string> {
 function getAliases(
     {packages, pkg: {json: {name, rollup}, srcDir}, env}: {
         pkg: NormalizedPkg
-        env?: Env | void
+        env: Env
         packages?: NormalizedPkg[]
     }
 ): Record<string, string> {
@@ -91,12 +91,12 @@ export interface PackageSetInfo {
 export function getPackageSet(
     {pkgRoot, selectedNames: selNames, oneOfHost, env: rawEnv}: {
         pkgRoot: string
-        env?: string | void
+        env: string
         oneOfHost?: string[] | void
         selectedNames?: string[] | void
     }
 ): Promise<PackageSetInfo> {
-    const env: Env | void = rawEnv ? getEnv(rawEnv) : undefined
+    const env: Env = getEnv(rawEnv)
     return getLernaPackages(pkgRoot)
         .then(rec => Promise.all([
             rec ? rec.repoRoot : pkgRoot,

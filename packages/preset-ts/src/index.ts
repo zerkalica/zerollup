@@ -37,7 +37,7 @@ export default function rollupConfig(
             ? path.resolve(path.dirname(config))
             : process.cwd(),
 
-        env: process.env.NODE_ENV,
+        env: process.env.NODE_ENV || process.env.BUILD_ENV || 'production',
 
         oneOfHost: process.env.BUILD_CONFIG
             ? process.env.BUILD_CONFIG.split(',').map(n => n.trim())
@@ -48,9 +48,8 @@ export default function rollupConfig(
             : undefined
     }).then(({repoRoot, packageSet}) => {
         const commonPlugins: Plugin[] = [
-            builtins(),
-            sourcemaps(),
             globals(),
+            sourcemaps(),
             watch && notify(),
             process.env.UGLIFY && uglify({
                 warnings: true,
@@ -83,6 +82,7 @@ export default function rollupConfig(
 
         return Promise.all(packageSet.map(({pkg, configs, pages}, pkgIndex) => {
             const pkgPlugins = [
+                builtins(),
                 resolve({
                     extensions: ['.js', '.mjs', '.json'],
                     jsnext: true
@@ -126,8 +126,9 @@ export default function rollupConfig(
                 cache,
                 plugins: [
                     ...pkgPlugins,
-                    config.env && replace({
+                    replace({
                         values: {
+                            'process.env.BROWSER': JSON.stringify(!pkg.lib),
                             'process.env.NODE_ENV': JSON.stringify(config.env)
                         }
                     }),
