@@ -83,14 +83,15 @@ function assets(
             const ext = name.substring(extPos)
             const nameWithoutExt = name.substring(0, extPos)
 
-            let relativeUrl = (urlPrefix + '/' + normalizeName(nameWithoutExt) + ext)
-            const count = nameDedupeMap.get(relativeUrl) || 0
-            if (count > 0) {
-                const pos = relativeUrl.lastIndexOf('.')
-                relativeUrl = relativeUrl.substring(0, pos) + `_${count}` + relativeUrl.substring(pos)
-            }
+            let relativeUrl = urlPrefix + '/' + normalizeName(nameWithoutExt) + ext
 
             if (!processed) {
+                const count = nameDedupeMap.get(relativeUrl) || 0
+                if (count > 0) {
+                    const pos = relativeUrl.lastIndexOf('.')
+                    relativeUrl = relativeUrl.substring(0, pos) + `_${count}` + relativeUrl.substring(pos)
+                }
+
                 nameDedupeMap.set(relativeUrl, count + 1)
                 internalResources.push({
                     id,
