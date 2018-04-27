@@ -1,6 +1,6 @@
 {
   "name": "@zerollup/plugin-assets",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "license": "MIT",
   "description": "Rollup assets plugin",
   "author": {
