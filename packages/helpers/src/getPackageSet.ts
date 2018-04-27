@@ -86,6 +86,8 @@ export function sortPackages({json: p1}: NormalizedPkg, {json: p2}: NormalizedPk
 export interface PackageSetInfo {
     packageSet: AdvancedInfo[]
     repoRoot: string
+    namedExports: Record<string, string[]>
+    paths: Record<string, string[]>
 }
 
 export function getPackageSet(
@@ -131,9 +133,19 @@ export function getPackageSet(
                     oneOfHost
                 })
             ))
-                .then(packageSet => ({
-                    packageSet,
-                    repoRoot
-                }))
+                .then(packageSet => packageSet.reduce(
+                    (acc, {pkg, namedExports}) => {
+                        acc.namedExports = {...acc.namedExports, ...namedExports}
+                        acc.paths[pkg.json.name + '/*'] = [`${pkg.srcDir.substring(repoRoot.length + 1)}/*`]
+                        return acc
+                    },
+                    <PackageSetInfo> {
+                        packageSet,
+                        repoRoot,
+                        namedExports: {},
+                        paths: {}
+                    }
+                )
+            )
         })
 }

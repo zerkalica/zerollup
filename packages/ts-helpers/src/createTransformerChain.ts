@@ -13,6 +13,11 @@ export function createTransformerChain(plugins: TsPlugin[]): (program: ts.Langua
     const dtsTransformers: ts.TransformerFactory<ts.SourceFile>[] = []
     const oldEmitFiles = a.emitFiles
 
+    /**
+     * Hack
+     * Typescript 2.8 does not support transforms for declaration emit
+     * see https://github.com/Microsoft/TypeScript/issues/23701
+     */
     a.emitFiles = function newEmitFiles(resolver, host, targetSourceFile, emitOnlyDtsFiles, transformers) {
         let newTransformers = transformers
         if (emitOnlyDtsFiles && !transformers || transformers.length === 0) {

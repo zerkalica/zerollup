@@ -25,13 +25,13 @@ const tsTypes = path.resolve('..', '@types')
 function assets(
     {
         include = [
-            "**/*.woff",
-            "**/*.woff2",
-            "**/*.svg",
-            "**/*.png",
-            "**/*.jpg",
-            "**/*.jpeg",
-            "**/*.gif"
+            '**/*.woff',
+            '**/*.woff2',
+            '**/*.svg',
+            '**/*.png',
+            '**/*.jpg',
+            '**/*.jpeg',
+            '**/*.gif'
         ],
         exclude,
         verbose = 0,
@@ -100,7 +100,7 @@ function assets(
 
             return `
 import bu from '${configModule}'
-export default bu.assets + ${JSON.stringify(relativeUrl)}
+export default bu.assets + '${relativeUrl}'
 `
         },
 

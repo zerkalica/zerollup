@@ -4,7 +4,7 @@ tsconfig baseUrl + paths alias rewriting in bundles and declaration files. You c
 
 Works everywhere, no more [tspath](https://github.com/duffman/tspath), [rollup-plugin-alias](https://github.com/rollup/rollup-plugin-alias) and other workarounds.
 
-Why? Problem described [here](https://github.com/Microsoft/TypeScript/issues/18972): d.ts files not working, if absolute paths used in npm-packaged library.
+Why? Problem described [here](https://github.com/Microsoft/TypeScript/issues/23701): d.ts files not working, if absolute paths used in npm-packaged library.
 
 ## Usage
 
@@ -67,23 +67,15 @@ export default {
 
 ## Limitations
 
-TS plugin api not a production ready. Used some hack to modify d.ts imports/exports.
-
-For path resolving used only first element in paths substitutions array, other elements will be ignored.
+Only first element in paths substitutions array used.
 
 my-lib/tsconfig.json:
 ```json
 {
     "compilerOptions": {
         "paths": {
-            "my-lib/*": ["src/*", "ignored_paths/*"]
+            "my-lib/*": ["src/*", "not_used_substitution/*"]
         }
     }
 }
 ```
-
-## Related issues
-
-* [tsconfig paths break...](https://github.com/Microsoft/TypeScript/issues/18972)
-* [Transpile to JS considering paths from tsconifg](https://github.com/Microsoft/TypeScript/issues/18951)
-* [Module path mapping is not working in generated js files](https://github.com/Microsoft/TypeScript/issues/16640)

@@ -37,7 +37,7 @@ export default function rollupConfig(
             ? path.resolve(path.dirname(config))
             : process.cwd(),
 
-        env: process.env.NODE_ENV || process.env.BUILD_ENV || 'production',
+        env: process.env.BUILD_ENV || process.env.NODE_ENV || 'production',
 
         oneOfHost: process.env.BUILD_CONFIG
             ? process.env.BUILD_CONFIG.split(',').map(n => n.trim())
@@ -46,8 +46,9 @@ export default function rollupConfig(
         selectedNames: process.env.BUILD_PKG
             ? process.env.BUILD_PKG.split(',').map(n => n.trim())
             : undefined
-    }).then(({repoRoot, packageSet}) => {
+    }).then(({repoRoot, packageSet, namedExports, paths}) => {
         const commonPlugins: Plugin[] = [
+            builtins(),
             globals(),
             sourcemaps(),
             watch && notify(),
@@ -66,31 +67,16 @@ export default function rollupConfig(
                 }
             }, minify)
         ]
-
-        const namedExports = packageSet.reduce(
-            (acc, pkg) => ({...acc, ...pkg.namedExports}),
-            {}
-        )
-        const paths = packageSet.reduce(
-            (acc, info) => {
-                acc[info.pkg.json.name + '/*'] = [`${info.pkg.srcDir.substring(repoRoot.length + 1)}/*`]
-
-                return acc
-            },
-            <Record<string, string[]>>{}
-        )
-
         return Promise.all(packageSet.map(({pkg, configs, pages}, pkgIndex) => {
-            const pkgPlugins = [
-                builtins(),
+            const pkgPlugins: Plugin[] = [
                 resolve({
-                    extensions: ['.js', '.mjs', '.json'],
+                    extensions: ['.mjs', '.js', '.json'],
                     jsnext: true
                 }),
                 commonjs({
                     include: 'node_modules/**',
                     namedExports
-                }),
+                }),  
                 assets({
                     name: pkg.json.name,
                     pkgRoot: pkg.pkgRoot,
@@ -122,9 +108,11 @@ export default function rollupConfig(
             ]
 
             const configSet = configs.map((config, i) => ({
-                ...config.ios,
+                input: config.ios.input,
+                output: config.ios.output,
+                external: config.ios.external,
                 cache,
-                plugins: [
+                plugins: <Plugin[]>[
                     ...pkgPlugins,
                     replace({
                         values: {

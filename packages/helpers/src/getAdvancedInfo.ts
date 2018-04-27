@@ -45,17 +45,15 @@ export function getAdvancedInfo(
                     pkg
                 })
             ))
-                .then(pageSets => {
-                    return <AdvancedInfo> {
-                        pages: pageSets.reduce((acc, pages) => ([...acc, ...pages]), <Page[]>[]),
-                        pkg,
-                        aliases,
-                        namedExports,
-                        configs: [
-                            ...inputs.reduce((acc, rec) => ([...acc, ...rec.envs]), <MainEnv[]>[]),
-                            ...configs
-                        ]
-                    }
-                })
+                .then(pageSets => <AdvancedInfo> ({
+                    pages: pageSets.reduce((acc, pages) => ([...acc, ...pages]), <Page[]>[]),
+                    pkg,
+                    aliases,
+                    namedExports,
+                    configs: [
+                        ...inputs.reduce((acc, rec) => ([...acc, ...rec.envs]), <MainEnv[]>[]),
+                        ...configs
+                    ]
+                }))
         })
 }
