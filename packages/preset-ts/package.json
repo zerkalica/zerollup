@@ -1,6 +1,6 @@
 {
   "name": "@zerollup/preset-ts",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "license": "MIT",
   "description": "Universal rollup config preset",
   "author": {
@@ -34,11 +34,11 @@
   ],
   "dependencies": {
     "@zerollup/helpers": "^1.0.18",
-    "@zerollup/plugin-assets": "^1.0.20",
-    "@zerollup/plugin-notify": "^1.0.20",
+    "@zerollup/plugin-assets": "^1.0.21",
+    "@zerollup/plugin-notify": "^1.0.21",
     "@zerollup/plugin-template": "^1.0.2",
     "@zerollup/ts-helpers": "^1.0.20",
-    "@zerollup/ts-transform-paths": "^1.0.20",
+    "@zerollup/ts-transform-paths": "^1.0.21",
     "rollup": "^0.57.1",
     "rollup-plugin-commonjs": "^9.1.0",
     "rollup-plugin-livereload": "^0.6.0",
