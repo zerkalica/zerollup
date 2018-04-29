@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "clean": "rm -rf packages/*/.rpt2_cache packages/*/dist",
-    "clean.all": "lerna clean --yes && rm -rf packages/*/package-lock.json node_modules packages/*/.rpt2_cache packages/*/dist docs/*",
+    "clean.all": "lerna clean --yes && rm -rf package-lock.json packages/*/package-lock.json node_modules packages/*/.rpt2_cache packages/*/dist docs/*",
     "build": "rollup -c rollup.config.js",
     "dev": "rollup -w -c rollup.config.js",
     "postinstall": "lerna bootstrap --hoist",
@@ -21,7 +21,7 @@
     "@types/node": "^10.0.0",
     "chokidar-cli": "^1.2.0",
     "lerna": "^2.11.0",
-    "rollup": "^0.58.2",
+    "rollup": "^0.57.1",
     "source-map-support": "*",
     "typescript": "^2.8.3"
   }

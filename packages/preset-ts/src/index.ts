@@ -1,4 +1,4 @@
-import {InputOptions, OutputOptions, WatcherOptions, Plugin, RollupCache} from 'rollup'
+import {InputOptions, OutputOptions, WatcherOptions, Plugin} from 'rollup'
 import * as path from 'path'
 import typescript from 'rollup-plugin-typescript2'
 import uglify from 'rollup-plugin-uglify'
@@ -30,7 +30,7 @@ export default function rollupConfig(
         config?: string
     }
 ): Promise<Config[]> {
-    const cache: RollupCache = { modules: [] }
+    const cache = { modules: [] }
 
     return getPackageSet({
         pkgRoot: config && config.indexOf(nodePrefix) === -1

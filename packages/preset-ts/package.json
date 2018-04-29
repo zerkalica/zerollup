@@ -39,7 +39,7 @@
     "@zerollup/plugin-template": "^1.0.2",
     "@zerollup/ts-helpers": "^1.0.20",
     "@zerollup/ts-transform-paths": "^1.0.20",
-    "rollup": "^0.58.2",
+    "rollup": "^0.57.1",
     "rollup-plugin-commonjs": "^9.1.0",
     "rollup-plugin-livereload": "^0.6.0",
     "rollup-plugin-node-builtins": "^2.1.2",

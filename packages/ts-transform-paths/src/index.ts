@@ -49,6 +49,16 @@ function importPathVisitor(
     }
     moduleSpecifier.pos = cachedPos
     moduleSpecifier.end = cachedPos + newStr.length
+
+    // const newSpec = ts.createLiteral(newImport)
+
+    // if (ts.isImportDeclaration(node)) return ts.updateImportDeclaration(
+    //     node, undefined, undefined, undefined, newSpec
+    // )
+
+    // if (ts.isExportDeclaration(node)) return ts.updateExportDeclaration(
+    //     node, undefined, undefined, undefined, newSpec
+    // )
 }
 
 export default function transformPaths(ls: ts.LanguageService) {
