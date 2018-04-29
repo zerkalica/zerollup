@@ -18,10 +18,10 @@
   },
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^9.6.6",
+    "@types/node": "^10.0.0",
     "chokidar-cli": "^1.2.0",
-    "lerna": "^2.10.2",
-    "rollup": "^0.58.1",
+    "lerna": "^2.11.0",
+    "rollup": "^0.58.2",
     "source-map-support": "*",
     "typescript": "^2.8.3"
   }

@@ -1,4 +1,5 @@
 import * as ts from 'typescript'
+import {addDtsPlugin} from './addDtsPlugin'
 
 export interface CustomTransformer {
     dts?: boolean
@@ -8,25 +9,11 @@ export interface CustomTransformer {
 
 export type TsPlugin = (ls: ts.LanguageService) => CustomTransformer
 
-export function createTransformerChain(plugins: TsPlugin[]): (program: ts.LanguageService) => ts.CustomTransformers {
-    let a: any = ts
-    const dtsTransformers: ts.TransformerFactory<ts.SourceFile>[] = []
-    const oldEmitFiles = a.emitFiles
+export type Chain = (program: ts.LanguageService) => ts.CustomTransformers
 
-    /**
-     * Hack
-     * Typescript 2.8 does not support transforms for declaration emit
-     * see https://github.com/Microsoft/TypeScript/issues/23701
-     */
-    a.emitFiles = function newEmitFiles(resolver, host, targetSourceFile, emitOnlyDtsFiles, transformers) {
-        let newTransformers = transformers
-        if (emitOnlyDtsFiles && !transformers || transformers.length === 0) {
-            newTransformers = dtsTransformers
-        }
-
-        return oldEmitFiles(resolver, host, targetSourceFile, emitOnlyDtsFiles, newTransformers)
-    }
-
+export function createTransformerChain(
+    plugins: TsPlugin[]
+): Chain {
     return (ls: ts.LanguageService) => {
         const result = {
             before: <ts.TransformerFactory<ts.SourceFile>[]>[],
@@ -37,7 +24,7 @@ export function createTransformerChain(plugins: TsPlugin[]): (program: ts.Langua
             const factory = plugin(ls)
             if (factory.before) {
                 result.before.push(factory.before)
-                if (factory.dts) dtsTransformers.push(factory.before)
+                if (factory.dts) addDtsPlugin(factory.before)
             }
             if (factory.after) result.after.push(factory.after)
         }

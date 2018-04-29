@@ -1,5 +1,6 @@
 export * from './ImportPathsResolver'
 export * from './Replacer'
 export * from './Tokenizer'
-export * from './createTransformerChain'
+export * from './addDtsPlugin'
 export * from './createTraverseVisitor'
+export * from './createTransformerChain'

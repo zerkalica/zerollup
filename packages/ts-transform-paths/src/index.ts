@@ -32,7 +32,7 @@ function importPathVisitor(
 
     /**
      * This hack needed for properly d.ts paths rewrite.
-     * In d.ts moduleSpecifier value is obtained by moduleSpecifier.pos from original source file text.
+     * moduleSpecifier value obtained by moduleSpecifier.pos from original source file text.
      * See emitExternalModuleSpecifier -> writeTextOfNode -> getTextOfNodeFromSourceText.
      *
      * We need to add new import path to the end of source file text and adjust moduleSpecifier.pos
