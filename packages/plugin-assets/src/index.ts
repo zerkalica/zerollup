@@ -156,7 +156,11 @@ export default bu.assets + '${relativeUrl}'
                     if (verbose) console.log(`${name} copy to ${path.resolve(targetRoot)}: \n${resources.map( v => v.id). join("\n")}`)
 
                     return Promise.all(resources.map(rec =>
-                        fsExtra.copy(rec.id, path.join(targetRoot, rec.targetPath))
+                        fsExtra.copy(
+                            rec.id,
+                            path.join(targetRoot, rec.targetPath),
+                            {overwrite: true, recursive: true}
+                        )
                             .catch(error => {
                                 error.message += ' ' + JSON.stringify({
                                     from: rec.id,
