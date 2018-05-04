@@ -1,6 +1,6 @@
 {
   "name": "@zerollup/ts-helpers",
-  "version": "1.0.20",
+  "version": "1.0.22",
   "license": "MIT",
   "description": "Ts transform plugins helpers",
   "author": {
