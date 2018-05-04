@@ -7,15 +7,9 @@ import {Configs} from './getConfigs'
 
 export class GetInputsError extends HelpersError {}
 
-export interface MainEnv {
+export interface MainConfig extends Config {
+    t: 'main'
     env: Env
-    ios: Config
-    baseUrl?: void
-}
-
-export interface MainConfig {
-    input: string
-    envs: MainEnv[]
 }
 
 function getRawInputs(srcDir: string, inputMatch: RegExp): Promise<string[]> {
@@ -40,26 +34,34 @@ export function getInputs(
     {
         pkg: {json: {rollup}, configGlobalName, globalName, external: rExternal, targets, lib, srcDir},
         globals: rGlobals,
-        configs,
-        aliases
+        configs
     } : {
-        aliases: Record<string, string>
         globals : Record<string, string>
         pkg: NormalizedPkg
         configs?: Configs | void
+        envs?: Env[]
     }
 ): Promise<MainConfig[]> {
-    const inputMatch = new RegExp('.*index(?!\.html)\..+')
+    const inputMatch = new RegExp('.*index\..+$')
 
     const external = configs ? [...rExternal, configs.defaultConfigPath] : rExternal
     const globals = configs ? {...rGlobals, [configs.defaultConfigPath]: configGlobalName} : rGlobals
-    const envs: Env[] = configs ? configs.envs : ['production']
+
+    const envs: Env[] = configs
+        ? configs.configs.reduce((acc, config) => {
+            if (acc.indexOf(config.env) === -1) acc.push(config.env)
+            return acc
+        }, <Env[]>[])
+        : ['production']
+
     return (rollup.inputs ? Promise.resolve(rollup.inputs) : getRawInputs(srcDir, inputMatch))
-        .then(files => files.map(file => <MainConfig>({
-                input: file,
-                envs: envs.map(env => <MainEnv>({
-                    env,
-                    ios: {
+        .then(files => {
+            const result: MainConfig[] = []
+            for (let file of files) {
+                for (let env of envs) {
+                    result.push({
+                        t: 'main',
+                        env,
                         input: file,
                         external,
                         output: targets.map(({file: outFile, format, ext}) => ({
@@ -71,8 +73,9 @@ export function getInputs(
                             globals,
                             name: globalName
                         }))
-                    }
-                }))
-            })
-        ))
+                    })
+                }
+            }
+            return result
+        })
 }

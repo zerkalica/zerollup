@@ -1,8 +1,8 @@
 {
-  "name": "@zerollup/plugin-notify",
+  "name": "@zerollup/plugin-template",
   "version": "1.0.21",
   "license": "MIT",
-  "description": "Rollup notify plugin",
+  "description": "Rollup template plugin",
   "author": {
     "name": "Stefan Zerkalica",
     "email": "zerkalica@gmail.com"
@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/zerkalica/zerollup/issues"
   },
-  "homepage": "https://github.com/zerkalica/zerollup/packages/plugin-notify/#readme",
+  "homepage": "https://github.com/zerkalica/zerollup/packages/plugin-template/#readme",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",
@@ -38,9 +38,6 @@
     "rollup": "=>0.57.1"
   },
   "dependencies": {
-    "node-notifier": "^5.2.1"
-  },
-  "devDependencies": {
-    "@types/node-notifier": "0.0.28"
+    "@zerollup/helpers": "^1"
   }
 }

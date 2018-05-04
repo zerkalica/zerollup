@@ -15,7 +15,7 @@
     "url": "https://github.com/zerkalica/zerollup/issues"
   },
   "homepage": "https://github.com/zerkalica/zerollup/packages/plugin-assets/#readme",
-  "main": "dist/index.cjs.js",
+  "main": "dist/index.js",
   "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",
   "files": [
@@ -34,10 +34,12 @@
     "assets",
     "assets path"
   ],
+  "peerDependencies": {
+    "rollup": "=>0.57.1"
+  },
   "dependencies": {
     "@zerollup/helpers": "^1.0.18",
     "fs-extra": "^5.0.0",
-    "rollup": "^0.57.1",
     "rollup-pluginutils": "^2.0.1"
   },
   "devDependencies": {

@@ -6,16 +6,15 @@ import {cutExt, normalizeName, Env, getEnv} from './nameHelpers'
 
 export class GetConfigsError extends HelpersError {}
 
-export interface SettingsConfig {
-    ios: Config
-    hostId: string
+export interface SettingsConfig extends Config {
+    t: 'config'
     env: Env
     baseUrl: string
+    mainFiles: string[]
 }
 
 export interface Configs {
     defaultConfigPath: string
-    envs: Env[]
     configs: SettingsConfig[]
 }
 
@@ -64,36 +63,33 @@ export function getConfigs(
                         const env = envMatch ? getEnv(envMatch[1]) : defaultEnv
                         const hostId = cutExt(fileName)
                         const configFileName = `config.${hostId}.js`
-                        const config: SettingsConfig = {
-                            hostId,
+                        return <SettingsConfig> {
+                            t: 'config',
                             baseUrl: ((baseUrlMatch ? baseUrlMatch[1] : null) || '/')
                                 .replace(/PKG_VERSION/g, version)
                                 .replace(/PKG_NAME/g, normalizeName(name)),
                             env,
-                            ios: {
-                                input,
-                                external,
-                                output: [
-                                    {
-                                        sourcemap: false,
-                                        file: filtered.length === 1
-                                            ? path.join(distDir, configFileName)
-                                            : path.join(distDir, 'hosts', hostId, configFileName),
-                                        format: iife
-                                            ? 'iife'
-                                            : (umd ? 'umd' : targets[0].format),
-                                        globals: globals,
-                                        name: configGlobalName
-                                    }
-                                ]
-                            }
+                            mainFiles: [],
+                            input,
+                            external,
+                            output: [
+                                {
+                                    sourcemap: false,
+                                    file: filtered.length === 1
+                                        ? path.join(distDir, configFileName)
+                                        : path.join(distDir, 'hosts', hostId, configFileName),
+                                    format: iife
+                                        ? 'iife'
+                                        : (umd ? 'umd' : targets[0].format),
+                                    globals: globals,
+                                    name: configGlobalName
+                                }
+                            ]
                         }
-                        return config
                     })
             }))
             .then((configs: SettingsConfig[]) => ({
                 defaultConfigPath,
-                envs: Array.from(new Set(configs.map(config => <Env> config.env))),
                 configs
             }))
         })

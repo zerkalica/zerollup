@@ -1,9 +1,6 @@
 {
 	"compilerOptions": {
 		"baseUrl": ".",
-		"paths": {
-			"@zerollup/*": ["packages/*/src"]	
-		},
 		"newLine": "LF",
 		"allowSyntheticDefaultImports": false,
 		"declaration": true,

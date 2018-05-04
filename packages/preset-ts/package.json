@@ -15,7 +15,7 @@
     "url": "https://github.com/zerkalica/zerollup/issues"
   },
   "homepage": "https://github.com/zerkalica/zerollup/packages/preset-ts/#readme",
-  "main": "dist/index.cjs.js",
+  "main": "dist/index.js",
   "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",
   "files": [
@@ -32,6 +32,10 @@
     "configuration",
     "bundler"
   ],
+  "peerDependencies": {
+    "rollup": "=>0.57.1",
+    "typescript": "=>2.8.3"
+  },
   "dependencies": {
     "@zerollup/helpers": "^1.0.18",
     "@zerollup/plugin-assets": "^1.0.21",
@@ -39,7 +43,6 @@
     "@zerollup/plugin-template": "^1.0.2",
     "@zerollup/ts-helpers": "^1.0.20",
     "@zerollup/ts-transform-paths": "^1.0.21",
-    "rollup": "^0.57.1",
     "rollup-plugin-commonjs": "^9.1.0",
     "rollup-plugin-livereload": "^0.6.0",
     "rollup-plugin-node-builtins": "^2.1.2",

@@ -15,7 +15,7 @@
     "url": "https://github.com/zerkalica/zerollup/issues"
   },
   "homepage": "https://github.com/zerkalica/zerollup/packages/ts-transform-paths/#readme",
-  "main": "dist/index.cjs.js",
+  "main": "dist/index.js",
   "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",
   "files": [
@@ -33,8 +33,10 @@
     "path",
     "alias"
   ],
+  "peerDependencies": {
+    "typescript": "=>2.8.3"
+  },
   "dependencies": {
-    "@zerollup/ts-helpers": "^1.0.20",
-    "typescript": "^2.8.3"
+    "@zerollup/ts-helpers": "^1.0.20"
   }
 }

@@ -1,19 +1,14 @@
 import * as fsExtra from 'fs-extra'
-import * as path from 'path'
-import {NormalizedPkg} from './getPackageJson'
+import {Pkg} from './getPackageJson'
 
-import {SettingsConfig} from './getConfigs'
-import {MainConfig, MainEnv} from './getInputs'
-import {HelpersError} from './interfaces'
-
-export class GetPagesError extends HelpersError {}
-
-export interface TemplateFnOptions {
-    pkg: NormalizedPkg
+export interface TemplateFnOptions<Config> {
+    pkg: Pkg
     baseUrl: string
-    configFile?: string
+    configFile?: string | void
+    config?: Config | void
     mainFile: string
-    hostId: string
+    globalName: string
+    configName: string
 }
 
 export interface Page {
@@ -22,17 +17,28 @@ export interface Page {
 }
 
 export type Template = Promise<string | Page[] | void> | string | Page[] | void
+export type TemplateFn<Config> = (opts: TemplateFnOptions<Config>) => Template
+export type RequireFn<Config> = (module: string) => Promise<TemplateFn<Config> | void> | TemplateFn<Config> | void
 
-export function defaultTemplate({pkg: {json, globalName}, baseUrl, configFile, mainFile}: TemplateFnOptions): Template {
+export function defaultTemplate<Config>(
+    {
+        config,
+        configName,
+        pkg, globalName, baseUrl, configFile, mainFile
+    }: TemplateFnOptions<Config>
+): Template {
     return `<!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>${json.description || json.name}</title>
+        <title>${pkg.description || pkg.name}</title>
     </head>
     <body>
         <div id="app"></div>
-        ${configFile ? `<script src="${baseUrl + configFile}"></script>` : ''}
+        ${config
+            ? `<script> var ${configName} = ${JSON.stringify(config, undefined, '  ')};</script>`
+            : configFile ? `<script src="${baseUrl + configFile}"></script>` : ''
+        }
         <script src="${baseUrl + mainFile}"></script>
         <script>${globalName}(document.getElementById('app'))</script>
     </body>
@@ -40,14 +46,14 @@ export function defaultTemplate({pkg: {json, globalName}, baseUrl, configFile, m
 `
 }
 
-export type TemplateFn = (opts: TemplateFnOptions) => Template
-
-const templateFnCache: Map<string, Promise<TemplateFn | void>> = new Map()
-
-function getTemplateFn(templateFile?: string): Promise<TemplateFn | void> {
+const templateFnCache: Map<string, Promise<TemplateFn<any> | void>> = new Map()
+function getTemplateFn<Config>(
+    templateFile: string,
+    require: RequireFn<Config>
+): Promise<TemplateFn<Config> | void> {
     if (!templateFile) return Promise.resolve(defaultTemplate)
 
-    let fn: Promise<TemplateFn | void> | void = templateFnCache.get(templateFile)
+    let fn: Promise<TemplateFn<Config> | void> | void = templateFnCache.get(templateFile)
     if (fn) return fn
 
     fn = (templateFile ? fsExtra.pathExists(templateFile) : Promise.resolve(false))
@@ -57,69 +63,27 @@ function getTemplateFn(templateFile?: string): Promise<TemplateFn | void> {
     return fn
 }
 
-interface InternalPage {
-    pkg: NormalizedPkg
-    main: MainEnv
-    config: SettingsConfig
+export interface GetPagesOptions<Config> extends TemplateFnOptions<Config> {
+    templateFn?: TemplateFn<Config> | string | void
 }
 
-function pageToTemplatePage({pkg, main, config}: InternalPage): Promise<Page[]> {
-    const input = main.ios.input
-    const extPos = input.lastIndexOf('.')
-    const inputExt = input.substring(extPos)
-    const templateFile = input.substring(0, extPos) + '.html' + inputExt
-    const defaultTemplateFile = path.join(path.dirname(input), 'default.html' + inputExt)
-
-    const configPath = config.ios.output[0].file
-    let templateDir = path.dirname(configPath)
-    if (templateDir.indexOf(pkg.distDir) === 0) templateDir = templateDir.substring(pkg.distDir.length)
-    const mainFile = path.basename(main.ios.output[0].file)
-
-    const defaultPageName = mainFile.substring(0, mainFile.indexOf('.')) + '.html'
-
-    const opts: TemplateFnOptions = {
-        pkg,
-        hostId: config.hostId,
-        baseUrl: config.baseUrl,
-        mainFile,
-        configFile: path.basename(configPath)
-    }
-
-    return Promise.all([getTemplateFn(templateFile), getTemplateFn(defaultTemplateFile)])
-        .then(([templateFn, defaultTemplateFn]) => (templateFn || defaultTemplateFn || defaultTemplate)(opts))
-        .then((data: string | Page[] | void) => {
-            return (data instanceof Array
-                    ? data
-                    : (data ? [{data, file: defaultPageName}] : [])
-                ).map(tp => <Page>({
-                    data: tp.data,
-                    file: path.join(templateDir, tp.file)
-                }))
-        })
-}
-
-export function getPages(
-    {input: {input, envs}, configs, pkg}: {
-        input: MainConfig
-        configs: SettingsConfig[]
-        pkg: NormalizedPkg
-    }
+export function getPages<Config>(
+    opts: GetPagesOptions<Config>
 ): Promise<Page[]> {
-    const pages: InternalPage[] = configs.map(config => {
-        const main = envs.find(rec => rec.env === config.env)
-        if (!main) throw new GetPagesError(
-            `Given envs ${envs.map(rec => rec.env).join(', ')}, needed ${config.env}`
-        )
-        return {
-            pkg,
-            config,
-            main
-        }
-    })
+    const defaultPageName = opts.mainFile.substring(0, opts.mainFile.indexOf('.')) + '.html'
 
-    return Promise.all(pages.map(pageToTemplatePage))
-        .then(pageSets => pageSets.reduce(
-            (acc, templatePages) => ([...acc, ...templatePages]),
-            <Page[]>[]
+    return (
+        typeof opts.templateFn === 'string'
+            ? getTemplateFn(opts.templateFn, require)
+            : Promise.resolve(opts.templateFn)
+    )
+        .then(templateFn => (templateFn || defaultTemplate)(opts))
+        .then((data: string | Page[] | void) => (
+            data instanceof Array
+                ? data
+                : (data
+                    ? [<Page>{data, file: defaultPageName}]
+                    : <Page[]>[]
+                )
         ))
 }

@@ -14,7 +14,8 @@ import {minify} from 'uglify-es'
 
 import notify from '@zerollup/plugin-notify'
 import assets from '@zerollup/plugin-assets'
-import {getPackageSet, writePages} from '@zerollup/helpers'
+import template from '@zerollup/plugin-template'
+import {getPackageSet} from '@zerollup/helpers'
 import tsTransformPaths from '@zerollup/ts-transform-paths'
 import {createTransformerChain} from '@zerollup/ts-helpers'
 
@@ -67,7 +68,7 @@ export default function rollupConfig(
                 }
             }, minify)
         ]
-        return Promise.all(packageSet.map(({pkg, configs, pages}, pkgIndex) => {
+        return Promise.all(packageSet.map(({pkg, configs}, pkgIndex) => {
             const pkgPlugins: Plugin[] = [
                 resolve({
                     extensions: ['.mjs', '.js', '.json'],
@@ -76,7 +77,7 @@ export default function rollupConfig(
                 commonjs({
                     include: 'node_modules/**',
                     namedExports
-                }),  
+                }),
                 assets({
                     name: pkg.json.name,
                     pkgRoot: pkg.pkgRoot,
@@ -85,7 +86,7 @@ export default function rollupConfig(
                 typescript({
                     abortOnError: true,
                     check: !watch,
-                    clean: true,
+                    clean: !watch,
                     exclude: ['*.spec*', '**/*.spec*'],
                     tsconfig: path.join(repoRoot, 'tsconfig.base.json'),
                     useTsconfigDeclarationDir: true,
@@ -107,20 +108,27 @@ export default function rollupConfig(
                 ...commonPlugins,
             ]
 
-            const configSet = configs.map((config, i) => ({
-                input: config.ios.input,
-                output: config.ios.output,
-                external: config.ios.external,
+            return configs.map((config, i) => ({
+                input: config.input,
+                output: config.output,
+                external: config.external,
                 cache,
                 plugins: <Plugin[]>[
                     ...pkgPlugins,
-                    replace({
+                    config.t === 'main' && replace({
                         values: {
                             'process.env.BROWSER': JSON.stringify(!pkg.lib),
                             'process.env.NODE_ENV': JSON.stringify(config.env)
                         }
                     }),
-                    config.baseUrl && replace({
+                    config.t === 'config' && template({
+                        pkg: pkg.json,
+                        mainFiles: config.mainFiles,
+                        baseUrl: config.baseUrl,
+                        globalName: pkg.globalName,
+                        configName: pkg.configGlobalName
+                    }),
+                    config.t === 'config' && replace({
                         include: [
                             `${pkg.configDir}/*`
                         ],
@@ -142,9 +150,6 @@ export default function rollupConfig(
                     }),
                 ].filter(Boolean)
             }))
-
-            return writePages({pages, distDir: pkg.distDir})
-                .then(() => configSet)
         }))
             .then(packageSetConfig => packageSetConfig.reduce((acc, config) => acc.concat(config), []))
     })
