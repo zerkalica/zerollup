@@ -35,13 +35,14 @@ export function getAdvancedInfo(
 
             const configs: (SettingsConfig | MainConfig)[] = []
 
-            for (let config of rawConfigs) {
-                for (let main of inputs) {
-                    configs.push(main)
+            for (let main of inputs) {
+                configs.push(main)
+                const mainFile = path.basename(main.output[0].file)
+                for (let config of rawConfigs) {
+                    configs.push(config)
                     if (main.env === config.env)
-                        config.mainFiles.push(path.basename(main.output[0].file))
+                        config.mainFiles.push(mainFile)
                 }
-                configs.push(config)
             }
 
             return <AdvancedInfo> {

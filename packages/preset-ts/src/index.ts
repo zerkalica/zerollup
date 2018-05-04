@@ -21,7 +21,7 @@ import {createTransformerChain} from '@zerollup/ts-helpers'
 
 export type Config = OutputOptions & InputOptions & WatcherOptions
 
-const transformers = createTransformerChain([tsTransformPaths])
+const transformers = [createTransformerChain([tsTransformPaths])]
 
 const nodePrefix = 'node:'
 
@@ -68,14 +68,14 @@ export default function rollupConfig(
                 }
             }, minify)
         ]
-        return Promise.all(packageSet.map(({pkg, configs}, pkgIndex) => {
+
+        return packageSet.map(({pkg, configs}, pkgIndex) => {
             const pkgPlugins: Plugin[] = [
                 resolve({
                     extensions: ['.mjs', '.js', '.json'],
                     jsnext: true
                 }),
                 commonjs({
-                    include: 'node_modules/**',
                     namedExports
                 }),
                 assets({
@@ -150,7 +150,6 @@ export default function rollupConfig(
                     }),
                 ].filter(Boolean)
             }))
-        }))
-            .then(packageSetConfig => packageSetConfig.reduce((acc, config) => acc.concat(config), []))
+        }).reduce((acc, config) => acc.concat(config), [])
     })
 }
