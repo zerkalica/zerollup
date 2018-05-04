@@ -1,6 +1,6 @@
 {
   "name": "@zerollup/plugin-template",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "license": "MIT",
   "description": "Rollup template plugin",
   "author": {
@@ -38,6 +38,6 @@
     "rollup": "=>0.57.1"
   },
   "dependencies": {
-    "@zerollup/helpers": "^1.0.22"
+    "@zerollup/helpers": "^1.0.23"
   }
 }
