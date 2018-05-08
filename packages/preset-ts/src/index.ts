@@ -16,14 +16,14 @@ import notify from '@zerollup/plugin-notify'
 import assets from '@zerollup/plugin-assets'
 import template from '@zerollup/plugin-template'
 import {getPackageSet} from '@zerollup/helpers'
-import {createTransformerChain} from '@zerollup/ts-helpers'
+import {PluginCreator} from '@zerollup/ts-helpers'
 
 export type Config = OutputOptions & InputOptions & WatcherOptions
 
 const transformers = [
-    createTransformerChain([
-        'ls:@zerollup/ts-transform-paths'
-    ])
+    new PluginCreator([
+        { transform: '@zerollup/ts-transform-paths', type: 'ls' }
+    ]).createTransformers
 ]
 
 const nodePrefix = 'node:'
