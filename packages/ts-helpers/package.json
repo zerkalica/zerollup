@@ -35,5 +35,12 @@
   ],
   "peerDependencies": {
     "typescript": "=>2.8.3"
+  },
+  "dependencies": {
+    "compare-versions": "^3.1.0",
+    "resolve": "^1.7.1"
+  },
+  "devDependencies": {
+    "@types/resolve": "0.0.8"
   }
 }

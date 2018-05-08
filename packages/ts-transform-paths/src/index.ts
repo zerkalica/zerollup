@@ -62,8 +62,8 @@ function importPathVisitor(
 }
 
 export default function transformPaths(ls: ts.LanguageService) {
-    return {
-        dts: true,
+    const processed = new Set<string>()
+    const plugin = {
         before(
             transformationContext: ts.TransformationContext
         ): ts.Transformer<ts.SourceFile> {
@@ -72,10 +72,13 @@ export default function transformPaths(ls: ts.LanguageService) {
             )
 
             return (sf: ts.SourceFile) => {
+                if (processed.has(sf.fileName)) return sf
+                processed.add(sf.fileName)
                 const ctx: ImportPathVisitorContext = {
                     resolver,
                     posMap: new Map<string, number>()
                 }
+
 
                 const visitor = createTraverseVisitor(
                     importPathVisitor,
@@ -84,6 +87,13 @@ export default function transformPaths(ls: ts.LanguageService) {
                 )
                 return ts.visitNode(sf, visitor)
             }
+        },
+        afterDeclaration(
+            transformationContext: ts.TransformationContext            
+        ): ts.Transformer<ts.SourceFile> {
+            return plugin.before(transformationContext)
         }
     }
+
+    return plugin
 }
