@@ -23,7 +23,7 @@ export type PluginFactory = {
     (opts: ts.TypeChecker, options?: PluginOptions): Plugin
 }
 
-export type RawPluginFactory = string | [string, PluginOptions] | PluginFactory | [PluginFactory, PluginOptions]
+export type RawPluginFactory = string | [string, PluginOptions] | PluginFactory | [PluginFactory, PluginOptions] | {name: string, options: PluginOptions}
 
 export type TsMain = ts.LanguageService | ts.Program | ts.CompilerOptions | ts.TypeChecker
 
@@ -135,11 +135,17 @@ export class PluginCollector {
         }
     
         for(let raw of rawFactories) {
-            const factory = raw instanceof Array ? raw[0] : raw
+            const factory = raw instanceof Array
+                ? raw[0]
+                : (raw && typeof raw === 'object' ? raw.name : raw)
 
             const plugin = this.createPlugin(
-                typeof factory === 'string' ? this.resolveFactory(factory) : factory,
-                raw instanceof Array ? raw[1] : undefined
+                typeof factory === 'string'
+                    ? this.resolveFactory(factory)
+                    : factory,
+                raw instanceof Array
+                    ? raw[1]
+                    : (raw && typeof raw === 'object' ? raw.options : undefined)
             )
     
             if (plugin.before) chain.before.push(plugin.before)
@@ -156,6 +162,7 @@ export class PluginCollector {
  * 
  * createTransformerChain([
  *   ['ls:@zerollup/ts-transform-paths', {someOption: '123'}],
+ *   {name: 'ls:@zerollup/ts-transform-paths', options: {someOption: '123'}},
  *   'ls:@zerollup/ts-transform-paths',
  *   'program-ts-plugin'
  * ])
