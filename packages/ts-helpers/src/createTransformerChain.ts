@@ -18,11 +18,14 @@ export type PluginFactory = {
 } | {
     type: 'opts'
     (opts: ts.CompilerOptions, options?: PluginOptions): Plugin
+} | {
+    type: 'checker'
+    (opts: ts.TypeChecker, options?: PluginOptions): Plugin
 }
 
 export type RawPluginFactory = string | [string, PluginOptions] | PluginFactory | [PluginFactory, PluginOptions]
 
-export type TsMain = ts.LanguageService | ts.Program | ts.CompilerOptions
+export type TsMain = ts.LanguageService | ts.Program | ts.CompilerOptions | ts.TypeChecker
 
 function patchEmitFiles(): ts.TransformerFactory<ts.SourceFile>[] {
     let a: any = ts
@@ -49,13 +52,38 @@ function patchEmitFiles(): ts.TransformerFactory<ts.SourceFile>[] {
 
 export class PluginCollector {
     private ls: ts.LanguageService | void
-    private program: ts.Program
+    private program: ts.Program | void
+    private opts: ts.CompilerOptions | void
+    private checker: ts.TypeChecker | void
 
     constructor(main: TsMain, private isOldVersion: boolean, private basedir: string) {
         this.ls = typeof (main as any).getProgram === 'function'
             ? main as ts.LanguageService
             : undefined
-        if (this.ls) this.program = this.ls.getProgram()
+
+        this.program = this.ls
+            ? this.ls.getProgram()
+            : (
+                typeof (main as any).getTypeChecker === 'function'
+                    ? main as ts.Program
+                    : undefined
+            )
+        
+        this.checker = this.program
+            ? this.program.getTypeChecker()
+            : (
+                typeof (main as any).getBaseTypes === 'function'
+                    ? main as ts.TypeChecker
+                    : undefined
+            )
+
+        this.opts = this.program
+            ? this.program.getCompilerOptions()
+            : (
+                typeof (main as any).getBaseTypes === 'function'
+                    ? undefined
+                    : main as ts.CompilerOptions
+            )
     }
 
     createPlugin(factory: PluginFactory, options: PluginOptions): Plugin {
@@ -65,10 +93,16 @@ export class PluginCollector {
                 return factory(this.ls, options)
 
             case 'opts':
-                return factory(this.program.getCompilerOptions(), options)
+                if (!this.opts) throw new Error(`Plugin ${String(factory)} need a CompilerOptions`)
+                return factory(this.opts, options)
+
+            case 'checker':
+                if (!this.checker) throw new Error(`Plugin ${String(factory)} need a TypeChecker`)
+                return factory(this.checker, options)
 
             case 'program':
             default:
+                if (!this.program) throw new Error(`Plugin ${String(factory)} need a Program`)
                 return factory(this.program, options)
         }
     }
