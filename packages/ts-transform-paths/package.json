@@ -1,6 +1,6 @@
 {
   "name": "@zerollup/ts-transform-paths",
-  "version": "1.0.22",
+  "version": "1.0.25",
   "license": "MIT",
   "description": "Ts transform paths",
   "author": {
@@ -37,6 +37,6 @@
     "typescript": "=>2.8.3"
   },
   "dependencies": {
-    "@zerollup/ts-helpers": "^1.0.22"
+    "@zerollup/ts-helpers": "^1.0.25"
   }
 }
