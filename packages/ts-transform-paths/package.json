@@ -37,6 +37,7 @@
     "typescript": "=>2.8.3"
   },
   "dependencies": {
+    "compare-versions": "^3.1.0",
     "@zerollup/ts-helpers": "^1.1.1"
   }
 }

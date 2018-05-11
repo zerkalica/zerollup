@@ -1,6 +1,7 @@
 import * as path from 'path'
 import * as ts from 'typescript'
 import {ImportPathsResolver, createTraverseVisitor} from '@zerollup/ts-helpers'
+import compareVersions from 'compare-versions'
 
 interface ImportPathVisitorContext {
     resolver: ImportPathsResolver
@@ -61,6 +62,31 @@ function importPathVisitor(
     // )
 }
 
+function patchEmitFiles(host: any): ts.TransformerFactory<ts.SourceFile>[] {
+    if (host.emitFiles.__patched) return host.emitFiles.__patched
+    const dtsTransformers: ts.TransformerFactory<ts.SourceFile>[] = []
+
+    const oldEmitFiles = host.emitFiles
+    /**
+     * Hack
+     * Typescript 2.8 does not support transforms for declaration emit
+     * see https://github.com/Microsoft/TypeScript/issues/23701
+     */
+    host.emitFiles = function newEmitFiles(resolver, host, targetSourceFile, emitOnlyDtsFiles, transformers) {
+        let newTransformers = transformers
+        if (emitOnlyDtsFiles && !transformers || transformers.length === 0) {
+            newTransformers = dtsTransformers
+        }
+
+        return oldEmitFiles(resolver, host, targetSourceFile, emitOnlyDtsFiles, newTransformers)
+    }
+    host.emitFiles.__patched = dtsTransformers
+
+    return dtsTransformers
+}
+
+let isPatched = false
+
 export default function transformPaths(program: ts.Program) {
     const processed = new Set<string>()
     const plugin = {
@@ -93,6 +119,11 @@ export default function transformPaths(program: ts.Program) {
         ): ts.Transformer<ts.SourceFile> {
             return plugin.before(transformationContext)
         }
+    }
+
+    if (!isPatched && compareVersions(ts.versionMajorMinor, '2.9') < 0) {
+        isPatched = true
+        patchEmitFiles(ts).push(plugin.afterDeclaration)
     }
 
     return plugin
