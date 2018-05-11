@@ -6,16 +6,22 @@ Works everywhere, no more [tspath](https://github.com/duffman/tspath), [rollup-p
 
 Why? Problem described [here](https://github.com/Microsoft/TypeScript/issues/23701): d.ts files not working, if absolute paths used in npm-packaged library.
 
-## Usage
+## Setup
+
+For setup transform plugin use [ttypescript](https://github.com/cevek/ttypescript). This is a wrapper around typescript with transformer plugin support in tsconfig.json.
 
 my-lib/tsconfig.json:
+
 ```json
 {
     "compilerOptions": {
         "baseUrl": ".",
         "paths": {
             "my-lib/*": ["src/*"]
-        }
+        },
+        "plugins": [
+            { "transform": "@zerollup/ts-transform-paths" }
+        ]
     }
 }
 ```
@@ -43,27 +49,6 @@ export * from './some';
 ```
 
 For more examples see [zerollup demo lib](https://github.com/zerkalica/zerollup-demo/tree/master/packages/lib1).
-
-## Setup
-
-[rollup-plugin-typescript2 >= 0.14](https://github.com/ezolenko/rollup-plugin-typescript2) supports ts-trasformers.
-
-rollup.config.js
-```js
-import {createTransformerChain} from '@zerollup/ts-helpers'
-import tsTransformPaths from '@zerollup/ts-transform-paths'
-
-const transformers = createTransformerChain([tsTransformPaths])
-
-export default {
-    plugins: [
-        typescript({
-            tsconfig: path.join(repoRoot, 'tsconfig.base.json'),
-            transformers
-        })
-    ]
-}
-```
 
 ## Limitations
 

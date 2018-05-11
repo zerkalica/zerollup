@@ -61,7 +61,7 @@ function importPathVisitor(
     // )
 }
 
-export default function transformPaths(ls: ts.LanguageService) {
+export default function transformPaths(program: ts.Program) {
     const processed = new Set<string>()
     const plugin = {
         before(

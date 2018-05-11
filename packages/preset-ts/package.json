@@ -34,7 +34,8 @@
   ],
   "peerDependencies": {
     "rollup": "=>0.57.1",
-    "typescript": "=>2.8.3"
+    "typescript": "=>2.8.3",
+    "ttypescript": "^1.2.0"
   },
   "dependencies": {
     "@zerollup/helpers": "^1.0.23",

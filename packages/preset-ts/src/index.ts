@@ -16,15 +16,9 @@ import notify from '@zerollup/plugin-notify'
 import assets from '@zerollup/plugin-assets'
 import template from '@zerollup/plugin-template'
 import {getPackageSet} from '@zerollup/helpers'
-import {PluginCreator} from '@zerollup/ts-helpers'
+import * as ttypescript from 'ttypescript'
 
 export type Config = OutputOptions & InputOptions & WatcherOptions
-
-const transformers = [
-    new PluginCreator([
-        { transform: '@zerollup/ts-transform-paths', type: 'ls' }
-    ]).createTransformers
-]
 
 const nodePrefix = 'node:'
 
@@ -93,7 +87,7 @@ export default function rollupConfig(
                     exclude: ['*.spec*', '**/*.spec*'],
                     tsconfig: path.join(repoRoot, 'tsconfig.base.json'),
                     useTsconfigDeclarationDir: true,
-                    transformers,
+                    typescript: ttypescript,
                     tsconfigOverride: {
                         compilerOptions: {
                             baseUrl: repoRoot,
