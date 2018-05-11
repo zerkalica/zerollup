@@ -34,10 +34,10 @@
   ],
   "peerDependencies": {
     "rollup": "=>0.57.1",
-    "ttypescript": "^1.2.0",
     "typescript": "=>2.8.3"
   },
   "dependencies": {
+    "ttypescript": "^1.2.0",
     "@zerollup/helpers": "^1.0.23",
     "@zerollup/plugin-assets": "^1.0.24",
     "@zerollup/plugin-notify": "^1.0.22",
