@@ -43,17 +43,17 @@
     "@zerollup/plugin-template": "^1.0.23",
     "@zerollup/ts-helpers": "^1.1.1",
     "@zerollup/ts-transform-paths": "^1.1.2",
-    "rollup-plugin-commonjs": "^9.1.0",
+    "rollup-plugin-commonjs": "^9.1.3",
     "rollup-plugin-livereload": "^0.6.0",
     "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-node-globals": "^1.2.0",
+    "rollup-plugin-node-globals": "^1.2.1",
     "rollup-plugin-node-resolve": "^3.3.0",
     "rollup-plugin-replace": "^2.0.0",
     "rollup-plugin-serve": "^0.4.2",
     "rollup-plugin-sourcemaps": "^0.4.2",
     "rollup-plugin-typescript2": "^0.14.0",
     "rollup-plugin-uglify": "^3.0.0",
-    "ttypescript": "^1.2.0",
+    "ttypescript": "^1.4.1",
     "uglify-es": "^3.3.9"
   }
 }

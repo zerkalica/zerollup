@@ -9,7 +9,7 @@
     "build": "rollup -c rollup.config.js",
     "dev": "rollup -w -c rollup.config.js",
     "postinstall": "lerna bootstrap --hoist",
-    "publish": "npm run build && lerna publish --yes",
+    "publish": "npm run build && lerna publish --conventional-commits --yes",
     "watch": "chokidar --initial -d 2000 -t 1000 'packages/*/dist/**' -c 'npm run build && cp -rvf packages/*/dist/* $npm_package_config_dest/node_modules/@zerollup'"
   },
   "author": {
@@ -18,10 +18,10 @@
   },
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^10.0.0",
+    "@types/node": "^10.1.0",
     "chokidar-cli": "^1.2.0",
     "lerna": "^2.11.0",
-    "rollup": "^0.57.1",
+    "rollup": "^0.59.0",
     "source-map-support": "*",
     "typescript": "^2.8.3"
   }
