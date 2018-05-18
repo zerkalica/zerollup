@@ -6,7 +6,7 @@ notifications:
     on_success: change
     on_failure: always
 before_install:
-- ./.ci-lerna.sh
+- .ci/lerna.sh
 script:
 - npm run publish -- --git-remote=ci
 env:
