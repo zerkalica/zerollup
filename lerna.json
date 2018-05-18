@@ -3,7 +3,8 @@
   "command": {
     "init": {
       "exact": true
-    }
+    },
+    "publish": "chore(release): %s [ci skip]"
   },
   "packages": [
     "packages/*"
