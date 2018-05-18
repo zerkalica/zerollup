@@ -1,13 +1,13 @@
 #!/bin/sh
 
-REPOSITORY=$(git config --get remote.origin.url | cut -d ':' -f 2)
+REPOSITORY=$(git config --get remote.origin.url | sed "s/^\(https:\/\/\)\(.*\)/\1${GH_TOKEN}@\2/")
 BRANCH=master
 
 git checkout $BRANCH
 git config --global user.email test@example.com
 git config --global user.name "Marty Mcfly"
-echo "setup remote for $REPOSITORY / $BRANCH"
-git remote add ci "https://${GH_TOKEN}@github.com/${REPOSITORY}"
+echo "setup remote for $(git config --get remote.origin.url) $BRANCH"
+git remote add ci ${REPOSITORY}
 
 git branch --set-upstream-to=ci/$BRANCH $BRANCH
 
