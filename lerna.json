@@ -4,7 +4,9 @@
     "init": {
       "exact": true
     },
-    "publish": "chore(release): %s [ci skip]"
+    "publish": {
+      "message": "chore(release): %s [ci skip]"
+    }
   },
   "packages": [
     "packages/*"
