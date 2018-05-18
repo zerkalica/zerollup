@@ -114,7 +114,7 @@ export default function transformPaths(program: ts.Program) {
                 return ts.visitNode(sf, visitor)
             }
         },
-        afterDeclaration(
+        afterDeclarations(
             transformationContext: ts.TransformationContext            
         ): ts.Transformer<ts.SourceFile> {
             return plugin.before(transformationContext)
@@ -123,7 +123,7 @@ export default function transformPaths(program: ts.Program) {
 
     if (!isPatched && compareVersions(ts.versionMajorMinor, '2.9') < 0) {
         isPatched = true
-        patchEmitFiles(ts).push(plugin.afterDeclaration)
+        patchEmitFiles(ts).push(plugin.afterDeclarations)
     }
 
     return plugin

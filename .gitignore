@@ -12,3 +12,4 @@ tags
 *.map
 /*.sh
 packages/*/package-lock.json
+.npmrc
