@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="1.2.0"></a>
+# [1.2.0](https://github.com/zerkalica/zerollup/compare/v1.1.4...v1.2.0) (2018-05-22)
+
+
+### Bug Fixes
+
+* **build:** set upstream removed ([ef0803a](https://github.com/zerkalica/zerollup/commit/ef0803a))
+
+
+### Features
+
+* **ts-transform-plugin:** initial require support ([1aa3762](https://github.com/zerkalica/zerollup/commit/1aa3762))
+
+
+
+
 <a name="1.1.4"></a>
 ## [1.1.4](https://github.com/zerkalica/zerollup/compare/v1.1.3...v1.1.4) (2018-05-18)
 
