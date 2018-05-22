@@ -14,16 +14,28 @@ function importPathVisitor(
     node: ts.Node,
     {posMap, resolver}: ImportPathVisitorContext
 ): ts.Node | void {
-    if (!ts.isImportDeclaration(node) && !ts.isExportDeclaration(node)) return
+    let importValue: string
+    let fixNode: ts.Node
+    if (ts.isCallExpression(node)) {
+        if (node.expression.getText() !== 'require' || node.arguments.length !== 1) return
+        const arg = node.arguments[0]
+        if (!ts.isStringLiteral(arg)) return
+        importValue = arg.getText()
+        fixNode = arg
+    } else if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
+        if (!node.moduleSpecifier) return
+        importValue = node.moduleSpecifier.getFullText()
+        fixNode = node.moduleSpecifier
+    } else {
+        return
+    }
 
-    const moduleSpecifier = node.moduleSpecifier
-    if (!moduleSpecifier) return
-
-    const matches = moduleSpecifier.getFullText().match(importPathRegex)
+    const matches = importValue.match(importPathRegex)
     if (!matches) return
 
     const [, prefix, oldImport, suffix] = matches
     const sf = node.getSourceFile()
+
     const newImports = resolver.getImportSuggestions(
         oldImport,
         path.dirname(sf.fileName)
@@ -48,8 +60,8 @@ function importPathVisitor(
         sf.text += newStr
         sf.end += newStr.length
     }
-    moduleSpecifier.pos = cachedPos
-    moduleSpecifier.end = cachedPos + newStr.length
+    fixNode.pos = cachedPos
+    fixNode.end = cachedPos + newStr.length
 
     // const newSpec = ts.createLiteral(newImport)
 

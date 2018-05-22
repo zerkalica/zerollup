@@ -10,7 +10,9 @@
     "dev": "rollup -w -c rollup.config.js",
     "postinstall": "lerna bootstrap --hoist",
     "publish": "npm run build && lerna publish --conventional-commits --yes",
-    "watch": "chokidar --initial -d 2000 -t 1000 'packages/*/dist/**' -c 'npm run build && cp -rvf packages/*/dist/* $npm_package_config_dest/node_modules/@zerollup'"
+    "watch": "chokidar --initial -d 2000 -t 1000 'packages/*/dist/**' -c 'npm run build && cp -rvf packages/*/dist/* $npm_package_config_dest/node_modules/@zerollup'",
+    "test": "jest",
+    "test.watch": "jest --watch"
   },
   "author": {
     "name": "Stefan Zerkalica",
@@ -18,10 +20,13 @@
   },
   "license": "ISC",
   "devDependencies": {
+    "@types/jest": "^22.2.3",
     "@types/node": "^10.1.0",
     "chokidar-cli": "^1.2.0",
+    "jest": "^22.4.4",
     "lerna": "^2.11.0",
     "rollup": "^0.59.0",
+    "ts-jest": "^22.4.6",
     "typescript": "^2.8.3"
   }
 }
