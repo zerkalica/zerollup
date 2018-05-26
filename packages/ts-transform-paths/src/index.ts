@@ -1,7 +1,7 @@
 import * as path from 'path'
 import * as ts from 'typescript'
 import {ImportPathsResolver, createTraverseVisitor} from '@zerollup/ts-helpers'
-import * as compareVersions from 'compare-versions'
+import compareVersions from 'compare-versions'
 
 interface ImportPathVisitorContext {
     resolver: ImportPathsResolver

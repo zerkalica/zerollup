@@ -46,7 +46,7 @@ export class AssetsCollector {
         this.urlPrefix = normalizeName(pkgName)
         this.pathPrefix = pathPrefix
         this.pkgRoot = pkgRoot
-        this.isLib = isLib
+        this.isLib = isLib || false
     }
 
     addToSearch(id: string) {

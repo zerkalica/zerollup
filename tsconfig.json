@@ -1,26 +1,11 @@
 {
 	"compilerOptions": {
-		"baseUrl": ".",
 		"newLine": "LF",
-		"allowSyntheticDefaultImports": false,
 		"declaration": true,
 		"module": "esnext",
 		"target": "es5",
-		"moduleResolution": "node",
 		"sourceMap": true,
-		"lib": [
-			"dom",
-			"esnext"
-		],
-		"jsx": "react",
-		"noImplicitAny": false,
-		"noUnusedLocals": true,
-		"noImplicitReturns": true,
-		"alwaysStrict": true,
-		"strictNullChecks": true,
-		"strictFunctionTypes": true,
-		"removeComments": false,
-		"experimentalDecorators": true
+                "lib": ["esnext"]
 	},
 	"exclude": ["node_modules", "**/node_modules/*"]
 }
