@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="1.2.2"></a>
+## [1.2.2](https://github.com/zerkalica/zerollup/compare/v1.2.1...v1.2.2) (2018-05-26)
+
+
+### Bug Fixes
+
+* **ts-transform-paths:** node cloning ([5ffaf95](https://github.com/zerkalica/zerollup/commit/5ffaf95))
+
+
+
+
 <a name="1.2.1"></a>
 ## [1.2.1](https://github.com/zerkalica/zerollup/compare/v1.2.0...v1.2.1) (2018-05-26)
 
