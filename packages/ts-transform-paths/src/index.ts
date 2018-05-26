@@ -1,7 +1,7 @@
 import * as path from 'path'
 import * as ts from 'typescript'
 import {ImportPathsResolver, createTraverseVisitor} from '@zerollup/ts-helpers'
-import compareVersions from 'compare-versions'
+import * as compareVersions from 'compare-versions'
 
 interface ImportPathVisitorContext {
     resolver: ImportPathsResolver
@@ -66,15 +66,15 @@ function importPathVisitor(
     const newSpec = ts.createLiteral(newImport)
 
     if (ts.isImportDeclaration(node)) return ts.updateImportDeclaration(
-        node, undefined, undefined, undefined, newSpec
+        node, node.decorators, node.modifiers, node.importClause, newSpec
     )
 
     if (ts.isExportDeclaration(node)) return ts.updateExportDeclaration(
-        node, undefined, undefined, undefined, newSpec
+        node, node.decorators, node.modifiers, node.exportClause, newSpec
     )
 
     if (ts.isCallExpression(node)) return ts.updateCall(
-        node, node.expression, undefined, [newSpec]
+        node, node.expression, node.typeArguments, [newSpec]
     )
 }
 
@@ -103,7 +103,7 @@ function patchEmitFiles(host: any): ts.TransformerFactory<ts.SourceFile>[] {
 
 let isPatched = false
 
-export default function transformPaths(program: ts.Program) {
+export default function transformPaths(program?: ts.Program) {
     const processed = new Set<string>()
     const plugin = {
         before(
@@ -120,7 +120,6 @@ export default function transformPaths(program: ts.Program) {
                     resolver,
                     posMap: new Map<string, number>()
                 }
-
 
                 const visitor = createTraverseVisitor(
                     importPathVisitor,
