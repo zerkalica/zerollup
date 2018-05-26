@@ -63,15 +63,19 @@ function importPathVisitor(
     fixNode.pos = cachedPos
     fixNode.end = cachedPos + newStr.length
 
-    // const newSpec = ts.createLiteral(newImport)
+    const newSpec = ts.createLiteral(newImport)
 
-    // if (ts.isImportDeclaration(node)) return ts.updateImportDeclaration(
-    //     node, undefined, undefined, undefined, newSpec
-    // )
+    if (ts.isImportDeclaration(node)) return ts.updateImportDeclaration(
+        node, undefined, undefined, undefined, newSpec
+    )
 
-    // if (ts.isExportDeclaration(node)) return ts.updateExportDeclaration(
-    //     node, undefined, undefined, undefined, newSpec
-    // )
+    if (ts.isExportDeclaration(node)) return ts.updateExportDeclaration(
+        node, undefined, undefined, undefined, newSpec
+    )
+
+    if (ts.isCallExpression(node)) return ts.updateCall(
+        node, node.expression, undefined, [newSpec]
+    )
 }
 
 function patchEmitFiles(host: any): ts.TransformerFactory<ts.SourceFile>[] {
