@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="1.2.4"></a>
+## [1.2.4](https://github.com/zerkalica/zerollup/compare/v1.2.3...v1.2.4) (2018-05-29)
+
+
+### Bug Fixes
+
+* **ts-transform-paths:** bad import/export in output js if importing/exporting pure interfaces ([ea509a5](https://github.com/zerkalica/zerollup/commit/ea509a5))
+
+
+
+
 <a name="1.2.3"></a>
 ## [1.2.3](https://github.com/zerkalica/zerollup/compare/v1.2.2...v1.2.3) (2018-05-29)
 
