@@ -64,7 +64,62 @@ function importPathVisitor(
     fixNode.end = cachedPos + newStr.length
 
     const newSpec = ts.createLiteral(newImport)
-    ;(fixNode as any).text = newImport
+
+    let newNode: ts.Node | void
+    if (ts.isImportDeclaration(node)) {
+        newNode = ts.updateImportDeclaration(
+            node, node.decorators, node.modifiers, node.importClause, newSpec
+        )
+
+        /**
+         * Without this hack ts generates bad import of pure interface in output js,
+         * this causes warning "module has no exports" in bundlers.
+         *
+         * index.ts
+         * ```ts
+         * import {Some} from './lib'
+         * export const some: Some = { self: 'test' }
+         * ```
+         *
+         * lib.ts
+         * ```ts
+         * export interface Some { self: string }
+         * ```
+         *
+         * output: index.js
+         * ```js
+         * import { Some } from "./some/lib"
+         * export const some = { self: 'test' }
+         * ```
+         */
+        newNode.flags = node.flags
+    }
+
+    if (ts.isExportDeclaration(node)) {
+        const exportNode = ts.updateExportDeclaration(
+            node, node.decorators, node.modifiers, node.exportClause, newSpec
+        )
+        if (exportNode.flags !== node.flags) {
+            /**
+             * Additional hacks for exports. Without it ts throw exception, if flags changed in export node.
+             */
+            const ms = exportNode.moduleSpecifier
+            const oms = node.moduleSpecifier
+            ms.pos = oms.pos
+            ms.end = oms.end
+            ms.parent = oms.parent
+
+            newNode = exportNode
+
+            newNode.flags = node.flags
+        }
+    }
+
+    if (ts.isCallExpression(node)) newNode = ts.updateCall(
+        node, node.expression, node.typeArguments, [newSpec]
+    )
+
+    return newNode
 }
 
 function patchEmitFiles(host: any): ts.TransformerFactory<ts.SourceFile>[] {

@@ -1,11 +1,20 @@
 {
 	"compilerOptions": {
 		"newLine": "LF",
-		"declaration": true,
 		"module": "esnext",
 		"target": "es5",
+		"moduleResolution": "node",
 		"sourceMap": true,
-                "lib": ["esnext"]
+		"lib": [
+			"dom",
+			"esnext"
+		],
+		"jsx": "react",
+		"experimentalDecorators": true,
+		"baseUrl": "packages",
+		"paths": {
+			"@zerollup/*": [ "*/src" ]
+		}
 	},
-	"exclude": ["node_modules", "**/node_modules/*"]
+	"exclude": ["dist", "node_modules"]
 }

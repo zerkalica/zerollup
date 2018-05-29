@@ -1,49 +1,7 @@
 import transformPathPlugin from '../src'
 import * as ts from 'typescript'
-
-function fixCompilerOptions(
-    factory: ts.TransformerFactory<ts.SourceFile>,
-    paths: ts.MapLike<string[]>
-): ts.TransformerFactory<ts.SourceFile> {
-    return (ctx: ts.TransformationContext) => {
-        const oldMethod = ctx.getCompilerOptions
-
-        ctx.getCompilerOptions = function() {
-            const result = oldMethod.call(this)
-            return {...result, paths}
-        }
-
-        return factory(ctx)
-    }
-}
-
-export function createOptions(opts?: ts.TranspileOptions): ts.TranspileOptions {
-    const compilerOptions = {
-        target: ts.ScriptTarget.ES2015,
-        module: ts.ModuleKind.ESNext,
-        declarations: true,
-        baseUrl: '.',
-        paths: {
-            'someRoot/*': ['some/*']
-        }
-    }
-
-    return {
-        ...opts,
-        compilerOptions: {
-            ...compilerOptions,
-            ...(opts && opts.compilerOptions)
-        },
-        transformers: {
-            before: [
-                fixCompilerOptions(
-                    transformPathPlugin().before,
-                    compilerOptions.paths
-                )
-            ]
-        }
-    }
-}
+import * as path from 'path'
+import * as fs from 'fs'
 
 export interface VFile {
     path: string;
@@ -56,10 +14,11 @@ export function transpile(files: VFile[], raw?: ts.CompilerOptions) {
         newLine: ts.NewLineKind.LineFeed,
         target: ts.ScriptTarget.ES2015,
         module: ts.ModuleKind.ESNext,
+        moduleResolution: ts.ModuleResolutionKind.NodeJs,
         baseUrl: '.',
-        paths: {
-            'someRoot/*': ['some/*']
-        },
+        lib: ['lib.dom', 'lib.esnext'],
+        types: ['node'],
+        paths: {},
         ...raw,
     }
 
@@ -75,7 +34,16 @@ export function transpile(files: VFile[], raw?: ts.CompilerOptions) {
 
     const service = ts.createLanguageService(host, ts.createDocumentRegistry())
 
-    return service.getEmitOutput(files[0].path)
+    const id = files[0].path
+    const data = service.getEmitOutput(id)
+    const diags = [
+        ...service.getSyntacticDiagnostics(id),
+        ...service.getSemanticDiagnostics(id)
+    ].map(diags => JSON.stringify(diags.messageText, null, '  '))
+
+    if (diags.length) throw new Error(`${diags.join('\n')}`)
+
+    return data
 }
 
 export class TestHost implements ts.LanguageServiceHost {
@@ -85,12 +53,25 @@ export class TestHost implements ts.LanguageServiceHost {
         private files: VFile[]
     ) {}
 
+    private cache = new Map()
+
     public getScriptSnapshot(
         fileName: string
     ): ts.IScriptSnapshot | undefined {
+        if (this.cache.has(fileName)) return this.cache.get(fileName)
         const file = this.files.find(file => file.path === fileName)
-        if (!file) return undefined
-        return ts.ScriptSnapshot.fromString(file.content)
+        const content = file
+            ? file.content
+            : (
+                fs.existsSync(fileName)
+                    ? fs.readFileSync(fileName).toString()
+                    : undefined
+            )
+
+        const snap = ts.ScriptSnapshot.fromString(content)
+        this.cache.set(fileName, snap)
+
+        return snap
     }
 
     public getCurrentDirectory() {
@@ -124,17 +105,19 @@ export class TestHost implements ts.LanguageServiceHost {
         exclude?: string[],
         include?: string[]
     ): string[] {
-        return []
+        return this.files.map(file => file.path)
     }
 
     public readFile(path: string, encoding?: string): string | undefined {
-        return this.files
-            .map(file => file.path)
-            .find(filePath => filePath === path)
+        const file = this.files
+            .find(file => file.path === path)
+
+        return file ? file.content : undefined
     }
 
     public fileExists(path: string): boolean {
-        return !!this.files.find(file => file.path === path)
+        const exists = !!this.files.find(file => file.path === path)
+        return exists || ts.sys.fileExists(path)
     }
 
     public getTypeRootsVersion(): number {
@@ -142,7 +125,9 @@ export class TestHost implements ts.LanguageServiceHost {
     }
 
     public directoryExists(directoryName: string): boolean {
-        return false
+        const exists = !!this.files.find(file => path.dirname(file.path) === './' + directoryName)
+
+        return exists || ts.sys.directoryExists(directoryName)
     }
 
     public getDirectories(directoryName: string): string[] {
