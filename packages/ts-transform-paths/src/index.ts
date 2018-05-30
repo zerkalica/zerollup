@@ -6,13 +6,14 @@ import compareVersions from 'compare-versions'
 interface ImportPathVisitorContext {
     resolver: ImportPathsResolver
     posMap: Map<string, number>
+    sf: ts.SourceFile
 }
 
 const importPathRegex = /^(['"\s]+)(.+)(['"\s]+)$/
 
 function importPathVisitor(
     node: ts.Node,
-    {posMap, resolver}: ImportPathVisitorContext
+    {posMap, resolver, sf}: ImportPathVisitorContext
 ): ts.Node | void {
     let importValue: string
     let fixNode: ts.Node
@@ -34,8 +35,6 @@ function importPathVisitor(
     if (!matches) return
 
     const [, prefix, oldImport, suffix] = matches
-    const sf = node.getSourceFile()
-
     const newImports = resolver.getImportSuggestions(
         oldImport,
         path.dirname(sf.fileName)
@@ -161,6 +160,7 @@ export default function transformPaths(program?: ts.Program) {
                 if (processed.has(sf.fileName)) return sf
                 processed.add(sf.fileName)
                 const ctx: ImportPathVisitorContext = {
+                    sf,
                     resolver,
                     posMap: new Map<string, number>()
                 }
@@ -174,7 +174,7 @@ export default function transformPaths(program?: ts.Program) {
             }
         },
         afterDeclarations(
-            transformationContext: ts.TransformationContext            
+            transformationContext: ts.TransformationContext
         ): ts.Transformer<ts.SourceFile> {
             return plugin.before(transformationContext)
         }

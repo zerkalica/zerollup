@@ -1,5 +1,6 @@
 import {transpile} from './helpers'
 import * as ts from 'typescript'
+import transformPathPlugin from '../src'
 
 describe('transforms', () => {
     const interfaceLib = {
@@ -116,29 +117,59 @@ function __export(m) {
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./lib/Some2"));`,
+        },
+
+        {
+            title: 'only dts',
+            files: [
+                {
+                    path: 'index.ts',
+                    content: `export {Some} from "someRoot/Some"`,
+                },
+                interfaceLib,
+            ],
+            emitOnlyDtsFiles: true,
+            esnext: `export { Some } from "./lib/Some";`,
+            commonjs: 'export { Some } from "./lib/Some";'
         }
     ]
 
-    const paths = {
-        'someRoot/*': ['lib/*']
+    const opts = {
+        transformers: () => ({
+            before: [transformPathPlugin().before],
+            afterDeclarations: [transformPathPlugin().afterDeclarations],
+        }),
+        compilerOptions: {
+            module: ts.ModuleKind.ESNext,
+            paths: {
+                'someRoot/*': ['lib/*'],
+            },
+        },
     }
 
-    ;files.forEach(item => {
+    files.forEach(item => {
         it(`${item.title} esnext`, () => {
-            const data = transpile(item.files, { module: ts.ModuleKind.ESNext, paths })
+            const data = transpile({
+                ...opts,
+                files: item.files,
+                emitOnlyDtsFiles: item.emitOnlyDtsFiles,
+            })
+
             expect(data.outputFiles[0].text.trim()).toEqual(item.esnext.trim())
+            if (item.declaration) {
+                expect(data.outputFiles[1].text.trim()).toEqual(item.declaration.trim())
+            }
         })
 
-        if (item.commonjs)
-            it(`${item.title} commonjs`, () => {
-                const data = transpile(item.files, { module: ts.ModuleKind.CommonJS, paths })
-                expect(data.outputFiles[0].text.trim()).toEqual(item.commonjs.trim())
+        it(`${item.title} commonjs`, () => {
+            const data = transpile({
+                ...opts,
+                files: item.files,
+                emitOnlyDtsFiles: item.emitOnlyDtsFiles,
+                compilerOptions: {...opts.compilerOptions, module: ts.ModuleKind.CommonJS},
             })
 
-        if (item.declaration)
-            it(`${item.title} declaration`, () => {
-                const data = transpile(item.files, { module: ts.ModuleKind.CommonJS, paths })
-                expect(data.outputFiles[1].text.trim()).toEqual(item.declaration.trim())
-            })
+            expect(data.outputFiles[0].text.trim()).toEqual(item.commonjs.trim())
+        })
     })
 })

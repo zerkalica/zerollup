@@ -1,4 +1,3 @@
-import transformPathPlugin from '../src'
 import * as ts from 'typescript'
 import * as path from 'path'
 import * as fs from 'fs'
@@ -8,7 +7,14 @@ export interface VFile {
     content: string;
 }
 
-export function transpile(files: VFile[], raw?: ts.CompilerOptions) {
+export interface Options {
+    compilerOptions?: ts.CompilerOptions
+    emitOnlyDtsFiles?: boolean
+    transformers: () => ts.CustomTransformers
+    files: VFile[]
+}
+
+export function transpile(opts: Options) {
     const compilerOptions: ts.CompilerOptions = {
         declaration: true,
         newLine: ts.NewLineKind.LineFeed,
@@ -19,23 +25,19 @@ export function transpile(files: VFile[], raw?: ts.CompilerOptions) {
         lib: ['lib.dom', 'lib.esnext'],
         types: ['node'],
         paths: {},
-        ...raw,
-    }
-
-    const transformers = {
-        before: [transformPathPlugin().before],
+        ...opts.compilerOptions,
     }
 
     const host = new TestHost(
         compilerOptions,
-        transformers,
-        files,
+        opts.transformers(),
+        opts.files,
     )
 
     const service = ts.createLanguageService(host, ts.createDocumentRegistry())
 
-    const id = files[0].path
-    const data = service.getEmitOutput(id)
+    const id = opts.files[0].path
+    const data = service.getEmitOutput(id, opts.emitOnlyDtsFiles)
     const diags = [
         ...service.getSyntacticDiagnostics(id),
         ...service.getSemanticDiagnostics(id)
