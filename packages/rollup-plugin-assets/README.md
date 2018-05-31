@@ -89,7 +89,7 @@ export default {
 }
 ```
 
-For complex usage see zerollup [preset-ts](../preset-ts)
+For complex usage see zerollup [rollup-preset-ts](../rollup-preset-ts)
 
 ## For typescript
 

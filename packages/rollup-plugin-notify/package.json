@@ -1,5 +1,5 @@
 {
-  "name": "@zerollup/plugin-notify",
+  "name": "@zerollup/rollup-plugin-notify",
   "version": "1.0.22",
   "license": "MIT",
   "description": "Rollup notify plugin",
@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/zerkalica/zerollup/issues"
   },
-  "homepage": "https://github.com/zerkalica/zerollup/packages/plugin-notify/#readme",
+  "homepage": "https://github.com/zerkalica/zerollup/packages/rollup-plugin-notify/#readme",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",

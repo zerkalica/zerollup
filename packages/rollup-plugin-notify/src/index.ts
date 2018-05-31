@@ -6,7 +6,7 @@ export default function notify(
         onlyErrors?: boolean
     }  = {}
 ): rollup.Plugin {
-    const name = '@zerollup/plugin-notify'
+    const name = '@zerollup/rollup-plugin-notify'
 
     const oldMethod = (rollup as any).Task.prototype.run
 

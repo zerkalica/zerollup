@@ -21,7 +21,7 @@ import svg from './my-pic.svg'
 console.log(svg)
 ```
 
-Rollup [plugin-assets](../plugin-assets) transpile it into
+Rollup [rollup-plugin-assets](../rollup-plugin-assets) transpile it into
 
 ./my-module-name/src/index.js
 ```ts

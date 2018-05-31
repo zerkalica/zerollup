@@ -12,9 +12,9 @@ import serve from 'rollup-plugin-serve'
 import livereload from 'rollup-plugin-livereload'
 import {minify} from 'uglify-es'
 
-import notify from '@zerollup/plugin-notify'
-import assets from '@zerollup/plugin-assets'
-import template from '@zerollup/plugin-template'
+import notify from '@zerollup/rollup-plugin-notify'
+import assets from '@zerollup/rollup-plugin-assets'
+import template from '@zerollup/rollup-plugin-template'
 import {getPackageSet} from '@zerollup/helpers'
 import * as ttypescript from 'ttypescript'
 

@@ -8,4 +8,4 @@ Set of helpers for fast rollup bundler config building. Usable for creating zero
 4. Scan src/config and generate bundled configurations for many hosts
 5. Scan src/index.html.ts and prerenders html-templates for each configuration
 
-For example usage see [@zerollup/preset-ts](../preset-ts)
+For example usage see [@zerollup/rollup-preset-ts](../rollup-preset-ts)

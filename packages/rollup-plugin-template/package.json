@@ -1,5 +1,5 @@
 {
-  "name": "@zerollup/plugin-template",
+  "name": "@zerollup/rollup-plugin-template",
   "version": "1.2.2",
   "license": "MIT",
   "description": "Rollup template plugin",
@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/zerkalica/zerollup/issues"
   },
-  "homepage": "https://github.com/zerkalica/zerollup/packages/plugin-template/#readme",
+  "homepage": "https://github.com/zerkalica/zerollup/packages/rollup-plugin-template/#readme",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",

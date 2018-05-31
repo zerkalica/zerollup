@@ -9,7 +9,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-**Note:** Version bump only for package @zerollup/preset-ts
+**Note:** Version bump only for package @zerollup/rollup-preset-ts
 
 <a name="1.2.3"></a>
 ## [1.2.3](https://github.com/zerkalica/zerollup/compare/v1.2.2...v1.2.3) (2018-05-29)
@@ -17,7 +17,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-**Note:** Version bump only for package @zerollup/preset-ts
+**Note:** Version bump only for package @zerollup/rollup-preset-ts
 
 <a name="1.2.2"></a>
 ## [1.2.2](https://github.com/zerkalica/zerollup/compare/v1.2.1...v1.2.2) (2018-05-26)
@@ -25,7 +25,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-**Note:** Version bump only for package @zerollup/preset-ts
+**Note:** Version bump only for package @zerollup/rollup-preset-ts
 
 <a name="1.2.1"></a>
 ## [1.2.1](https://github.com/zerkalica/zerollup/compare/v1.2.0...v1.2.1) (2018-05-26)
@@ -33,7 +33,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-**Note:** Version bump only for package @zerollup/preset-ts
+**Note:** Version bump only for package @zerollup/rollup-preset-ts
 
 <a name="1.2.0"></a>
 # [1.2.0](https://github.com/zerkalica/zerollup/compare/v1.1.4...v1.2.0) (2018-05-22)
@@ -41,7 +41,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-**Note:** Version bump only for package @zerollup/preset-ts
+**Note:** Version bump only for package @zerollup/rollup-preset-ts
 
 <a name="1.1.4"></a>
 ## [1.1.4](https://github.com/zerkalica/zerollup/compare/v1.1.3...v1.1.4) (2018-05-18)
@@ -49,7 +49,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-**Note:** Version bump only for package @zerollup/preset-ts
+**Note:** Version bump only for package @zerollup/rollup-preset-ts
 
 <a name="1.1.3"></a>
 ## [1.1.3](https://github.com/zerkalica/zerollup/compare/v1.1.2...v1.1.3) (2018-05-15)
@@ -57,4 +57,4 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-**Note:** Version bump only for package @zerollup/preset-ts
+**Note:** Version bump only for package @zerollup/rollup-preset-ts

@@ -9,7 +9,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-**Note:** Version bump only for package @zerollup/plugin-assets
+**Note:** Version bump only for package @zerollup/rollup-plugin-assets
 
 <a name="1.1.4"></a>
 ## [1.1.4](https://github.com/zerkalica/zerollup/compare/v1.1.3...v1.1.4) (2018-05-18)
@@ -17,7 +17,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-**Note:** Version bump only for package @zerollup/plugin-assets
+**Note:** Version bump only for package @zerollup/rollup-plugin-assets
 
 <a name="1.1.3"></a>
 ## [1.1.3](https://github.com/zerkalica/zerollup/compare/v1.1.2...v1.1.3) (2018-05-15)
@@ -25,4 +25,4 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-**Note:** Version bump only for package @zerollup/plugin-assets
+**Note:** Version bump only for package @zerollup/rollup-plugin-assets

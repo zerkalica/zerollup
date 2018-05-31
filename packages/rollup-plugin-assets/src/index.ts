@@ -33,7 +33,7 @@ export default function assets(
         name: pkgName
     }: AssetOptions
 ): Plugin {
-    const name = '@zerollup/plugin-assets'
+    const name = '@zerollup/rollup-plugin-assets'
 
     const collector = new AssetsCollector({
         pkgName: pkgName || require(path.join(pkgRoot, 'package.json')).name,

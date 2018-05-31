@@ -1,5 +1,5 @@
 {
-  "name": "@zerollup/preset-ts",
+  "name": "@zerollup/rollup-preset-ts",
   "version": "1.2.4",
   "license": "MIT",
   "description": "Universal rollup config preset",
@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/zerkalica/zerollup/issues"
   },
-  "homepage": "https://github.com/zerkalica/zerollup/packages/preset-ts/#readme",
+  "homepage": "https://github.com/zerkalica/zerollup/packages/rollup-preset-ts/#readme",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",
@@ -38,9 +38,9 @@
   },
   "dependencies": {
     "@zerollup/helpers": "^1.2.2",
-    "@zerollup/plugin-assets": "^1.2.2",
-    "@zerollup/plugin-notify": "^1.0.22",
-    "@zerollup/plugin-template": "^1.2.2",
+    "@zerollup/rollup-plugin-assets": "^1.2.2",
+    "@zerollup/rollup-plugin-notify": "^1.0.22",
+    "@zerollup/rollup-plugin-template": "^1.2.2",
     "@zerollup/ts-helpers": "^1.1.1",
     "@zerollup/ts-transform-paths": "^1.2.4",
     "rollup-plugin-commonjs": "^9.1.3",

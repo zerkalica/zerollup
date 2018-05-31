@@ -14,7 +14,7 @@ export interface TemplateOpts<Config> {
 export default function template<Config>(
     opts: TemplateOpts<Config>
 ): rollup.Plugin {
-    const name = '@zerollup/plugin-template'
+    const name = '@zerollup/rollup-plugin-template'
 
     return {
         name,
