@@ -15,6 +15,13 @@ describe('timeout related', () => {
         setTimeout(() => t2 = true , 10)
     })
 
+    it('should produce error after timeout if no async tasks', done => {
+        waitAllAsync({timeout: 50}).catch((e) => {
+            expect(e).toBeInstanceOf(Error)
+            done()
+        })
+    })
+
     it('should handle clearTimeout after setTimeout', done => {
         let t1 = false
         let t2 = false

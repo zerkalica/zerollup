@@ -100,17 +100,22 @@ export class Patcher {
                 counter.decrement(result)
                 if (signal) signal.removeEventListener('abort', decrement)
             }
-
-            if (signal) signal.addEventListener('abort', decrement)
+            const increment = () => {
+                counter.increment(result)
+                if (signal) signal.addEventListener('abort', decrement)
+            }
 
             const result = oldFetch(input, init)
-                .then((response: Response) => patchResponseMethods(response, decrement))
+                .then((response: Response) => {
+                    decrement()
+                    return patchResponseMethods(response, decrement, increment)
+                })
                 .catch(error => {
                     decrement()
                     throw error
                 })
 
-            counter.increment(result)
+            increment()
 
             return result
         }

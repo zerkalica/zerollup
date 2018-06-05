@@ -35,8 +35,17 @@ export class AsyncCounter {
     private onTimeout = () => {
         this.handler = null
         this.scheduled = false
+        const names = []
+        const handlers = this.handlers
         this.handlers = new Set()
-        this.resolve(new Error('Any prerender timeout'))
+        try {
+            handlers.forEach(handler => {
+                if (handler)
+                    names.push(typeof handler === 'object' ? handler.toString() : String(handler))
+            })    
+        } finally {
+            this.resolve(new Error(`Timeout handlers: ${names.join(',')}`))
+        }
     }
 
     private doResolve = () => {

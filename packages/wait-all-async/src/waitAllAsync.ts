@@ -4,15 +4,17 @@ function canRemoveHttpRequest(this: XMLHttpRequest) {
     return this.readyState === XMLHttpRequest.DONE
 }
 
-export function waitAllAsync(
-    timeout?: number,
-    win?: Object
-): Promise<void> {
+export interface WaitAllAsyncOptions {
+    timeout?: number
+    target?: Object
+}
+
+export function waitAllAsync(opts: WaitAllAsyncOptions = {}): Promise<void> {
     return new Promise((
         resolve: () => void,
         reject: (Error) => void
     ) => {
-        const patcher = new Patcher(resolve, reject, timeout, win)
+        const patcher = new Patcher(resolve, reject, opts.timeout, opts.target)
         patcher.callback('setTimeout')
         patcher.callback('requestAnimationFrame')
         patcher.handler('clearTimeout')
