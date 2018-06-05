@@ -54,7 +54,7 @@ describe('timeout related', () => {
 
         waitAllAsync().then(() => {
             expect(t1).toBeTruthy()
-            expect(t2).toBeTruthy()
+            expect(t2).toBeFalsy()
             done()
         })
 
@@ -62,12 +62,10 @@ describe('timeout related', () => {
             (resolve, reject: (e: Error) => void) => {
                 // never
             }
-        ).then(some => some)
+        ).then(() => t2 = true)
 
         const p2 = new Promise(resolve => {
             setTimeout(resolve, 0)
         }).then(() => t1 = true)
-
-        Promise.race([p1, p2]).then(() => t2 = true)
     })
 })
