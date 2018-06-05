@@ -23,7 +23,8 @@ export function waitAllAsync(opts: WaitAllAsyncOptions = {}): Promise<void> {
     
         patcher.method('XMLHttpRequest', 'abort')
         patcher.property('XMLHttpRequest', 'onreadystatechange', canRemoveHttpRequest)
-        patcher.property('XMLHttpRequest', 'onerror')
         patcher.property('XMLHttpRequest', 'onload')
+        patcher.property('XMLHttpRequest', 'onerror')
+        patcher.property('XMLHttpRequest', 'ontimeout')
     })
 }

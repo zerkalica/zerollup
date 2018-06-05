@@ -160,7 +160,7 @@ export class Patcher {
         Object.defineProperty(proto, name, {
             configurable: true,
             get() {
-                return desc ? desc.get.call(this) : this[newPropName]
+                return this[newPropName]
             },
             set(callback: Function) {
                 const self = this
@@ -172,8 +172,7 @@ export class Patcher {
                     }
                 }
                 counter.increment(self)
-                if (desc) desc.set.call(this, newCallback)
-                else this[newPropName] = newCallback
+                this[newPropName] = newCallback
             }
         })
 

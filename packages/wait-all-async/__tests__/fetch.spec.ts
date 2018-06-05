@@ -1,7 +1,7 @@
 import {waitAllAsync} from '../src'
 import fetchMock from 'fetch-mock'
 
-const url = 'https://example.com'
+const url = '/testapi'
 const testObject = {hello: 'world'}
 
 describe('fetch related', () => {
