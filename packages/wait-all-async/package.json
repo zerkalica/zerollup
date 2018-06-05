@@ -1,8 +1,8 @@
 {
-  "name": "@zerollup/rollup-plugin-assets",
-  "version": "1.2.6",
+  "name": "@zerollup/wait-all-async",
+  "version": "1.0.0",
   "license": "MIT",
-  "description": "Rollup assets plugin",
+  "description": "Prerenderer",
   "author": {
     "name": "Stefan Zerkalica",
     "email": "zerkalica@gmail.com"
@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/zerkalica/zerollup/issues"
   },
-  "homepage": "https://github.com/zerkalica/zerollup/packages/rollup-plugin-assets/#readme",
+  "homepage": "https://github.com/zerkalica/zerollup/packages/wait-all-async/#readme",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",
@@ -28,21 +28,11 @@
     "dist"
   ],
   "keywords": [
-    "rollup",
-    "configuration",
-    "bundler",
-    "assets",
-    "assets path"
+    "prerender"
   ],
-  "peerDependencies": {
-    "rollup": "=>0.57.1"
-  },
-  "dependencies": {
-    "@zerollup/helpers": "^1.2.6",
-    "fs-extra": "^6.0.1",
-    "rollup-pluginutils": "^2.3.0"
-  },
   "devDependencies": {
-    "@types/fs-extra": "^5.0.2"
+    "fetch-mock": "^6.4.3",
+    "node-fetch": "^2.1.2",
+    "xhr-mock": "^2.4.0"
   }
 }
