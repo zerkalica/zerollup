@@ -1,16 +1,9 @@
-import {prerender} from '../src'
-import {VirtualConsole, JSDOM} from 'jsdom'
+import {jsDomRender} from '../src'
+import * as jsdom from 'jsdom'
 import fetchMock from 'fetch-mock'
 import {createContext} from 'vm'
-import fetch from 'node-fetch'
 
-const opts: any = {
-    runScripts: 'outside-only',
-    includeNodeLocations: false,
-    virtualConsole: new VirtualConsole().sendTo(console),
-}
-
-describe('prerender', () => {
+describe('jsDomRender', () => {
     const template = `<html><head></head><body><div id="app">{PLACEHOLDER}</div></body></html>`
     const url = '/testapi'
     const testObject = {hello: 'world'}
@@ -22,11 +15,7 @@ describe('prerender', () => {
         fetchMock.restore()
     })
 
-    it('test Promise', () => {
-        const renderer = new JSDOM(template, opts)
-    })
-
-    it('should prerender on timeout', done => {
+    it('should render on timeout', done => {
         const testString = 'TEST_STRING'
         const bundle = `
         setTimeout(() => {
@@ -35,17 +24,14 @@ describe('prerender', () => {
 `
         const result = template.replace('{PLACEHOLDER}', testString)
 
-        const renderer = new JSDOM(template, opts)
-
-        prerender({ renderer, bundle })
-            .then(({page, error}) => {
-                expect(error).toBeUndefined()
+        jsDomRender({jsdom, template, bundle})
+            .then(page => {
                 expect(page).toEqual(result)
                 done()
             })
     })
 
-    it('should prerender on promise resolve', done => {
+    it('should render on promise resolve', done => {
         const testString = 'TEST_STRING'
         const bundle = `
         Promise.resolve({json: () => (${JSON.stringify(testObject)})}).then(r => r.json()).then(data => {
@@ -54,30 +40,24 @@ describe('prerender', () => {
 `
         const result = template.replace('{PLACEHOLDER}', testObject.hello)
 
-        const renderer = new JSDOM(template, opts)
-
-        prerender({ renderer, bundle })
-            .then(({page, error}) => {
-                expect(error).toBeUndefined()
+        jsDomRender({jsdom, template, bundle})
+            .then(page => {
                 expect(page).toEqual(result)
                 done()
             })
     })
 
-    it('should prerender on fetch', done => {
+    it('should render on fetch', done => {
         const bundle = `
         const p = fetch('${url}')
-        // console.log(p.then.toString())
         p.then(r => r.json()).then(function(data) {
             document.getElementById('app').innerHTML = data.hello
         })
 `
         const result = template.replace('{PLACEHOLDER}', testObject.hello)
 
-        const renderer = new JSDOM(template, opts)
-        prerender({ renderer, bundle })
-            .then(({page, error}) => {
-                expect(error).toBeUndefined()
+        jsDomRender({jsdom, template, bundle})
+            .then(page => {
                 expect(page).toEqual(result)
                 done()
             })

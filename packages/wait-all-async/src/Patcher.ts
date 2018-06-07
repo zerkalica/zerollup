@@ -3,7 +3,7 @@ import {Patch, UnPatch} from './patchers'
 
 export class Patcher {
     private counter: AsyncCounter
-    private unpatchers: UnPatch[] = []
+    private unPatchers: UnPatch[] = []
 
     constructor(
         resolve: () => void,
@@ -23,11 +23,11 @@ export class Patcher {
     }
 
     add(patch: Patch) {
-        this.unpatchers.push(patch(this.counter))
+        this.unPatchers.push(patch(this.counter))
     }
 
     restore() {
-        for (let restore of this.unpatchers) restore()
-        this.unpatchers = []
+        for (let unPatch of this.unPatchers) unPatch()
+        this.unPatchers = []
     }
 }

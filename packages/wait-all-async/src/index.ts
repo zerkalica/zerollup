@@ -1,2 +1,2 @@
 export * from './waitAllAsync'
-export * from './prerender'
+export * from './renderers'

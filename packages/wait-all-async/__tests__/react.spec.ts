@@ -1,5 +1,5 @@
-import {prerender} from '../src'
-import {JSDOM, VirtualConsole} from 'jsdom'
+import {jsDomRender} from '../src'
+import * as jsdom from 'jsdom'
 import fetchMock from 'fetch-mock'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -52,18 +52,9 @@ describe('react', () => {
         ReactDOM.render(h(MyComponent), document.getElementById('app'))
 `
         const result = template.replace('{PLACEHOLDER}', testString)
-        const virtualConsole = new VirtualConsole()
-        virtualConsole.sendTo(console)
-
-        const renderer = new JSDOM(template, {
-            runScripts: 'outside-only',
-            virtualConsole
-        })
-
-        prerender({ renderer, bundle })
-            .then(({page, error}) => {
+        jsDomRender({jsdom, template, bundle})
+            .then(page => {
                 expect(page).toEqual(result)
-                expect(error).toBeUndefined()
                 done()
             })
     })

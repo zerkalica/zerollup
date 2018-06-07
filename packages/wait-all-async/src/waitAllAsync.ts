@@ -3,26 +3,39 @@ import {FakePromise} from './FakePromise'
 import * as patchers from './patchers'
 
 export interface WaitAllAsyncOptions {
+    /**
+     * Throw exception after this timeout in ms, if not all async operations completed
+     */
     timeout?: number
-    target?: Object
+
+    /**
+     * Sandbox, where to patch async functions. Window, if not set
+     */
+    sandbox?: any
+
+    /**
+     * Run code inside waitAllAsync and wait
+     */
+    run?: () => void
+
+    /**
+     * Custom patchers to patch sandbox
+     */
     patchers?: patchers.Patch[]
 }
 
+/**
+ * Patch promises, xhr, timeout, animationFrame. Waits all async tasks and. Base helper for building SPA prerenders
+ */
 export function waitAllAsync(opts: WaitAllAsyncOptions = {}): Promise<void> {
-    const target: any = opts.target || (typeof window === 'undefined' ? global : window)
-    if (!target.fetch && typeof fetch !== 'undefined') {
-        target.fetch = fetch
-        // fetch produces non-patched promises without it if target is a vm-contexted window from jsdom.
-        target.Promise = Promise
-    }
-
+    const sandbox: any = opts.sandbox || (typeof window === 'undefined' ? global : window)
     const customPatchers = opts.patchers
 
     return new FakePromise((
         resolve: () => void,
         reject: (Error) => void
     ) => {
-        const patcher = new Patcher(resolve, reject, target, opts.timeout)
+        const patcher = new Patcher(resolve, reject, sandbox, opts.timeout)
         patcher.add(patchers.patchPromise)
         patcher.add(patchers.patchXhr)
         patcher.add(patchers.createPatchTimeout('setTimeout', 'clearTimeout'))
@@ -32,5 +45,7 @@ export function waitAllAsync(opts: WaitAllAsyncOptions = {}): Promise<void> {
                 patcher.add(customPatch)
             }
         }
+
+        if (opts.run) opts.run()
     })
 }

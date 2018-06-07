@@ -24,58 +24,65 @@ describe('xhr related', () => {
         let t2 = false
         let data: Object
 
-        waitAllAsync().then(() => {
+        const run = () => {
+            const xhr = new XMLHttpRequest()
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState !== XMLHttpRequest.DONE) return
+                data = JSON.parse(xhr.responseText)
+            }
+
+            xhr.open('get', url)
+            xhr.send()
+        }
+
+        waitAllAsync({run}).then(() => {
             expect(data).toEqual(testObject)
             done()
         })
-
-        const xhr = new XMLHttpRequest()
-        xhr.onreadystatechange = () => {
-            if (xhr.readyState !== XMLHttpRequest.DONE) return
-            data = JSON.parse(xhr.responseText)
-        }
-
-        xhr.open('get', url)
-        xhr.send()
     })
 
     it('should handle onload', done => {
         let t2 = false
         let data: Object
 
-        waitAllAsync().then(() => {
+        const run = () => {
+            const xhr = new XMLHttpRequest()
+            xhr.onload = () => {
+                data = JSON.parse(xhr.responseText)
+            }
+    
+            xhr.open('get', url)
+            xhr.send() 
+        }
+
+        waitAllAsync({run}).then(() => {
             expect(data).toEqual(testObject)
             done()
         })
 
-        const xhr = new XMLHttpRequest()
-        xhr.onload = () => {
-            data = JSON.parse(xhr.responseText)
-        }
-
-        xhr.open('get', url)
-        xhr.send()
     })
 
     it('should handle onerror', done => {
         let data: Object
         let error: boolean = false
 
-        waitAllAsync().then(() => {
+        const run = () => {
+            const xhr = new XMLHttpRequest()
+            xhr.onload = () => {
+                data = JSON.parse(xhr.responseText)
+            }
+            xhr.onerror = () => {
+                setTimeout(() => error = true, 1)
+            }
+    
+            xhr.open('get', urlError)
+            xhr.send()
+        }
+
+        waitAllAsync({run}).then(() => {
             expect(data).toBeUndefined()
             expect(error).toBeTruthy()
             done()
         })
-
-        const xhr = new XMLHttpRequest()
-        xhr.onload = () => {
-            data = JSON.parse(xhr.responseText)
-        }
-        xhr.onerror = () => {
-            setTimeout(() => error = true, 1)
-        }
-
-        xhr.open('get', urlError)
-        xhr.send()
     })
 })
