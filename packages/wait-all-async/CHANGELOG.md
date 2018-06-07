@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="1.3.3"></a>
+## [1.3.3](https://github.com/zerkalica/zerollup/compare/v1.3.2...v1.3.3) (2018-06-07)
+
+
+### Bug Fixes
+
+* **wait-all-async:** added prerenderer, promise patch instead of fetch patch ([d9fa7bb](https://github.com/zerkalica/zerollup/commit/d9fa7bb))
+
+
+
+
 <a name="1.3.2"></a>
 ## [1.3.2](https://github.com/zerkalica/zerollup/compare/v1.3.1...v1.3.2) (2018-06-05)
 
