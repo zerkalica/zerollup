@@ -36,15 +36,12 @@ describe('prerender', () => {
     it('should prerender on fetch', done => {
         const bundle = `
         fetch('${url}').then(r => r.json()).then((data) => {
-            setTimeout(() => {
-                document.getElementById('app').innerHTML = data.hello
-            }, 20)
+            document.getElementById('app').innerHTML = data.hello
         })
 `
         const result = template.replace('{PLACEHOLDER}', testObject.hello)
 
         const renderer = new JSDOM(template, {runScripts: 'outside-only'})
-        renderer.window.fetch = fetch
 
         prerender({ renderer, bundle })
             .then(({page, error}) => {

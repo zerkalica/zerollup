@@ -3,8 +3,8 @@ import {waitAllAsync} from './waitAllAsync'
 
 export interface Renderer {
     readonly window: any
-    serialize(): string;
-    runVMScript(script: Script): void;
+    serialize(): string
+    runVMScript(script: Script): void
 }
 
 export interface PrerenderResult {

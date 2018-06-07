@@ -1,5 +1,4 @@
 import {AsyncCounter} from './AsyncCounter'
-import {patchResponseMethods} from './patchResponseMethods'
 
 type Patch = {
     t: 'callback'
@@ -112,43 +111,6 @@ export class Patcher {
         patches.push({t: 'method', name: 'then', proto, fn: origThen})
         patches.push({t: 'method', name: 'catch', proto, fn: origCatch})
     }    
-
-    fetchLike(
-        name: string
-    ) {
-        const {target, counter, patches} = this
-        const oldFetch = target[name]
-
-        function newFetch(input?: Request | string, init?: RequestInit): Promise<Response> {
-            const signal = init ? init.signal : null
-            const decrement = () => {
-                counter.decrement(result)
-                if (signal) signal.removeEventListener('abort', decrement)
-            }
-            const increment = () => {
-                counter.increment(result)
-                if (signal) signal.addEventListener('abort', decrement)
-            }
-
-            const result = oldFetch(input, init)
-                .then((response: Response) => {
-                    decrement()
-                    return patchResponseMethods(response, decrement, increment)
-                })
-                .catch(error => {
-                    decrement()
-                    throw error
-                })
-
-            increment()
-
-            return result
-        }
-
-        target[name] = newFetch
-
-        patches.push({t: 'callback', name, fn: oldFetch})
-    }
 
     method(
         className: string,

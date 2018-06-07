@@ -27,6 +27,15 @@ PromiseSubclass.prototype.then = function then(resolve, reject) {
 }
 
 export function waitAllAsync(opts: WaitAllAsyncOptions = {}): Promise<void> {
+    const target = opts.target as any
+    if (!target.fetch) target.fetch = fetch
+    if (!target.Promise) target.Promise = Promise
+    if (!target.XMLHttpRequest) target.XMLHttpRequest = XMLHttpRequest
+    if (!target.setTimeout) target.setTimeout = setTimeout
+    if (!target.clearTimeout) target.clearTimeout = clearTimeout
+    if (!target.requestAnimationFrame) target.requestAnimationFrame = requestAnimationFrame
+    if (!target.cancelAnimationFrame) target.cancelAnimationFrame = cancelAnimationFrame
+
     return new PromiseSubclass((
         resolve: () => void,
         reject: (Error) => void
