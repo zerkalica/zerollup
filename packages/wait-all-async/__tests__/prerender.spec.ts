@@ -2,6 +2,7 @@ import {prerender} from '../src'
 import {VirtualConsole, JSDOM} from 'jsdom'
 import fetchMock from 'fetch-mock'
 import {createContext} from 'vm'
+import fetch from 'node-fetch'
 
 const opts: any = {
     runScripts: 'outside-only',
@@ -65,7 +66,9 @@ describe('prerender', () => {
 
     it('should prerender on fetch', done => {
         const bundle = `
-        fetch('${url}').then(r => r.json()).then((data) => {
+        const p = fetch('${url}')
+        // console.log(p.then.toString())
+        p.then(r => r.json()).then(function(data) {
             document.getElementById('app').innerHTML = data.hello
         })
 `

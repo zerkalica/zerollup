@@ -1,0 +1,94 @@
+export interface Counter {
+    target: any
+    increment(handle: any): void
+    decrement(handle: any): void
+}
+
+export type UnPatch = () => void
+export type Patch = (counter: Counter) => UnPatch
+
+const patchedEvents = ['abort', 'error', 'load', 'timeout']
+
+export function patchXhr(counter: Counter) {
+    const proto = counter.target.XMLHttpRequest.prototype
+    const oldSend = proto.send
+    proto.send = function newSend(this: XMLHttpRequest, ...args: any[]) {
+        const result = oldSend.apply(this, args)
+        counter.increment(this)
+        const decrement = () => {
+            counter.decrement(this)
+            for (let event of patchedEvents) this.removeEventListener(event, decrement)
+        }
+        for (let event of patchedEvents) this.addEventListener(event, decrement)
+        return result
+    }
+
+    return () => {
+        proto.send = oldSend
+    }
+}
+
+export function patchPromise(counter: Counter) {
+    const promise: typeof Promise = counter.target.Promise
+    const proto = promise.prototype
+    const origThen = proto.then
+    const origCatch = proto.catch
+
+    proto.then = function patchedThen(success, error) {
+        counter.increment(this)
+        const done = () => counter.decrement(this)
+
+        const result = origThen.call(this, success, error)
+        origThen.call(result, done, done)
+
+        return result
+    }
+      
+    proto.catch = function patchedCatch(error) {
+        return origCatch.call(this, error).then()
+    }
+
+    return () => {
+        proto.then = origThen
+        proto.catch = origCatch
+    }
+}
+
+export function createPatchTimeout(setName: string, clearName: string) {
+    return function patchTimeout(counter: Counter) {
+        const origClear: (...args: any[]) => any = counter.target[clearName]
+        const origSet: (...args: any[]) => any = counter.target[setName]
+    
+        function newSet(...args: any[]) {
+            let handler: any
+            const callback = args[0]
+    
+            function newCallback() {
+                try {
+                    return callback.apply(this, arguments)
+                } finally {
+                    counter.decrement(handler)
+                }
+            }
+
+            args[0] = newCallback
+            handler = origSet.apply(this, args)
+            counter.increment(handler)
+
+            return handler
+        }
+        counter.target[setName] = newSet
+    
+        function newClear(handler: any) {
+            const result = origClear.apply(this, arguments)
+            counter.decrement(handler)
+            return result
+        }
+        counter.target[clearName] = newClear
+    
+        return () => {
+            counter.target[setName] = origSet
+            counter.target[clearName] = origClear
+        }    
+    }
+}

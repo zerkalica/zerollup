@@ -1,13 +1,11 @@
 import {Patcher} from './Patcher'
 import {FakePromise} from './FakePromise'
-
-function canRemoveHttpRequest(this: XMLHttpRequest) {
-    return this.readyState === XMLHttpRequest.DONE
-}
+import * as patchers from './patchers'
 
 export interface WaitAllAsyncOptions {
     timeout?: number
     target?: Object
+    patchers?: patchers.Patch[]
 }
 
 export function waitAllAsync(opts: WaitAllAsyncOptions = {}): Promise<void> {
@@ -18,21 +16,21 @@ export function waitAllAsync(opts: WaitAllAsyncOptions = {}): Promise<void> {
         target.Promise = Promise
     }
 
+    const customPatchers = opts.patchers
+
     return new FakePromise((
         resolve: () => void,
         reject: (Error) => void
     ) => {
         const patcher = new Patcher(resolve, reject, target, opts.timeout)
-        patcher.callback('setTimeout')
-        patcher.callback('requestAnimationFrame')
-        patcher.handler('clearTimeout')
-        patcher.handler('cancelAnimationFrame')
-        patcher.promise('Promise')
-
-        patcher.method('XMLHttpRequest', 'abort')
-        patcher.property('XMLHttpRequest', 'onreadystatechange', canRemoveHttpRequest)
-        patcher.property('XMLHttpRequest', 'onload')
-        patcher.property('XMLHttpRequest', 'onerror')
-        patcher.property('XMLHttpRequest', 'ontimeout')
+        patcher.add(patchers.patchPromise)
+        patcher.add(patchers.patchXhr)
+        patcher.add(patchers.createPatchTimeout('setTimeout', 'clearTimeout'))
+        patcher.add(patchers.createPatchTimeout('requestAnimationFrame', 'cancelAnimationFrame'))
+        if (customPatchers) {
+            for (let customPatch of customPatchers) {
+                patcher.add(customPatch)
+            }
+        }
     })
 }

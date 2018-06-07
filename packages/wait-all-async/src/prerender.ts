@@ -1,10 +1,8 @@
-import {Script} from 'vm'
 import {waitAllAsync} from './waitAllAsync'
 
 export interface Renderer {
     readonly window: any
     serialize(): string
-    runVMScript(script: Script): void
 }
 
 export interface PrerenderResult {
@@ -33,7 +31,6 @@ export function prerender(
         }))
 
     target.eval(opts.bundle)
-    // opts.renderer.runVMScript(new Script(opts.bundle))
 
     return result
 }

@@ -2,6 +2,7 @@ import {waitAllAsync} from '../src'
 import xhrMock from 'xhr-mock'
 
 const url = '/testapi'
+const urlError = '/testapi-error'
 const testObject = {hello: 'world'}
 
 describe('xhr related', () => {
@@ -9,6 +10,9 @@ describe('xhr related', () => {
         xhrMock.setup()
         xhrMock.get(url, (req, res) => {
             return res.status(200).body(JSON.stringify(testObject))
+        })
+        xhrMock.get(urlError, (req, res) => {
+            throw new Error('Some error')
         })
     })
 
@@ -68,10 +72,10 @@ describe('xhr related', () => {
             data = JSON.parse(xhr.responseText)
         }
         xhr.onerror = () => {
-            setTimeout(() => error = true, 100)
+            setTimeout(() => error = true, 1)
         }
 
-        xhr.open('get', null)
+        xhr.open('get', urlError)
         xhr.send()
     })
 })
