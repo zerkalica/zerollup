@@ -1,9 +1,9 @@
-import {jsDomRender} from '../src'
+import {createJsDomRender} from '../src'
 import * as jsdom from 'jsdom'
 import fetchMock from 'fetch-mock'
 import {createContext} from 'vm'
 
-describe('jsDomRender', () => {
+describe('createJsDomRender', () => {
     const template = `<html><head></head><body><div id="app">{PLACEHOLDER}</div></body></html>`
     const url = '/testapi'
     const testObject = {hello: 'world'}
@@ -24,7 +24,7 @@ describe('jsDomRender', () => {
 `
         const result = template.replace('{PLACEHOLDER}', testString)
 
-        jsDomRender({jsdom, template, bundle})
+        createJsDomRender(jsdom)({template, bundle})
             .then(page => {
                 expect(page).toEqual(result)
                 done()
@@ -40,7 +40,7 @@ describe('jsDomRender', () => {
 `
         const result = template.replace('{PLACEHOLDER}', testObject.hello)
 
-        jsDomRender({jsdom, template, bundle})
+        createJsDomRender(jsdom)({template, bundle})
             .then(page => {
                 expect(page).toEqual(result)
                 done()
@@ -56,7 +56,7 @@ describe('jsDomRender', () => {
 `
         const result = template.replace('{PLACEHOLDER}', testObject.hello)
 
-        jsDomRender({jsdom, template, bundle})
+        createJsDomRender(jsdom)({template, bundle})
             .then(page => {
                 expect(page).toEqual(result)
                 done()

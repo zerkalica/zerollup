@@ -1,4 +1,4 @@
-import {jsDomRender} from '../src'
+import {createJsDomRender} from '../src'
 import * as jsdom from 'jsdom'
 import fetchMock from 'fetch-mock'
 import * as fs from 'fs'
@@ -52,7 +52,7 @@ describe('react', () => {
         ReactDOM.render(h(MyComponent), document.getElementById('app'))
 `
         const result = template.replace('{PLACEHOLDER}', testString)
-        jsDomRender({jsdom, template, bundle})
+        createJsDomRender(jsdom)({template, bundle})
             .then(page => {
                 expect(page).toEqual(result)
                 done()

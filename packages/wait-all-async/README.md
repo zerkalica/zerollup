@@ -1,5 +1,7 @@
 # wait-all-async
 
+Framework and bundler agnostic SPA prerenderer.
+
 ## Wait page loading
 
 Patches promises, xhr, timeout, animationFrame. Waits all async tasks and. Base helper for building SPA prerenders. 
@@ -59,7 +61,7 @@ export interface WaitAllAsyncOptions {
 Helpers to setup dom emulation, eval bundle code and generate resulting html page string.
 
 ```ts
-export interface BaseRenderOptions extends WaitAllAsyncOptions {
+export interface RenderOptions extends WaitAllAsyncOptions {
     /**
      * Html page template
      */
@@ -75,11 +77,13 @@ export interface BaseRenderOptions extends WaitAllAsyncOptions {
      */
     console?: Console
 }
+
+export type Render = (opts: RenderOptions) => Promise<string>
 ```
 
 ```js
 import jsdom from 'jsdom'
-import {jsDomRender} from '@zerollup/wait-all-async'
+import {createJsDomRender} from '@zerollup/wait-all-async'
 
 const template = `
 <html>
@@ -114,7 +118,9 @@ const bundle = `
     ReactDOM.render(h(MyComponent), document.getElementById('app'))
 `
 
-jsDomRender({jsdom, template, bundle})
+const render = createJsDomRender(jsdom)
+
+render({template, bundle})
     .then((page: string) => {
         page
     })
