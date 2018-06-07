@@ -1,4 +1,5 @@
 import {waitAllAsync} from '../src'
+import {createContext} from 'vm'
 
 describe('timeout related', () => {
     it('should handle setTimeout', done => {
@@ -53,7 +54,6 @@ describe('timeout related', () => {
     it('should handle timeouts in promises', done => {
         let t1 = false
         let t2 = false
-
         waitAllAsync().then(() => {
             expect(t1).toBeTruthy()
             expect(t2).toBeTruthy()

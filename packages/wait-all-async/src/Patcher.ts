@@ -22,16 +22,14 @@ type Patch = {
 
 export class Patcher {
     private counter: AsyncCounter
-    target: Object
     private patches: Patch[] = []
 
     constructor(
         resolve: () => void,
         reject: (e: Error) => void,
-        timeout: number = 4000,
-        win?: Object
+        public target: Object,
+        timeout: number = 4000
     ) {
-        this.target = win || window
         this.counter = new AsyncCounter(
             (e?: Error) => {
                 this.restore()

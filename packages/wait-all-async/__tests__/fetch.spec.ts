@@ -1,5 +1,6 @@
 import {waitAllAsync} from '../src'
 import fetchMock from 'fetch-mock'
+import * as vm from 'vm'
 
 describe('fetch related', () => {
     const url = '/testapi'
@@ -15,6 +16,7 @@ describe('fetch related', () => {
     it('should handle get json', done => {
         let t2 = false
         let data: Object
+
 
         waitAllAsync().then(() => {
             expect(data).toEqual(testObject)

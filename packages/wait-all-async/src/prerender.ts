@@ -19,9 +19,10 @@ export function prerender(
         bundle: string
     }
 ): Promise<PrerenderResult> {
+    const target = opts.renderer.window
     const result: Promise<PrerenderResult> = waitAllAsync({
         timeout: opts.timeout,
-        target: opts.renderer.window
+        target
     })
         .then(() => ({
             page: opts.renderer.serialize(),
@@ -31,7 +32,8 @@ export function prerender(
             error
         }))
 
-    opts.renderer.runVMScript(new Script(opts.bundle))
+    target.eval(opts.bundle)
+    // opts.renderer.runVMScript(new Script(opts.bundle))
 
     return result
 }
