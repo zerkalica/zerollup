@@ -21,20 +21,14 @@ export class AsyncCounter {
     }
 
     decrement(handler: any) {
-        this.handlers.delete(handler)
-        if (this.handlers.size === 0) this.scheduleResolve()
-    }
-
-    private scheduled = false
-    private scheduleResolve() {
-        if (this.scheduled) return
-        this.scheduled = true
-        frame(this.doResolve)
+        const {handlers} = this
+        if (!handlers.has(handler)) return
+        handlers.delete(handler)
+        if (handlers.size === 0) this.doResolve()
     }
 
     private onTimeout = () => {
         this.handler = null
-        this.scheduled = false
         const names = []
         const handlers = this.handlers
         this.handlers = new Set()
@@ -48,9 +42,7 @@ export class AsyncCounter {
         }
     }
 
-    private doResolve = () => {
-        this.scheduled = false
-        if (this.handlers.size !== 0) return
+    private doResolve() {
         if (this.handler) savedClearTimeout(this.handler)
         this.handlers = new Set()
         this.handler = null

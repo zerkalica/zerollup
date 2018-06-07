@@ -1,10 +1,9 @@
 import {waitAllAsync} from '../src'
 import fetchMock from 'fetch-mock'
 
-const url = '/testapi'
-const testObject = {hello: 'world'}
-
 describe('fetch related', () => {
+    const url = '/testapi'
+    const testObject = {hello: 'world'}
     beforeEach(() => {
         fetchMock.get('*', testObject)
     })

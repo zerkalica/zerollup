@@ -88,6 +88,31 @@ export class Patcher {
         patches.push({t: 'timeout', name, fn})
     }
 
+    promise(name: string) {
+        const {target, counter, patches} = this
+        const promise: typeof Promise = target[name]
+        const proto = promise.prototype
+        const origThen = proto.then
+        const origCatch = proto.catch
+    
+        proto.then = function patchedThen(success, error) {
+            counter.increment(this)
+            const done = () => counter.decrement(this)
+    
+            const result = origThen.call(this, success, error)
+            origThen.call(result, done, done)
+    
+            return result
+        }
+          
+        proto.catch = function patchedCatch(error) {
+            return origCatch.call(this, error).then()
+        }
+    
+        patches.push({t: 'method', name: 'then', proto, fn: origThen})
+        patches.push({t: 'method', name: 'catch', proto, fn: origCatch})
+    }    
+
     fetchLike(
         name: string
     ) {

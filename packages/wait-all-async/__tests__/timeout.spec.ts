@@ -15,6 +15,20 @@ describe('timeout related', () => {
         setTimeout(() => t2 = true , 10)
     })
 
+    it('should handle requestAnimationFrame', done => {
+        let t1 = false
+        let t2 = false
+
+        waitAllAsync().then(() => {
+            expect(t1).toBeTruthy()
+            expect(t2).toBeFalsy()
+            done()
+        })
+
+        requestAnimationFrame(() => t1 = true)
+        cancelAnimationFrame(requestAnimationFrame(() => t2 = true))
+    })
+
     it('should produce error after timeout if no async tasks', done => {
         waitAllAsync({timeout: 50}).catch((e) => {
             expect(e).toBeInstanceOf(Error)
@@ -55,13 +69,13 @@ describe('timeout related', () => {
         }).then(() => t2 = true)
     })
 
-    it('should not handle promise without timeout', done => {
+    it('should produce timeout error if one of promises never resolved', done => {
         let t1 = false
         let t2 = false
 
-        waitAllAsync().then(() => {
+        waitAllAsync({timeout: 50}).catch(e => {
             expect(t1).toBeTruthy()
-            expect(t2).toBeFalsy()
+            expect(e).toBeInstanceOf(Error)
             done()
         })
 
@@ -69,7 +83,8 @@ describe('timeout related', () => {
             (resolve, reject: (e: Error) => void) => {
                 // never
             }
-        ).then(() => t2 = true)
+        )
+            .then(() => t2 = true)
 
         const p2 = new Promise(resolve => {
             setTimeout(resolve, 0)
