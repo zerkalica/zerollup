@@ -1,41 +1,28 @@
 import * as jsdom from 'jsdom'
-import {WaitAllAsyncOptions, waitAllAsync} from './waitAllAsync'
-
-export interface RenderOptions extends WaitAllAsyncOptions {
-    /**
-     * Html page template
-     */
-    template: string
-
-    /**
-     * Eval-able string with js code from bundlers
-     */
-    bundle: string
-
-    /**
-     * Console instance to log eval messages
-     */
-    console?: Console
-}
-
-export type Render = (opts: RenderOptions) => Promise<string>
+import {waitAllAsync} from '../waitAllAsync'
+import {Render, RenderOptions} from './interfaces'
+import {fixConsoleColors} from './helpers/fixConsoleColors'
+import {defaultNodeDomSetup} from './helpers/defaultNodeDomSetup'
 
 /**
  * Setup jsdom, eval bundle code and generate resulting html page string
- *
- * @return string with html page
  */
 export function createJsDomRender(dom: typeof jsdom): Render {
     return function jsDomRender(opts: RenderOptions): Promise<string> {
         const renderer = new dom.JSDOM(opts.template, {
+            url: opts.url,
+            beforeParse: (window: jsdom.DOMWindow) => {
+                opts.setup && opts.setup(window)
+                defaultNodeDomSetup(window)
+            },
+            referrer: opts.referrer,
+            userAgent: opts.userAgent,
             runScripts: 'outside-only',
             includeNodeLocations: false,
-            virtualConsole: new dom.VirtualConsole().sendTo(opts.console || console),
+            virtualConsole: new dom.VirtualConsole().sendTo(fixConsoleColors(opts.console || console)),
         })
         const sandbox = renderer.window as any
-        sandbox.Promise = Promise
-        sandbox.fetch = fetch
-    
+
         return waitAllAsync({
             timeout: opts.timeout,
             sandbox,
@@ -43,6 +30,7 @@ export function createJsDomRender(dom: typeof jsdom): Render {
         })
             .then(() => renderer.serialize())
             .catch(error => {
+                if (!(error instanceof Error)) error = new Error(String(error))
                 error.page = renderer.serialize()
                 throw error
             })

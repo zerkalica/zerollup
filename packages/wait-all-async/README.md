@@ -2,7 +2,43 @@
 
 Framework and bundler agnostic SPA prerenderer.
 
-## Wait page loading
+## Cli usage
+
+```
+waa-prerender --template=app.html
+```
+
+```
+prerender --help
+Options:
+  --version        Show version number                                 [boolean]
+  --engine, -e     Prerendering engine     [choices: "jsdom"] [default: "jsdom"]
+  --timeout, -T    Fallback timeout to prerender page. Used if can't autodetect
+                   all async tasks endings              [number] [default: 4000]
+  --id, -i         Id of main div in template to which render nodes
+                                                                [default: "app"]
+  --bootstrap, -B  Js bootstrap code
+  --output, -o     Generated pages destination directory
+  --template, -t   Html page template file                            [required]
+  --bundle, -b     Path to js-bundle file, autodetects from template if empty
+  --setup, -s      Setup environment script. Exports function, that receives
+                   window sandbox
+  --page, -p       Relative urls with filenames and query parameters. Html page
+                   generates per each url                                [array]
+  --config         Path to JSON config file
+  --help           Show help                                           [boolean]
+
+Examples:
+  prerender --template app.html             Extracts js code from app.html, eval
+                                            it, prerender index.html in current
+                                            directory
+  prerender --template app.html             Invokes app.js code in jsdom
+  --bundle=app.js --id=app                  environment with app.html and
+  --pages="index.html?q=main"               generate index.html in current
+  --pages="second.html?q=second"            directory
+```
+
+## Using as low-level lib
 
 Patches promises, xhr, timeout, animationFrame. Waits all async tasks and. Base helper for building SPA prerenders. 
 
@@ -40,50 +76,80 @@ export interface WaitAllAsyncOptions {
     timeout?: number
 
     /**
-     * Sandbox, where to patch async functions. global window, if not set
+     * Sandbox, where to patch async functions. Window, if not set
      */
     sandbox?: any
 
     /**
      * Run code inside waitAllAsync and wait
      */
-    run?: () => void
+    run: () => void
 
     /**
      * Custom patchers to patch sandbox
      */
-    patchers?: patchers.Patch[]
+    patchers?: Patch[]
 }
 ```
 
-## Page prerendering
-
-Helpers to setup dom emulation, eval bundle code and generate resulting html page string.
+## Integrate with bundlers
 
 ```ts
-export interface RenderOptions extends WaitAllAsyncOptions {
+export interface OutputPage {
     /**
-     * Html page template
+     * Prerendered html page data
      */
-    template: string
+    data: string
 
     /**
-     * Eval-able string with js code from bundlers
+     * Source page url with query
+     */
+    url: string
+
+    /**
+     * Page filename
+     */
+    file: string
+}
+
+export interface EmitPagesOptions {
+    /**
+     * Array of urls with filenames and queries.
+     * @example ['index.html?page=main', 'secondary.html?page=some', 'https://example.com?q=1']
+     *
+     * Default is 'index.html'
+     */
+    page?: string[]
+
+    /**
+     * Bundle js code
      */
     bundle: string
 
     /**
-     * Console instance to log eval messages
+     * Html page template.
      */
-    console?: Console
-}
+    template: string
+    /**
+     * Rendering engine, jsdom is default.
+     */
+    engine?: RenderType
 
-export type Render = (opts: RenderOptions) => Promise<string>
+    /**
+     * Fallback timeout to prerender page. Used if can't autodetect all async tasks endings. Default is 4000 ms.
+     */
+    timeout?: number
+
+    /**
+     * Setup environment function
+     */
+    setup?: SandboxSetup
+}
 ```
 
 ```js
-import jsdom from 'jsdom'
-import {createJsDomRender} from '@zerollup/wait-all-async'
+import {writeFile} from 'fs-extra'
+import {emitPages} from '@zerollup/wait-all-async'
 
 const template = `
 <html>
@@ -118,11 +184,15 @@ const bundle = `
     ReactDOM.render(h(MyComponent), document.getElementById('app'))
 `
 
-const render = createJsDomRender(jsdom)
-
-render({template, bundle})
-    .then((page: string) => {
-        page
-    })
-
+emitPages({
+    bundle,
+    template,
+})
+.then(pages => pages.map(page =>
+    writeFile(page.file, page.data)
+        .catch(e => {
+            e.message += '. Page url is ' + page.url
+            throw e
+        })
+))
 ```

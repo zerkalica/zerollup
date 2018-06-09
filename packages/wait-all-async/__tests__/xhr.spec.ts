@@ -1,24 +1,9 @@
 import {waitAllAsync} from '../src'
-import xhrMock from 'xhr-mock'
-
-const url = '/testapi'
-const urlError = '/testapi-error'
-const testObject = {hello: 'world'}
+import {setup, teardown, url, urlError, testObject} from './fetchHelper'
 
 describe('xhr related', () => {
-    beforeEach(() => {
-        xhrMock.setup()
-        xhrMock.get(url, (req, res) => {
-            return res.status(200).body(JSON.stringify(testObject))
-        })
-        xhrMock.get(urlError, (req, res) => {
-            throw new Error('Some error')
-        })
-    })
-
-    afterEach(() => {
-        xhrMock.teardown()
-    })
+    beforeEach(setup)
+    afterEach(teardown)
 
     it('should handle onreadystatechange', done => {
         let t2 = false

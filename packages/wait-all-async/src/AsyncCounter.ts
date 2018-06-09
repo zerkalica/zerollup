@@ -3,10 +3,6 @@ import {Counter} from './patchers'
 const savedSetTimeout = setTimeout
 const savedClearTimeout = clearTimeout
 
-const frame: (cb: () => void) => any = typeof requestAnimationFrame === 'undefined'
-    ? (cb: () => void) => savedSetTimeout(cb, 16)
-    : requestAnimationFrame
-
 export class AsyncCounter implements Counter {
     private handler: NodeJS.Timer | void
     private handlers: Set<any> = new Set()

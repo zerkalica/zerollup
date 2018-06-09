@@ -7,6 +7,13 @@ export interface Counter {
 export type UnPatch = () => void
 export type Patch = (counter: Counter) => UnPatch
 
+export const defaultPatches: Patch[] = [
+    patchPromise,
+    patchXhr,
+    createPatchTimeout('setTimeout', 'clearTimeout'),
+    createPatchTimeout('requestAnimationFrame', 'cancelAnimationFrame'),
+]
+
 const patchedEvents = ['abort', 'error', 'load', 'timeout']
 
 export function patchXhr(counter: Counter) {
@@ -58,10 +65,19 @@ export function createPatchTimeout(setName: string, clearName: string) {
     return function patchTimeout(counter: Counter) {
         const origClear: (...args: any[]) => any = counter.target[clearName]
         const origSet: (...args: any[]) => any = counter.target[setName]
-    
+        if (!origClear || typeof origClear !== 'function') {
+            throw new Error(`No ${clearName} found in target`)
+        }
+        if (!origSet || typeof origSet !== 'function') {
+            throw new Error(`No ${setName} found in target`)
+        }
+
         function newSet(...args: any[]) {
             let handler: any
             const callback = args[0]
+            if (!callback || typeof callback !== 'function') {
+                throw new Error(`No callback`)
+            }
     
             function newCallback() {
                 try {

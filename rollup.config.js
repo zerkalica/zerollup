@@ -57,12 +57,12 @@ export default fsExtra.readdir(pkgDir)
                 ).concat(['path', 'fs']),
                 output: [
                     {
-                        sourcemaps: true,
+                        sourcemap: true,
                         format: 'es',
                         file: path.join(pkgDir, pkg.module)
                     },
                     {
-                        sourcemaps: true,
+                        sourcemap: true,
                         format: 'cjs',
                         file: path.join(pkgDir, pkg.main)
                     }

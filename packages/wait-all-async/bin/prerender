@@ -1,0 +1,66 @@
+#!/usr/bin/env node
+require('source-map-support').install()
+const yargs = require('yargs')
+const {renderTypes, writePages} = require('../dist')
+
+const options = {
+    engine: {
+        alias: 'e',
+        describe: 'Prerendering engine',
+        choices: renderTypes,
+        default: renderTypes[0],
+    },
+    timeout: {
+        alias: 'T',
+        number: true,
+        describe: 'Fallback timeout to prerender page. Used if can\'t autodetect all async tasks endings',
+        default: 4000,
+    },
+    id: {
+        alias: 'i',
+        describe: 'Id of main div in template to which render nodes',
+        default: 'app',
+    },
+    bootstrap: {
+        alias: 'B',
+        describe: 'Js bootstrap code',
+    },
+    output: {
+        alias: 'o',
+        describe: 'Generated pages destination directory',
+    },
+    template: {
+        alias: 't',
+        demand: true,
+        describe: 'Html page template file',
+    },
+    bundle: {
+        alias: 'b',
+        describe: 'Path to js-bundle file, autodetects from template if empty',
+    },
+    setup: {
+        alias: 's',
+        describe: 'Setup environment script. Exports function, that receives window sandbox',
+    },
+    page: {
+        alias: 'p',
+        array: true,
+        describe: 'Relative urls with filenames and query parameters. Html page generates per each url',
+    },
+}
+
+const args = yargs
+    .options(options)
+    .config()
+    .example('$0 --template app.html', 'Extracts js code from app.html, eval it, prerender index.html in current directory')
+    .example('$0 --template app.html --bundle=app.js --id=app --pages="index.html?q=main" --pages="second.html?q=second"', 'Invokes app.js code in jsdom environment with app.html and generate index.html in current directory')
+    .help()
+    .argv
+
+if (args.template || args.bundle) {
+    writePages(args)
+        .catch(e => {
+            console.error(e)
+            process.exit(1)
+        })
+}

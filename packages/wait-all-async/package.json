@@ -24,21 +24,35 @@
     "*.md",
     "package.json",
     "LICENSE",
-    "@types",
-    "dist"
+    "dist",
+    "bin"
   ],
   "keywords": [
     "prerender"
   ],
+  "bin": {
+    "waa-prerender": "./bin/prerender"
+  },
   "devDependencies": {
+    "@types/fs-extra": "^5.0.3",
     "@types/jsdom": "^11.0.5",
-    "@types/react": "^16.3.16",
+    "@types/parse5": "^5.0.0",
+    "@types/react": "^16.3.17",
     "@types/react-dom": "^16.0.6",
+    "@types/yargs": "^11.0.0",
     "fetch-mock": "^6.4.3",
     "jsdom": "^11.11.0",
-    "node-fetch": "^2.1.2",
     "react": "^16.4.0",
     "react-dom": "^16.4.0",
     "xhr-mock": "^2.4.0"
+  },
+  "dependencies": {
+    "fs-extra": "^6.0.1",
+    "mock-webstorage": "^1.0.4",
+    "node-fetch": "^2.1.2",
+    "parse5": "^5.0.0",
+    "source-map-support": "^0.5.6",
+    "walk-parse5": "^1.0.0",
+    "yargs": "^11.0.0"
   }
 }

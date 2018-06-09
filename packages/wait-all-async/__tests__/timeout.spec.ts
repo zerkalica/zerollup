@@ -1,5 +1,4 @@
 import {waitAllAsync} from '../src'
-import {createContext} from 'vm'
 
 describe('timeout related', () => {
     it('should handle setTimeout', done => {
@@ -36,7 +35,8 @@ describe('timeout related', () => {
     })
 
     it('should produce error after timeout if no async tasks', done => {
-        waitAllAsync({timeout: 50}).catch((e) => {
+        const run = () => {}
+        waitAllAsync({timeout: 50, run}).catch((e) => {
             expect(e).toBeInstanceOf(Error)
             done()
         })

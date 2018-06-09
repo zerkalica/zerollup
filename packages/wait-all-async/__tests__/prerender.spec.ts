@@ -1,22 +1,12 @@
 import {createJsDomRender} from '../src'
 import * as jsdom from 'jsdom'
-import fetchMock from 'fetch-mock'
-import {createContext} from 'vm'
+import {setupBrowser, setup, teardown, template, url, urlError, testObject, testString} from './fetchHelper'
 
 describe('createJsDomRender', () => {
-    const template = `<html><head></head><body><div id="app">{PLACEHOLDER}</div></body></html>`
-    const url = '/testapi'
-    const testObject = {hello: 'world'}
-    beforeEach(() => {
-        fetchMock.get('*', testObject)
-    })
-
-    afterEach(() => {
-        fetchMock.restore()
-    })
+    beforeEach(setup)
+    afterEach(teardown)
 
     it('should render on timeout', done => {
-        const testString = 'TEST_STRING'
         const bundle = `
         setTimeout(() => {
             document.getElementById('app').innerHTML = '${testString}'
@@ -24,7 +14,7 @@ describe('createJsDomRender', () => {
 `
         const result = template.replace('{PLACEHOLDER}', testString)
 
-        createJsDomRender(jsdom)({template, bundle})
+        createJsDomRender(jsdom)({template, bundle, setup: setupBrowser})
             .then(page => {
                 expect(page).toEqual(result)
                 done()
@@ -32,7 +22,6 @@ describe('createJsDomRender', () => {
     })
 
     it('should render on promise resolve', done => {
-        const testString = 'TEST_STRING'
         const bundle = `
         Promise.resolve({json: () => (${JSON.stringify(testObject)})}).then(r => r.json()).then(data => {
             document.getElementById('app').innerHTML = data.hello
@@ -40,7 +29,7 @@ describe('createJsDomRender', () => {
 `
         const result = template.replace('{PLACEHOLDER}', testObject.hello)
 
-        createJsDomRender(jsdom)({template, bundle})
+        createJsDomRender(jsdom)({template, bundle, setup: setupBrowser})
             .then(page => {
                 expect(page).toEqual(result)
                 done()
@@ -56,7 +45,7 @@ describe('createJsDomRender', () => {
 `
         const result = template.replace('{PLACEHOLDER}', testObject.hello)
 
-        createJsDomRender(jsdom)({template, bundle})
+        createJsDomRender(jsdom)({template, bundle, setup: setupBrowser})
             .then(page => {
                 expect(page).toEqual(result)
                 done()

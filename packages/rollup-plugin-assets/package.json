@@ -43,6 +43,6 @@
     "rollup-pluginutils": "^2.3.0"
   },
   "devDependencies": {
-    "@types/fs-extra": "^5.0.2"
+    "@types/fs-extra": "^5.0.3"
   }
 }

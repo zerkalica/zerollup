@@ -20,3 +20,9 @@ PromiseSubclass.prototype.then = function then(resolve, reject) {
 }
 
 export const FakePromise: typeof Promise = PromiseSubclass as any
+
+export const protoRegExp = /^https?:\/\//
+
+export function normalizeUrl(page: string): string {
+    return protoRegExp.test(page) ? page : ('http://localhost/' + page)
+}

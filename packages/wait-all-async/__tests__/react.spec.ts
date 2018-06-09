@@ -1,30 +1,12 @@
 import {createJsDomRender} from '../src'
 import * as jsdom from 'jsdom'
-import fetchMock from 'fetch-mock'
-import * as fs from 'fs'
-import * as path from 'path'
-
-function load(pkgName: string, suffix: string = 'production.min', dir: string = 'umd'): string {
-    return fs.readFileSync(path.join(
-        path.dirname(require.resolve(pkgName)),
-        dir,
-        `${pkgName}.${suffix}.js`
-    )).toString() + ';\n'
-}
+import {setupBrowser, setup, teardown, template, url, urlError, testObject, testString, load} from './fetchHelper'
 
 const reactBundle = load('react') + load('react-dom')
 
 describe('react', () => {
-    const template = `<html><head></head><body><div id="app"><div>{PLACEHOLDER}</div></div></body></html>`
-    const url = '/testapi'
-    const testString = 'TEST_STRING'
-    beforeEach(() => {
-        fetchMock.get('*', testString)
-    })
-
-    afterEach(() => {
-        fetchMock.restore()
-    })
+    beforeEach(setup)
+    afterEach(teardown)
 
     it('should handle fetch in componentDidMount', done => {
         const bundle = `
@@ -51,8 +33,8 @@ describe('react', () => {
 
         ReactDOM.render(h(MyComponent), document.getElementById('app'))
 `
-        const result = template.replace('{PLACEHOLDER}', testString)
-        createJsDomRender(jsdom)({template, bundle})
+        const result = template.replace('{PLACEHOLDER}', `<div>${testString}</div>`)
+        createJsDomRender(jsdom)({template, bundle, setup: setupBrowser})
             .then(page => {
                 expect(page).toEqual(result)
                 done()

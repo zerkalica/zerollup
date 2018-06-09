@@ -1,17 +1,9 @@
 import {waitAllAsync} from '../src'
-import fetchMock from 'fetch-mock'
-import * as vm from 'vm'
+import {setup, teardown, url, urlError, testObject} from './fetchHelper'
 
 describe('fetch related', () => {
-    const url = '/testapi'
-    const testObject = {hello: 'world'}
-    beforeEach(() => {
-        fetchMock.get('*', testObject)
-    })
-
-    afterEach(() => {
-        fetchMock.restore()
-    })
+    beforeEach(setup)
+    afterEach(teardown)
 
     it('should handle get json', done => {
         let t2 = false
@@ -44,13 +36,15 @@ describe('fetch related', () => {
 
     it('should handle get response', done => {
         let t2 = false
+        const run = () => {
+            fetch(url).then(r => t2 = r.ok)
+        }
 
-        waitAllAsync().then(() => {
+        waitAllAsync({run}).then(() => {
             expect(t2).toBeTruthy()
             done()
         })
 
-        fetch(url).then(r => t2 = r.ok)
     })
 
     it('should handle get json with setTimeout', done => {

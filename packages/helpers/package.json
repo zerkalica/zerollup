@@ -35,7 +35,7 @@
     "assets path"
   ],
   "devDependencies": {
-    "@types/fs-extra": "^5.0.2"
+    "@types/fs-extra": "^5.0.3"
   },
   "dependencies": {
     "builtins": "^2.0.0",

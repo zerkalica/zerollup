@@ -1,6 +1,37 @@
-import {Patcher} from './Patcher'
 import {FakePromise} from './FakePromise'
-import * as patchers from './patchers'
+import {AsyncCounter} from './AsyncCounter'
+import {Patch, UnPatch, defaultPatches} from './patchers'
+
+class Patcher {
+    private counter: AsyncCounter
+    private unPatchers: UnPatch[] = []
+
+    constructor(
+        resolve: () => void,
+        reject: (e: Error) => void,
+        target: Object,
+        timeout: number = 4000
+    ) {
+        this.counter = new AsyncCounter(
+            target,
+            (e?: Error) => {
+                this.restore()
+                if (e) reject(e)
+                else resolve()
+            },
+            timeout
+        )
+    }
+
+    add(patch: Patch) {
+        this.unPatchers.push(patch(this.counter))
+    }
+
+    restore() {
+        for (let unPatch of this.unPatchers) unPatch()
+        this.unPatchers = []
+    }
+}
 
 export interface WaitAllAsyncOptions {
     /**
@@ -16,36 +47,33 @@ export interface WaitAllAsyncOptions {
     /**
      * Run code inside waitAllAsync and wait
      */
-    run?: () => void
+    run: () => void
 
     /**
      * Custom patchers to patch sandbox
      */
-    patchers?: patchers.Patch[]
+    patchers?: Patch[]
 }
 
 /**
- * Patch promises, xhr, timeout, animationFrame. Waits all async tasks and. Base helper for building SPA prerenders
+ * Patch promises, xhr, timeout, animationFrame. Waits all async tasks. Base helper for building SPA prerenders.
  */
-export function waitAllAsync(opts: WaitAllAsyncOptions = {}): Promise<void> {
-    const sandbox: any = opts.sandbox || (typeof window === 'undefined' ? global : window)
-    const customPatchers = opts.patchers
+export function waitAllAsync(opts: WaitAllAsyncOptions): Promise<void> {
 
+    /**
+     * Can't use real promises here, patcher patches native Promise.prototype to wait async tasks in appilication.
+     */
     return new FakePromise((
         resolve: () => void,
         reject: (Error) => void
     ) => {
-        const patcher = new Patcher(resolve, reject, sandbox, opts.timeout)
-        patcher.add(patchers.patchPromise)
-        patcher.add(patchers.patchXhr)
-        patcher.add(patchers.createPatchTimeout('setTimeout', 'clearTimeout'))
-        patcher.add(patchers.createPatchTimeout('requestAnimationFrame', 'cancelAnimationFrame'))
-        if (customPatchers) {
-            for (let customPatch of customPatchers) {
-                patcher.add(customPatch)
-            }
-        }
-
+        const patcher = new Patcher(
+            resolve,
+            reject,
+            opts.sandbox || (typeof window === 'undefined' ? global : window),
+            opts.timeout
+        )
+        for (let patch of opts.patchers || defaultPatches) patcher.add(patch)
         if (opts.run) opts.run()
     })
 }
