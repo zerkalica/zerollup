@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="1.4.0"></a>
+# [1.4.0](https://github.com/zerkalica/zerollup/compare/v1.3.7...v1.4.0) (2018-06-09)
+
+
+### Features
+
+* **wait-all-async:** cli added ([a04a2d4](https://github.com/zerkalica/zerollup/commit/a04a2d4))
+
+
+
+
 <a name="1.2.6"></a>
 ## [1.2.6](https://github.com/zerkalica/zerollup/compare/v1.2.5...v1.2.6) (2018-05-31)
 
