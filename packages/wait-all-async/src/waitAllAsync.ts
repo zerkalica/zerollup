@@ -59,6 +59,7 @@ export interface WaitAllAsyncOptions {
  * Patch promises, xhr, timeout, animationFrame. Waits all async tasks. Base helper for building SPA prerenders.
  */
 export function waitAllAsync(opts: WaitAllAsyncOptions): Promise<void> {
+    const sandbox = opts.sandbox || (typeof window === 'undefined' ? global : window)
 
     /**
      * Can't use real promises here, patcher patches native Promise.prototype to wait async tasks in appilication.
@@ -70,10 +71,14 @@ export function waitAllAsync(opts: WaitAllAsyncOptions): Promise<void> {
         const patcher = new Patcher(
             resolve,
             reject,
-            opts.sandbox || (typeof window === 'undefined' ? global : window),
+            sandbox,
             opts.timeout
         )
         for (let patch of opts.patchers || defaultPatches) patcher.add(patch)
+
+        // Start async counter, to prevent waiting timeout, if no async tasks added in opts.run
+        sandbox.setTimeout(() => {}, 0)
+
         if (opts.run) opts.run()
     })
 }

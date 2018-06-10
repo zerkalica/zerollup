@@ -34,10 +34,9 @@ describe('timeout related', () => {
 
     })
 
-    it('should produce error after timeout if no async tasks', done => {
+    it('should not wait timeout if no async tasks', done => {
         const run = () => {}
-        waitAllAsync({timeout: 50, run}).catch((e) => {
-            expect(e).toBeInstanceOf(Error)
+        waitAllAsync({run}).then(() => {
             done()
         })
     })
