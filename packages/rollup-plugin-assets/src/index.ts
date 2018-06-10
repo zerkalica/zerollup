@@ -1,5 +1,5 @@
-import {Plugin, OutputOptions} from 'rollup'
-import * as fsExtra from 'fs-extra'
+import {Plugin, OutputOptions, OutputBundle} from 'rollup'
+import {readFile} from 'fs-extra'
 import * as path from 'path'
 import {createFilter} from 'rollup-pluginutils'
 import {AssetsCollector} from '@zerollup/helpers'
@@ -60,29 +60,29 @@ export default bu.assets + '${relativeUrl}'
 `
         },
 
-        transformBundle(code: string, options: OutputOptions): Promise<any> {
-            if (collector.isEmpty()) return Promise.resolve()
-
-            const targetRoot = options.file ? path.dirname(options.file) : options.dir
-            if (!targetRoot) {
-                throw new Error(`Can't find options.file or options.dir`)
-            }
+	generateBundle(options: OutputOptions, bundle: OutputBundle, isWrite: boolean): Promise<void> | void {
+            if (collector.isEmpty()) return
 
             const resources = collector.getResources()
             collector.reset()
 
             return resources
-                .then(resources => Promise.all(resources.map(resource => 
-                    fsExtra.copy(resource.src, path.join(targetRoot, resource.target))
+                .then(resources => Promise.all(resources.map(resource =>
+                    readFile(resource.src)
+                        .then(data => ({
+                            data,
+                            target: resource.target,
+                        }))
                         .catch(error => {
-                            error.message += ' ' + JSON.stringify({
-                                ...resource,
-                                targetRoot
-                            }, null, '  ')
-                            throw error
-                        })
+                                error.message += ' ' + JSON.stringify(resource, null, '  ')
+                                throw error
+                            })
                 )))
-                .then(() => undefined)
+                .then(items => {
+                    for (let item of items) {
+                        this.emitAsset(item.target, item.data)
+                    }
+                })
         }
     }
 }

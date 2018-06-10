@@ -6,6 +6,7 @@ export interface OutputOptions {
     format: ModuleFormat
     globals?: {[pkgName: string]: string}
     name?: string
+    assetFileNames: string
 }
 
 export interface Config {

@@ -66,6 +66,7 @@ export function getInputs(
                         external,
                         output: targets.map(({file: outFile, format, ext}) => ({
                             sourcemap: true,
+                            assetFileNames: '[name][extname]',
                             file: path.join(path.dirname(outFile), cutExt(path.basename(file)))
                                 + (!env || env === 'production' ? '' : `.${env}`)
                                 + ext,
