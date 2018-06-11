@@ -74,6 +74,7 @@ export function getConfigs(
                             external,
                             output: [
                                 {
+                                    assetFileNames: '[name][extname]',
                                     sourcemap: false,
                                     file: filtered.length === 1
                                         ? path.join(distDir, configFileName)

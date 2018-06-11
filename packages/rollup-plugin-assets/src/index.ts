@@ -60,7 +60,7 @@ export default bu.assets + '${relativeUrl}'
 `
         },
 
-	generateBundle(options: OutputOptions, bundle: OutputBundle, isWrite: boolean): Promise<void> | void {
+    generateBundle(options: OutputOptions, bundle: OutputBundle, isWrite: boolean): Promise<void> | void {
             if (collector.isEmpty()) return
 
             const resources = collector.getResources()
