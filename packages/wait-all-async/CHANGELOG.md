@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="1.4.1"></a>
+## [1.4.1](https://github.com/zerkalica/zerollup/compare/v1.4.0...v1.4.1) (2018-06-11)
+
+
+### Bug Fixes
+
+* **wait-all-async:** prevent waiting timeout, if no async tasks added ([1bfda42](https://github.com/zerkalica/zerollup/commit/1bfda42))
+
+
+
+
 <a name="1.4.0"></a>
 # [1.4.0](https://github.com/zerkalica/zerollup/compare/v1.3.7...v1.4.0) (2018-06-09)
 
