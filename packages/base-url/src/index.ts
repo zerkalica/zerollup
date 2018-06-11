@@ -3,7 +3,7 @@ export interface BaseUrl {
 }
 
 const baseUrl: BaseUrl = {
-    assets: '/'
+    assets: '/i/'
 }
 
 export default baseUrl

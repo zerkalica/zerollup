@@ -112,27 +112,23 @@ export default function rollupConfig(
                 cache,
                 plugins: <Plugin[]>[
                     ...pkgPlugins,
-                    config.t === 'main' && replace({
-                        values: {
-                            'process.env.BROWSER': JSON.stringify(!pkg.lib),
-                            'process.env.NODE_ENV': JSON.stringify(config.env)
-                        }
-                    }),
                     config.t === 'config' && template({
                         pkg: pkg.json,
                         mainFiles: config.mainFiles,
                         baseUrl: config.baseUrl,
-                        globalName: pkg.globalName,
-                        configName: pkg.configGlobalName
+                        pkgName: pkg.urlName,
                     }),
-                    config.t === 'config' && replace({
+                    replace({
                         include: [
-                            `${pkg.configDir}/*`
+                            `${pkg.configDir}/*`,
+                            `${pkg.srcDir}/*`,
                         ],
                         values: {
+                            'process.env.BROWSER': JSON.stringify(!pkg.lib),
+                            'process.env.NODE_ENV': JSON.stringify(config.env),
                             'PKG_NAME': pkg.urlName,
                             'PKG_VERSION': pkg.json.version,
-                            'ZEROLLUP_CONFIG_BASE_URL': config.baseUrl
+                            'ZEROLLUP_CONFIG_BASE_URL': config.t === 'config' ? config.baseUrl : ''
                         }
                     }),
                     i === 0 && watch && !pkg.lib && serve({

@@ -14,6 +14,5 @@ module.exports = {
     'ts-jest': {
       'tsConfigFile': 'tsconfig.jest.json'
     }
-  },
-  setupFiles: ["./jest.setup"]
+  }
 };

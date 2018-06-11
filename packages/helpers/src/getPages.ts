@@ -7,8 +7,7 @@ export interface TemplateFnOptions<Config> {
     configFile?: string | void
     config?: Config | void
     mainFile: string
-    globalName: string
-    configName: string
+    pkgName: string
 }
 
 export interface Page {
@@ -23,8 +22,7 @@ export type RequireFn<Config> = (module: string) => Promise<TemplateFn<Config> |
 export function defaultTemplate<Config>(
     {
         config,
-        configName,
-        pkg, globalName, baseUrl, configFile, mainFile
+        pkg, pkgName, baseUrl, configFile, mainFile
     }: TemplateFnOptions<Config>
 ): Template {
     return `<!DOCTYPE html>
@@ -34,13 +32,12 @@ export function defaultTemplate<Config>(
         <title>${pkg.description || pkg.name}</title>
     </head>
     <body>
-        <div id="app"></div>
+        <div id="${pkgName}"></div>
         ${config
-            ? `<script> var ${configName} = ${JSON.stringify(config, undefined, '  ')};</script>`
+            ? `<script>${config}</script>`
             : configFile ? `<script src="${baseUrl + configFile}"></script>` : ''
         }
         <script src="${baseUrl + mainFile}"></script>
-        <script>${globalName}(document.getElementById('app'))</script>
     </body>
 </html>
 `

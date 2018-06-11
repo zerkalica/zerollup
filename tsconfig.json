@@ -14,8 +14,7 @@
 		"experimentalDecorators": true,
 		"baseUrl": "packages",
 		"paths": {
-			"@zerollup/*": [ "*/src" ],
-			"jsdom": ["jsdom/lib/old-api.js"]
+			"@zerollup/*": [ "*/src" ]
 		}
 	},
 	"exclude": ["dist", "node_modules"]
