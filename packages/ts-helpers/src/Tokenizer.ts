@@ -20,7 +20,7 @@ export class Tokenizer {
             return '><'
         })
 
-        this.mask = new RegExp(regExpEscape(mask).replace(/\>\</g, '(.*)'))
+        this.mask = new RegExp('^' + regExpEscape(mask).replace(/\>\</g, '(.*)') + '$')
     }
 
     parse(str: string): string[] | void {

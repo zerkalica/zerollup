@@ -53,7 +53,7 @@ const args = yargs
     .options(options)
     .config()
     .example('$0 --template app.html', 'Extracts js code from app.html, eval it, prerender index.html in current directory')
-    .example('$0 --template app.html --bundle=app.js --id=app --pages="index.html?q=main" --pages="second.html?q=second"', 'Invokes app.js code in jsdom environment with app.html and generate index.html in current directory')
+    .example('$0 --template app.html --bundle=app.js --id=app --page="index.html?q=main" --page="second.html?q=second"', 'Invokes app.js code in jsdom environment with app.html and generate index.html in current directory')
     .help()
     .argv
 

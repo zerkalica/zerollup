@@ -34,8 +34,8 @@ Examples:
                                             directory
   prerender --template app.html             Invokes app.js code in jsdom
   --bundle=app.js --id=app                  environment with app.html and
-  --pages="index.html?q=main"               generate index.html in current
-  --pages="second.html?q=second"            directory
+  --page="index.html?q=main"                generate index.html in current
+  --page="second.html?q=second"             directory
 ```
 
 ## Using as low-level lib

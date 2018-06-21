@@ -52,7 +52,6 @@
     "node-fetch": "^2.1.2",
     "parse5": "^5.0.0",
     "source-map-support": "^0.5.6",
-    "walk-parse5": "^1.0.0",
     "yargs": "^11.0.0"
   }
 }

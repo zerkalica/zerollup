@@ -2,8 +2,7 @@ import {access, readFile, writeFile, constants} from 'fs-extra'
 import {emitPages} from './emitPages'
 import {RenderType, SandboxSetup} from './renderers'
 import * as path from 'path'
-import {parse, DefaultTreeParentNode, DefaultTreeElement, DefaultTreeTextNode} from 'parse5'
-import walk from 'walk-parse5'
+import {parse, DefaultTreeParentNode, DefaultTreeElement, DefaultTreeNode, DefaultTreeTextNode} from 'parse5'
 import {normalizeUrl, protoRegExp} from './FakePromise'
 
 export interface WritePagesOptions {
@@ -66,10 +65,27 @@ function defaultTemplate(id: string | void, bundle: string) {
     </head>
     <body>
         <div id="${id || 'app'}"></div>
-        <script src="${bundle}"></script>
+        <script src="${bundle}" data-prerender="true"></script>
     </body>
 </html>
 `
+}
+
+function walk(
+    node: DefaultTreeParentNode,
+    callback: (node: DefaultTreeParentNode) => void | boolean
+): void | boolean {
+    if (callback(node) === false) return false
+
+    let childNode: DefaultTreeNode
+    let i: number = 0
+
+    if (node.childNodes !== undefined) childNode = node.childNodes[i]
+
+    while (childNode !== undefined) {
+        if (walk(childNode as DefaultTreeElement, callback) === false) return false
+        childNode = node.childNodes[++i]
+    }
 }
 
 function bundleFromTemplate(html: string): {urls: string[], code: string} {
@@ -78,18 +94,36 @@ function bundleFromTemplate(html: string): {urls: string[], code: string} {
         urls: [],
     }
 
-    walk(parse(html), (node: DefaultTreeElement) => {
+    /**
+     * By default - grab all src urls and js code from script tag.
+     * If at least one of data-prerender attribute found in source - grab all code and urls only from script tag with this attribute
+     */
+    const accPrerendering = {
+        code: '',
+        urls: [],
+    }
+
+
+    walk(parse(html) as DefaultTreeParentNode, (node: DefaultTreeElement) => {
         if (node.tagName !== 'script') return
+        let hasPrerenderTag = false
+        let url: void | string = undefined
         for (let attr of node.attrs) {
-            if (attr.name === 'src') acc.urls.push(attr.value)
+            if (attr.name === 'src') url = attr.value
+            if (attr.name === 'data-prerender') hasPrerenderTag = true
         }
+        if (url) acc.urls.push(url)
+        if (hasPrerenderTag && url) accPrerendering.urls.push(url)
         const child = node.childNodes[0] as DefaultTreeTextNode
         if (!child || child.nodeName !== '#text' || !child.value) return
+        const code = child.value.trim()
+        if (!code) return
 
-        acc.code += acc.code + ';\n' + child.value.trim()
+        if (hasPrerenderTag) accPrerendering.code += accPrerendering.code + ';\n' + code
+        acc.code += acc.code + ';\n' + code
     })
 
-    return acc
+    return accPrerendering.code || accPrerendering.urls.length > 0 ? accPrerendering : acc
 }
 
 const bundleRegExp = /\.js$/

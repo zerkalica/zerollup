@@ -131,7 +131,42 @@ __export(require("./lib/Some2"));`,
             emitOnlyDtsFiles: true,
             esnext: `export { Some } from "./lib/Some";`,
             commonjs: 'export { Some } from "./lib/Some";'
-        }
+        },
+
+        {
+            title: 'same modules',
+            compilerOptions: {
+                paths: {
+                    'app/*': ['src/app/*'],
+                    app: ['src/app/index'],
+                },
+            },
+            files: [
+                {
+                    path: 'index.ts',
+                    content: `import app from 'app'
+import appRootPath from 'app-root-path'
+import application from 'application'
+export {app, appRootPath, application}
+`,
+                },
+                {path: 'node_modules/application.ts', content: `export default 'test'`,},
+                {path: 'node_modules/app-root-path.ts', content: `export default 'test'`,},
+                {path: 'node_modules/app.ts', content: `export default 'test'`,},
+            ],
+            esnext: `import app from "./src/app/index";
+import appRootPath from 'app-root-path';
+import application from 'application';
+export { app, appRootPath, application };`,
+            commonjs: `"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const app_1 = require("./src/app/index");
+exports.app = app_1.default;
+const app_root_path_1 = require("app-root-path");
+exports.appRootPath = app_root_path_1.default;
+const application_1 = require("application");
+exports.application = application_1.default;`,
+        },
     ]
 
     const opts = {
@@ -151,6 +186,7 @@ __export(require("./lib/Some2"));`,
         it(`${item.title} esnext`, () => {
             const data = transpile({
                 ...opts,
+                compilerOptions: {...opts.compilerOptions, ...item.compilerOptions},
                 files: item.files,
                 emitOnlyDtsFiles: item.emitOnlyDtsFiles,
             })
@@ -166,7 +202,7 @@ __export(require("./lib/Some2"));`,
                 ...opts,
                 files: item.files,
                 emitOnlyDtsFiles: item.emitOnlyDtsFiles,
-                compilerOptions: {...opts.compilerOptions, module: ts.ModuleKind.CommonJS},
+                compilerOptions: {...opts.compilerOptions, ...item.compilerOptions, module: ts.ModuleKind.CommonJS},
             })
 
             expect(data.outputFiles[0].text.trim()).toEqual(item.commonjs.trim())
