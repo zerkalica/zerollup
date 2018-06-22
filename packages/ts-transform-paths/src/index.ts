@@ -1,7 +1,6 @@
 import * as path from 'path'
 import * as ts from 'typescript'
 import {ImportPathsResolver, createTraverseVisitor} from '@zerollup/ts-helpers'
-import compareVersions from 'compare-versions'
 
 interface ImportPathVisitorContext {
     resolver: ImportPathsResolver
@@ -178,11 +177,6 @@ export default function transformPaths(program?: ts.Program) {
         ): ts.Transformer<ts.SourceFile> {
             return plugin.before(transformationContext)
         }
-    }
-
-    if (!isPatched && compareVersions(ts.versionMajorMinor, '2.9') < 0) {
-        isPatched = true
-        patchEmitFiles(ts).push(plugin.afterDeclarations)
     }
 
     return plugin
