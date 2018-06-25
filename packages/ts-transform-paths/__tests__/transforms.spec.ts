@@ -10,6 +10,85 @@ describe('transforms', () => {
 
     const files = [
         {
+            title: 'double import',
+            files: [
+                {
+                    path: 'index.ts',
+                    content: `import {Some} from "someRoot/Some"
+import A from "someRoot/Some"
+const a = new A()
+export default Some`,
+                },
+                {
+                    path: './lib/Some.ts',
+                    content: `export interface Some { self: string }
+export default class A {}
+`,
+                },
+            ],
+            esnext: `import A from "./lib/Some";
+const a = new A();`,
+            commonjs: `"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const Some_1 = require("./lib/Some");
+const a = new Some_1.default();`,
+            declaration: `import { Some } from "./lib/Some";
+export default Some;`,
+        },
+
+        {
+            title: 'd.ts generated dynamic import',
+            compilerOptions: {
+                paths: {
+                    'app/*': ['src/app/*'],
+                },
+            },
+            files: [
+                {
+                    path: 'index.ts',
+                    content: `
+import {a} from 'app/a'
+export class B {
+    morning = a()
+}
+`,
+                },
+                {
+                    path: './src/app/a.ts',
+                    content: `
+import { Data } from 'app/type'
+export function a(): Data {
+    return {some: '123'}
+}
+`,
+                },
+                {
+                    path: './src/app/type.ts',
+                    content: `export type Data = {some: string}`,
+                }
+            ],
+            esnext: `import { a } from "./src/app/a";
+export class B {
+    constructor() {
+        this.morning = a();
+    }
+}`,
+            commonjs: `
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const a_1 = require("./src/app/a");
+class B {
+    constructor() {
+        this.morning = a_1.a();
+    }
+}
+exports.B = B;`,
+            declaration: `export declare class B {
+    morning: import("./src/app/type").Data;
+}`,
+        },
+
+        {
             title: 'non-default import',
             files: [
                 {

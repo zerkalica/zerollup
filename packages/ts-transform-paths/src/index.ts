@@ -2,30 +2,61 @@ import * as path from 'path'
 import * as ts from 'typescript'
 import {ImportPathsResolver, createTraverseVisitor} from '@zerollup/ts-helpers'
 
+const importPathRegex = /^(['"\s]+)(.+)(['"\s]+)$/
+
+export type FixNode = (fixNode: ts.Node, newImport: string) => ts.Node
+
+function createFixNode(sf: ts.SourceFile): FixNode {
+    const posMap = new Map<string, number>()
+    return function fixNode(fixNode: ts.Node, newImport: string): ts.Node {
+        /**
+         * This hack needed for properly d.ts paths rewrite.
+         * moduleSpecifier value obtained by moduleSpecifier.pos from original source file text.
+         * See emitExternalModuleSpecifier -> writeTextOfNode -> getTextOfNodeFromSourceText.
+         *
+         * We need to add new import path to the end of source file text and adjust moduleSpecifier.pos
+         *
+         * ts remove quoted string from output
+         */
+        const newStr = `"${newImport}"`
+        let cachedPos = posMap.get(newImport)
+        if (cachedPos === undefined) {
+            cachedPos = sf.text.length
+            posMap.set(newImport, cachedPos)
+            sf.text += newStr
+            sf.end += newStr.length
+        }
+        fixNode.pos = cachedPos
+        fixNode.end = cachedPos + newStr.length
+
+        return fixNode
+    }
+}
+
 interface ImportPathVisitorContext {
     resolver: ImportPathsResolver
-    posMap: Map<string, number>
+    fixNode: FixNode
     sf: ts.SourceFile
 }
 
-const importPathRegex = /^(['"\s]+)(.+)(['"\s]+)$/
-
 function importPathVisitor(
     node: ts.Node,
-    {posMap, resolver, sf}: ImportPathVisitorContext
+    {fixNode, resolver, sf}: ImportPathVisitorContext
 ): ts.Node | void {
     let importValue: string
-    let fixNode: ts.Node
+    let nodeToFix: ts.Node
     if (ts.isCallExpression(node)) {
         if (node.expression.getText() !== 'require' || node.arguments.length !== 1) return
         const arg = node.arguments[0]
         if (!ts.isStringLiteral(arg)) return
         importValue = arg.getText()
-        fixNode = arg
+        nodeToFix = arg
     } else if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
         if (!node.moduleSpecifier) return
         importValue = node.moduleSpecifier.getFullText()
-        fixNode = node.moduleSpecifier
+        nodeToFix = node.moduleSpecifier
+    } else if (ts.isImportTypeNode(node)) {
+        importValue = `"${(node.argument as any).literal.text}"`
     } else {
         return
     }
@@ -41,29 +72,18 @@ function importPathVisitor(
     if (!newImports) return
     const newImport = newImports[0]
 
-    /**
-     * This hack needed for properly d.ts paths rewrite.
-     * moduleSpecifier value obtained by moduleSpecifier.pos from original source file text.
-     * See emitExternalModuleSpecifier -> writeTextOfNode -> getTextOfNodeFromSourceText.
-     *
-     * We need to add new import path to the end of source file text and adjust moduleSpecifier.pos
-     *
-     * ts remove quoted string from output
-     */
-    const newStr = prefix + newImport + suffix
-    let cachedPos = posMap.get(newImport)
-    if (cachedPos === undefined) {
-        cachedPos = sf.text.length
-        posMap.set(newImport, cachedPos)
-        sf.text += newStr
-        sf.end += newStr.length
-    }
-    fixNode.pos = cachedPos
-    fixNode.end = cachedPos + newStr.length
-
+    if (nodeToFix) fixNode(nodeToFix, newImport)
     const newSpec = ts.createLiteral(newImport)
 
     let newNode: ts.Node | void
+
+    if (ts.isImportTypeNode(node)) {
+        newNode = ts.updateImportTypeNode(
+            node, ts.createLiteralTypeNode(newSpec), node.qualifier, node.typeArguments, node.isTypeOf
+        )
+        newNode.flags = node.flags
+    }
+
     if (ts.isImportDeclaration(node)) {
         newNode = ts.updateImportDeclaration(
             node, node.decorators, node.modifiers, node.importClause, newSpec
@@ -120,31 +140,6 @@ function importPathVisitor(
     return newNode
 }
 
-function patchEmitFiles(host: any): ts.TransformerFactory<ts.SourceFile>[] {
-    if (host.emitFiles.__patched) return host.emitFiles.__patched
-    const dtsTransformers: ts.TransformerFactory<ts.SourceFile>[] = []
-
-    const oldEmitFiles = host.emitFiles
-    /**
-     * Hack
-     * Typescript 2.8 does not support transforms for declaration emit
-     * see https://github.com/Microsoft/TypeScript/issues/23701
-     */
-    host.emitFiles = function newEmitFiles(resolver, host, targetSourceFile, emitOnlyDtsFiles, transformers) {
-        let newTransformers = transformers
-        if (emitOnlyDtsFiles && !transformers || transformers.length === 0) {
-            newTransformers = dtsTransformers
-        }
-
-        return oldEmitFiles(resolver, host, targetSourceFile, emitOnlyDtsFiles, newTransformers)
-    }
-    host.emitFiles.__patched = dtsTransformers
-
-    return dtsTransformers
-}
-
-let isPatched = false
-
 export default function transformPaths(program?: ts.Program) {
     const processed = new Set<string>()
     const plugin = {
@@ -161,7 +156,7 @@ export default function transformPaths(program?: ts.Program) {
                 const ctx: ImportPathVisitorContext = {
                     sf,
                     resolver,
-                    posMap: new Map<string, number>()
+                    fixNode: createFixNode(sf)
                 }
 
                 const visitor = createTraverseVisitor(
