@@ -18,23 +18,24 @@ Zerollup is the set of packages. All of them used in preset-ts.
 
 * [helpers](./packages/helpers) - Set of helpers for fast rollup bundler config building. Core of zerollup.
 * [base-url](./packages/base-url) - Configure assets base url in runtime.
-* [plugin-assets](./packages/plugin-assets) - Automatically gather assets from all packages/libraries.
-* [plugin-template](./packages/plugin-template) - Html pages generator.
-* [preset-ts](./packages/preset-ts) - Zero setup rollup preset for typescripted libraries and applications.
+* [rollup-plugin-assets](./packages/rollup-plugin-assets) - Automatically gather assets from all packages/libraries.
+* [rollup-plugin-template](./packages/rollup-plugin-template) - Html pages generator.
+* [rollup-preset-ts](./packages/rollup-preset-ts) - Zero setup rollup preset for typescripted libraries and applications.
 * [ts-helpers](./packages/ts-helpers) - Helper for fast ts-plugins building.
 * [ts-transform-paths](./packages/ts-transform-paths) - tsconfig baseUrl + paths alias rewriting in bundles and declaration files.
+* [wait-all-async](./packages/wait-all-async) - framework and bundler agnostic SPA prerenderer.
 
 ## Setup
 
-``` npm install --dev @zerollup/preset-ts ```
+``` npm install --dev @zerollup/rollup-preset-ts ```
 
 package.json:
 ```json
 {
   "name": "zerollup-demo",
   "scripts": {
-    "build": "rollup -c node:@zerollup/preset-ts",
-    "dev": "rollup -w -c node:@zerollup/preset-ts"
+    "build": "rollup -c node:@zerollup/rollup-preset-ts",
+    "dev": "rollup -w -c node:@zerollup/rollup-preset-ts"
   }
 }
 ```
