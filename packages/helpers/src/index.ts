@@ -1,6 +1,4 @@
 export * from './getAdvancedInfo'
-export * from './getConfigs'
-export * from './getInputs'
 export * from './getNamedExports'
 export * from './getPackageJson'
 export * from './getPackageSet'

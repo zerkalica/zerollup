@@ -37,7 +37,7 @@
     "typescript": "=>2.8.3"
   },
   "dependencies": {
-    "resolve": "^1.7.1"
+    "resolve": "^1.8.1"
   },
   "devDependencies": {
     "@types/resolve": "0.0.8"

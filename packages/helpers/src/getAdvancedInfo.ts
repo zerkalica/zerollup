@@ -1,7 +1,7 @@
 import * as path from 'path'
 import {NormalizedPkg} from './getPackageJson'
-import {getInputs, MainConfig} from './getInputs'
-import {getConfigs, Configs, SettingsConfig} from './getConfigs'
+import {getMainConfig, MainConfig} from './getMainConfig'
+import {getSettingsConfigs, SettingsConfig} from './getSettingsConfigs'
 import {getNamedExports} from './getNamedExports'
 import {Env} from './nameHelpers'
 
@@ -21,25 +21,27 @@ export function getAdvancedInfo(
         globals: Record<string, string>
     }
 ): Promise<AdvancedInfo> {
-    const {lib, json: {rollup}} = pkg
-    return (lib
-        ? Promise.resolve(<Configs | void>undefined)
-        : getConfigs({pkg, globals, env, oneOfHost})
-    )
-        .then(configs => Promise.all([
-            configs ? configs.configs : [],
-            getInputs({pkg, globals, configs}),
-            getNamedExports(rollup.namedExports)
-        ]))
-        .then(([rawConfigs, inputs, namedExports]) => {
+    const {json: {rollup}, configs, inputs} = pkg
 
-            const configs: (SettingsConfig | MainConfig)[] = []
+    return getNamedExports(rollup.namedExports)
+        .then(namedExports => {
+            const rawConfigs: SettingsConfig[] = configs
+                ? getSettingsConfigs({pkg, oneOfHost, globals})
+                : []
+
+            const inputs = getMainConfig({
+                pkg,
+                globals,
+                envs: configs && configs.envs,
+            })
+    
+            const mixedConfigs: (SettingsConfig | MainConfig)[] = []
 
             for (let main of inputs) {
-                configs.push(main)
+                mixedConfigs.push(main)
                 const mainFile = path.basename(main.output[0].file)
                 for (let config of rawConfigs) {
-                    configs.push(config)
+                    mixedConfigs.push(config)
                     if (main.env === config.env)
                         config.mainFiles.push(mainFile)
                 }
@@ -49,7 +51,7 @@ export function getAdvancedInfo(
                 pkg,
                 aliases,
                 namedExports,
-                configs
+                configs: mixedConfigs
             }
         })
 }

@@ -19,11 +19,8 @@ export default function template<Config>(opts: TemplateOpts<Config>): Plugin {
             if (options.format !== 'iife' && options.format !== 'umd')
                 throw new Error(`Config not in iife or umd format: ${options.format}`)
 
-            let configFile: string
-
             const code = Object.keys(bundle)
                 .map(key => {
-                    if (!configFile) configFile = key
                     const chunk = bundle[key]
                     if (!chunk) return
                     if (typeof chunk === 'string') return chunk
@@ -35,17 +32,13 @@ export default function template<Config>(opts: TemplateOpts<Config>): Plugin {
                 .filter(Boolean)
                 .join(';\n')
 
-            if (!configFile)
-                throw new Error(`Not found config file name in OutputBundle: ${JSON.stringify(bundle, undefined, '  ')}`)
-
             return Promise.all(opts.mainFiles.map(mainFile =>
                 getPages({
                     pkg: opts.pkg,
                     baseUrl: opts.baseUrl,
                     pkgName: opts.pkgName,
                     mainFile,
-                    config: code,
-                    configFile
+                    config: code
                 })
             ))
                 .then(pageSets => {

@@ -1,7 +1,10 @@
 import * as fsExtra from 'fs-extra'
 import * as path from 'path'
-import {normalizeName, normalizeUmdName, fixPath} from './nameHelpers'
-import {HelpersError} from './interfaces'
+import {normalizeName, normalizeUmdName, fixPath} from '../nameHelpers'
+import {HelpersError} from '../interfaces'
+import {getConfigs, Configs} from './getConfigs'
+import {detectInputs} from './detectInputs'
+
 import getBuiltins from 'builtins'
 
 export class GetPackageJsonError extends HelpersError {}
@@ -53,9 +56,9 @@ export interface NormalizedPkg {
     urlName: string
     declarationDir: string
     globalName: string
-    configGlobalName: string
     srcDir: string
-    configDir: string
+    configs?: Configs | void
+    inputs: string[]
     targets: Target[]
     external: string[]
 }
@@ -69,7 +72,7 @@ const allSections: SectionRec[] = [
 
 const builtins = getBuiltins()
 
-function normalizePkg(pkg: Pkg, pkgPath: string): NormalizedPkg {
+function normalizePkg(pkg: Pkg, pkgPath: string): Promise<NormalizedPkg> {
     const pkgRoot = path.dirname(pkgPath)
     const targets: Target[] = allSections
         .filter(sec => !!pkg[sec.key])
@@ -84,7 +87,7 @@ function normalizePkg(pkg: Pkg, pkgPath: string): NormalizedPkg {
         })
 
     if (targets.length === 0) {
-        throw new GetPackageJsonError(`No ${allSections.map(rec => rec.key).join(', ')} sections found in ${pkgPath}`)
+        throw new GetPackageJsonError(`normalizePkg: No ${allSections.map(rec => rec.key).join(', ')} sections found in ${pkgPath}`)
     }
 
     const targetDirs = targets.map(rec => path.dirname(rec.file))
@@ -92,7 +95,7 @@ function normalizePkg(pkg: Pkg, pkgPath: string): NormalizedPkg {
     if (targetDirs.indexOf(distDir) > 0) {
         const keysStr = `"${allSections.map(rec => rec.key).join('", "')}"`
         throw new GetPackageJsonError(
-            `getDistDir: Some of target directories ${targets.map(rec => rec.file).join(', ')} differs in keys ${keysStr} in ${pkgPath}`
+            `normalizePkg: Some of target directories ${targets.map(rec => rec.file).join(', ')} differs in keys ${keysStr} in ${pkgPath}`
         )
     }
 
@@ -116,21 +119,33 @@ function normalizePkg(pkg: Pkg, pkgPath: string): NormalizedPkg {
             .filter(name => !bundled.includes(name))
         : []
 
-    return {
-        json: pkg,
-        pkgRoot,
-        pkgPath,
-        lib,
-        declarationDir: pkg.typings ? path.join(pkgRoot, path.dirname(pkg.typings)) : distDir,
-        external,
-        distDir,
-        targets,
-        urlName: normalizeName(pkg.name),
-        globalName: normalizeUmdName(pkg.name),
-        configGlobalName: normalizeUmdName(pkg.name + '_' + path.basename(configDir)),
-        srcDir,
-        configDir
-    }
+    const inputMatch = new RegExp('.*index\..+$')
+
+    return Promise.all([
+        lib ? undefined : getConfigs({
+            name: pkg.name,
+            version: pkg.version,
+            configDir,
+        }),
+        pkg.rollup.inputs ? Promise.resolve(pkg.rollup.inputs) : detectInputs(srcDir, inputMatch),
+    ])
+        .then(([configs, inputs]) => {
+            return <NormalizedPkg>{
+                json: pkg,
+                pkgRoot,
+                pkgPath,
+                lib,
+                declarationDir: pkg.typings ? path.join(pkgRoot, path.dirname(pkg.typings)) : distDir,
+                external,
+                distDir,
+                targets,
+                urlName: normalizeName(pkg.name),
+                globalName: normalizeUmdName(pkg.name),
+                srcDir,
+                configs,
+                inputs,
+            }
+        })
 }
 
 export function getPackageJson(pkgPath: string): Promise<NormalizedPkg> {

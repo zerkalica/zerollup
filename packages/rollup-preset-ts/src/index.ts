@@ -115,13 +115,12 @@ export default function rollupConfig(
                     config.t === 'config' && template({
                         pkg: pkg.json,
                         mainFiles: config.mainFiles,
-                        baseUrl: config.baseUrl,
                         pkgName: pkg.urlName,
+                        baseUrl: config.baseUrl,
                     }),
                     replace({
                         include: [
-                            `${pkg.configDir}/*`,
-                            `${pkg.srcDir}/*`,
+                            `${pkg.srcDir}/**/*`,
                         ],
                         values: {
                             'process.env.BROWSER': JSON.stringify(!pkg.lib),
