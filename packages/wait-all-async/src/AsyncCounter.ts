@@ -12,7 +12,7 @@ export class AsyncCounter implements Counter {
         private resolve: (e?: Error) => void,
         timeout: number = 4000
     ) {
-        this.handler = savedSetTimeout(this.onTimeout, timeout)
+        this.handler = savedSetTimeout(this.onTimeout, timeout) as any
     }
 
     increment(handler: any) {

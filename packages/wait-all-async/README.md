@@ -40,7 +40,7 @@ Examples:
 
 ## Using as low-level lib
 
-Patches promises, xhr, timeout, animationFrame. Waits all async tasks and. Base helper for building SPA prerenders. 
+Patches promises, xhr, timeout, animationFrame. Waits all async tasks. Base helper for building SPA prerenders. 
 
 ```js
 import {waitAllAsync} from '@zerollup/wait-all-async'
