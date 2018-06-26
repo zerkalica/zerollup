@@ -141,7 +141,6 @@ function importPathVisitor(
 }
 
 export default function transformPaths(program?: ts.Program) {
-    const processed = new Set<string>()
     const plugin = {
         before(
             transformationContext: ts.TransformationContext
@@ -151,8 +150,6 @@ export default function transformPaths(program?: ts.Program) {
             )
 
             return (sf: ts.SourceFile) => {
-                if (processed.has(sf.fileName)) return sf
-                processed.add(sf.fileName)
                 const ctx: ImportPathVisitorContext = {
                     sf,
                     resolver,
