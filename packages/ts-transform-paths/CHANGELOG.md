@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="1.4.4"></a>
+## [1.4.4](https://github.com/zerkalica/zerollup/compare/v1.4.3...v1.4.4) (2018-06-26)
+
+
+### Bug Fixes
+
+* **ts-transform-paths:** d.ts generated dynamic imports ([4a8410b](https://github.com/zerkalica/zerollup/commit/4a8410b))
+
+
+
+
 <a name="1.4.3"></a>
 ## [1.4.3](https://github.com/zerkalica/zerollup/compare/v1.4.2...v1.4.3) (2018-06-22)
 
