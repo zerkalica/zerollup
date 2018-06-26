@@ -1,6 +1,6 @@
 {
   "name": "@zerollup/ts-transform-paths",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "license": "MIT",
   "description": "Ts transform paths",
   "author": {
