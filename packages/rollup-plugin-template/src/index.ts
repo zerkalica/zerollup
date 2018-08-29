@@ -1,5 +1,5 @@
 import {Plugin, OutputOptions, OutputBundle} from 'rollup'
-import {Pkg, getPage, cutExt} from '@zerollup/helpers'
+import {Pkg, getPage, cutExt, getExt} from '@zerollup/helpers'
 import {emitPages} from '@zerollup/wait-all-async'
 
 export interface TemplateBuilderOptions {
@@ -11,10 +11,13 @@ export interface TemplateBuilderOptions {
 export interface TemplateOptions {
     pkg: Pkg
     pkgName: string
+    allowedExts?: string[]
 } 
 
 type BundleRec = {data: string, file: string, env: string}
-
+const defaultExts: string[] = [
+    '.js'
+]
 export default class TemplatePluginFactory<Config> {
     private bundles: Promise<BundleRec[]>[] = []
     constructor(
@@ -36,6 +39,7 @@ export default class TemplatePluginFactory<Config> {
                 throw new Error(`Config not in iife or umd format: ${options.format}`)
                 const recs: BundleRec[] = []
                 for (let key in bundle) {
+                    if ((opts.allowedExts || defaultExts).indexOf(getExt(key)) === -1) continue
                     const chunk = bundle[key]
                     if (!chunk) continue
                     let data: string
