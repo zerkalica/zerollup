@@ -9,7 +9,7 @@
     "up": "ncu -ua ; npx lerna exec -- ncu -ua; npm run clean.all; npm install",
     "build": "rollup -c rollup.config.js",
     "dev": "rollup -w -c rollup.config.js",
-    "postinstall": "lerna bootstrap --hoist",
+    "postinstall": "lerna bootstrap --hoist --no-ci",
     "publish": "npm run build && lerna publish --conventional-commits --yes",
     "watch": "chokidar --initial -d 2000 -t 1000 'packages/*/dist/**' -c 'npm run build && cp -rvf packages/*/dist/* $npm_package_config_dest/node_modules/@zerollup'",
     "test": "jest",
