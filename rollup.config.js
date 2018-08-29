@@ -18,7 +18,7 @@ function sortByExternal({pkg: p1}, {pkg: p2}) {
     if (deps1[p2.name]) return 1
     if (deps2[p1.name]) return -1
 
-    return 0
+    return p1.name > p2.name ? -1 : (p1.name < p2.name ? 1 : 0)
 }
 
 
