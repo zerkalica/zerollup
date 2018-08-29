@@ -1,8 +1,7 @@
 import * as path from 'path'
-import * as fsExtra from 'fs-extra'
 import {Config, HelpersError} from './interfaces'
-import {NormalizedPkg, Configs} from './getPackageJson'
-import {cutExt, normalizeName, normalizeUmdName, Env, getEnv} from './nameHelpers'
+import {NormalizedPkg} from './getPackageJson'
+import {cutExt, Env} from './nameHelpers'
 
 export class GetSettingsConfigsError extends HelpersError {}
 
@@ -15,7 +14,7 @@ export interface SettingsConfig extends Config {
 
 export function getSettingsConfigs({
     pkg: {
-        json: {name, version, 'iife:main': iife, 'umd:main': umd},
+        json: {'iife:main': iife, 'umd:main': umd},
         targets,
         configs: pkgConfigs,
         distDir, external

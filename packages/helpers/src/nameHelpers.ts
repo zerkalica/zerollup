@@ -4,7 +4,8 @@ import {sep, basename} from 'path'
 
 export class NameHelpersError extends HelpersError {}
 
-export type Env = 'production' | 'development'
+export type Env = string
+// 'production' | 'development'
 const availableEnvs = ['production', 'development']
 
 export function getEnv(env: string): Env {

@@ -71,6 +71,7 @@ export function emitPages(opts: EmitPagesOptions): Promise<OutputPage[]> {
         if (file[0] === '/') file = file.substring(1)
         if (!file) file = 'index.html'
         file = file.replace(/\//g, path.sep)
+            .replace(/([^a-z0-9\s\-_]+)/gi, '_')
 
         return render({
             url: pageUrl,

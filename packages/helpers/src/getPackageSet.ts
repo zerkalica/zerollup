@@ -105,7 +105,6 @@ export function getPackageSet(
             Promise.all((rec ? rec.pkgFiles : [pkgRoot]).map(getPackageJson))
         ]))
         .then(([repoRoot, rawPackages]) => {
-
             const selectedNames: string[] | void = selNames || (
                 repoRoot === pkgRoot
                     ? undefined
@@ -127,7 +126,6 @@ export function getPackageSet(
             return Promise.all(selectedPackages.map(pkg =>
                 getAdvancedInfo({
                     pkg,
-                    env,
                     aliases: getAliases({packages, env, pkg}),
                     globals: pkg.lib ? globals : {},
                     oneOfHost

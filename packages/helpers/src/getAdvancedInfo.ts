@@ -13,15 +13,14 @@ export interface AdvancedInfo {
 }
 
 export function getAdvancedInfo(
-    {pkg, aliases, env, globals, oneOfHost}: {
+    {pkg, aliases, globals, oneOfHost}: {
         pkg: NormalizedPkg
         oneOfHost?: string[] | void
-        env: Env
         aliases: Record<string, string>
         globals: Record<string, string>
     }
 ): Promise<AdvancedInfo> {
-    const {json: {rollup}, configs, inputs} = pkg
+    const {json: {rollup}, configs} = pkg
 
     return getNamedExports(rollup.namedExports)
         .then(namedExports => {
@@ -39,6 +38,9 @@ export function getAdvancedInfo(
 
             for (let main of inputs) {
                 mixedConfigs.push(main)
+            }
+
+            for (let main of inputs) {
                 const mainFile = path.basename(main.output[0].file)
                 for (let config of rawConfigs) {
                     mixedConfigs.push(config)

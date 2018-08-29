@@ -14,7 +14,7 @@ import {minify} from 'uglify-es'
 
 import notify from '@zerollup/rollup-plugin-notify'
 import assets from '@zerollup/rollup-plugin-assets'
-import template from '@zerollup/rollup-plugin-template'
+import TemplatePluginFactory from '@zerollup/rollup-plugin-template'
 import {getPackageSet} from '@zerollup/helpers'
 import * as ttypescript from 'ttypescript'
 
@@ -105,6 +105,11 @@ export default function rollupConfig(
                 ...commonPlugins,
             ]
 
+            const templatePluginFactory = new TemplatePluginFactory({
+                pkg: pkg.json,
+                pkgName: pkg.urlName,
+            })
+
             return configs.map((config, i) => ({
                 input: config.input,
                 output: config.output,
@@ -112,11 +117,12 @@ export default function rollupConfig(
                 cache,
                 plugins: <Plugin[]>[
                     ...pkgPlugins,
-                    config.t === 'config' && template({
-                        pkg: pkg.json,
-                        mainFiles: config.mainFiles,
-                        pkgName: pkg.urlName,
+                    !pkg.lib && config.t === 'main' && templatePluginFactory.bundleCollector({
+                        env: config.env,
+                    }),
+                    !pkg.lib && config.t === 'config' && templatePluginFactory.templateBuilder({
                         baseUrl: config.baseUrl,
+                        env: config.env,
                     }),
                     replace({
                         include: [

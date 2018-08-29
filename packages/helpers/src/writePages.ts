@@ -1,6 +1,10 @@
 import * as fsExtra from 'fs-extra'
 import * as path from 'path'
-import {Page} from './getPages'
+
+export interface Page {
+    file: string
+    data: string
+}
 
 export function writePages(
     {pages, distDir}: {

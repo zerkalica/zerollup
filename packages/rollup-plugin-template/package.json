@@ -38,6 +38,7 @@
     "rollup": "=>0.57.1"
   },
   "dependencies": {
+    "@zerollup/wait-all-async": "^1.4.4",
     "@zerollup/helpers": "^1.4.4"
   }
 }
