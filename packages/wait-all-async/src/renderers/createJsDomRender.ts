@@ -10,7 +10,7 @@ import {defaultNodeDomSetup} from './helpers/defaultNodeDomSetup'
 export function createJsDomRender(dom: typeof jsdom): Render {
     return function jsDomRender(opts: RenderOptions): Promise<string> {
         const renderer = new dom.JSDOM(opts.template, {
-            url: opts.url,
+            url: opts.url || 'http://localhost',
             beforeParse: (window: jsdom.DOMWindow) => {
                 opts.setup && opts.setup(window)
                 defaultNodeDomSetup(window)

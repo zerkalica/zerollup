@@ -1,7 +1,7 @@
 import MockWebStorage from 'mock-webstorage'
 import nodeFetch from 'node-fetch'
 
-export function defaultNodeDomSetup(window: any) {
+export function defaultNodeDomSetup(window: Window | any) {
     if (!window.fetch) window.fetch = typeof fetch === 'undefined' ? nodeFetch : fetch
     if (!window.Response) window.Response = nodeFetch.Response
     if (!window.Request) window.Request = nodeFetch.Request
