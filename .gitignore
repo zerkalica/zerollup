@@ -11,5 +11,5 @@ tags
 .tags*
 *.map
 /*.sh
-packages/*/package-lock.json
+package-lock.json
 .npmrc
