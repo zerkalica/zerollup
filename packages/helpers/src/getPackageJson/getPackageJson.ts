@@ -30,6 +30,8 @@ export interface Pkg {
         productionStubs?: string[]
         namedExports?: string[] | Record<string, string[] | string>
         templateFile?: string
+        moduleContext?: Record<string, string>
+        context?: string
     }
 
     peerDependencies?: Record<string, string>
@@ -120,10 +122,10 @@ function normalizePkg(pkg: Pkg, pkgPath: string): Promise<NormalizedPkg> {
         : []
 
     const inputMatch = new RegExp('.*index\..+$')
-
+    const urlName = normalizeName(pkg.name)
     return Promise.all([
         lib ? undefined : getConfigs({
-            name: pkg.name,
+            name: urlName,
             version: pkg.version,
             configDir,
         }),
@@ -139,7 +141,7 @@ function normalizePkg(pkg: Pkg, pkgPath: string): Promise<NormalizedPkg> {
                 external,
                 distDir,
                 targets,
-                urlName: normalizeName(pkg.name),
+                urlName,
                 globalName: normalizeUmdName(pkg.name),
                 srcDir,
                 configs,

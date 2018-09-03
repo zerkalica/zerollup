@@ -115,6 +115,8 @@ export default function rollupConfig(
                 output: config.output,
                 external: config.external,
                 cache,
+                context: pkg.json.rollup.context,
+                moduleContext: pkg.json.rollup.moduleContext,
                 plugins: <Plugin[]>[
                     ...pkgPlugins,
                     !pkg.lib && config.t === 'main' && templatePluginFactory.bundleCollector({

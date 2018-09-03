@@ -33,7 +33,7 @@ export function getConfigs(
         defaultEnv?: Env
     }
 ): Promise<Configs> {
-    const configGlobalName = normalizeUmdName(name + '_config')
+    const configGlobalName = name + '_config'
     const defaultHosts = ['index', 'default']
 
     return fsExtra.pathExists(configDir)

@@ -7,57 +7,18 @@ export default function notify(
     }  = {}
 ): rollup.Plugin {
     const name = '@zerollup/rollup-plugin-notify'
-
-    const oldMethod = (rollup as any).Task.prototype.run
-
-    let attached = false
-
-    function newMethod() {
-        const result = oldMethod.call(this)
-        if (attached) return result
-        attached = true
-
-        this.watcher.on('event', event => {
-            switch (event.code) {
-                case 'START':
-                    if (!onlyErrors) {
-                        nodeNotifier.notify({
-                            title: `Start`
-                        })
-                    }
-                    break
-                case 'BUNDLE_START':
-                    if (!onlyErrors) {
-                        nodeNotifier.notify({
-                            title: `Compiling`,
-                            message: typeof event.input === 'string' ? event.input : event.input.join(', ')
-                        })
-                    }
-                    break
-                case 'END':
-                    if (!onlyErrors) {
-                        nodeNotifier.notify({
-                            title: `Done`
-                        })
-                    }
-                    break
-                case 'ERROR':
-                case 'FATAL':
-                    nodeNotifier.notify({
-                        title: `Error`,
-                        message: event.error.stack || event.error
-                    })
-                    break
-                default: break
-            }
-        })
-
-        return result
-    }
-
-    (rollup as any).Task.prototype.run = newMethod
-
+    let handler
     return {
-        name
+        name,
+        watchChange(id: string) {
+            if (handler) return
+            handler = setTimeout(() => {
+                nodeNotifier.notify({
+                    title: `Changed`,
+                    message: id
+                })
+                handler = null
+            }, 300)
+        }
     }
 }
