@@ -66,11 +66,14 @@ export default function rollupConfig(
             }, minify)
         ]
 
-        return packageSet.map(({pkg, configs}, pkgIndex) => {
+        let pkgIndex = 0
+
+        return packageSet.map(({pkg, configs}) => {
             const pkgPlugins: Plugin[] = [
                 resolve({
                     extensions: ['.mjs', '.js', '.json'],
-                    jsnext: true
+                    jsnext: true,
+                    preferBuiltins: true
                 }),
                 commonjs({
                     namedExports
@@ -145,7 +148,7 @@ export default function rollupConfig(
                         contentBase: pkg.distDir
                     }),
                     i === 0 && watch && !pkg.lib && livereload({
-                        port: 35729 + pkgIndex,
+                        port: 35729 + (pkgIndex++),
                         watch: [pkg.pkgRoot] // pkg.srcDir, pkg.distDir, 
                     }),
                 ].filter(Boolean)
