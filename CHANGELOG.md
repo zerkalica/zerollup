@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+<a name="1.6.1"></a>
+## [1.6.1](https://github.com/zerkalica/zerollup/compare/v1.6.0...v1.6.1) (2018-09-04)
+
+
+### Bug Fixes
+
+* **rollup-preset-ts:** pkg index, resolve plugin options ([be86cdc](https://github.com/zerkalica/zerollup/commit/be86cdc))
+
+
+
+
+
 <a name="1.6.0"></a>
 # [1.6.0](https://github.com/zerkalica/zerollup/compare/v1.5.2...v1.6.0) (2018-09-03)
 
