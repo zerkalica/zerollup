@@ -40,7 +40,7 @@
   "dependencies": {
     "builtins": "^2.0.0",
     "change-case": "^3.0.2",
-    "fs-extra": "^7.0.0",
+    "fs-extra": "^7.0.1",
     "globby": "^8.0.1",
     "node-eval": "^2.0.0"
   }

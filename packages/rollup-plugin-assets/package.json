@@ -39,8 +39,8 @@
   },
   "dependencies": {
     "@zerollup/helpers": "^1.6.0",
-    "fs-extra": "^7.0.0",
-    "rollup-pluginutils": "^2.3.1"
+    "fs-extra": "^7.0.1",
+    "rollup-pluginutils": "^2.3.3"
   },
   "devDependencies": {
     "@types/fs-extra": "^5.0.4"

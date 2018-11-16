@@ -38,7 +38,7 @@
     "rollup": "=>0.57.1"
   },
   "dependencies": {
-    "node-notifier": "^5.2.1"
+    "node-notifier": "^5.3.0"
   },
   "devDependencies": {
     "@types/node-notifier": "0.0.28"

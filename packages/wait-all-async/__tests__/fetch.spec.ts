@@ -90,7 +90,9 @@ describe('fetch related', () => {
     it('should handle abort in fetch', done => {
         const run = () => {
             const controller = new AbortController()
+            const stub = () => {}
             fetch(url, {signal: controller.signal})
+                .then(stub)
             controller.abort()
         }
 

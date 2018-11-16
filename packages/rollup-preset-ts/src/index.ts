@@ -73,7 +73,7 @@ export default function rollupConfig(
                 resolve({
                     extensions: ['.mjs', '.js', '.json'],
                     jsnext: true,
-                    preferBuiltins: true
+                    preferBuiltins: false
                 }),
                 commonjs({
                     namedExports

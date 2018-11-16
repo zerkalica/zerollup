@@ -35,23 +35,23 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^5.0.4",
-    "@types/jsdom": "^11.0.6",
+    "@types/jsdom": "^12.2.0",
     "@types/parse5": "^5.0.0",
-    "@types/react": "^16.4.12",
-    "@types/react-dom": "^16.0.7",
-    "@types/yargs": "^11.1.1",
-    "fetch-mock": "^6.5.2",
-    "jsdom": "^12.0.0",
-    "react": "^16.4.2",
-    "react-dom": "^16.4.2",
+    "@types/react": "^16.7.6",
+    "@types/react-dom": "^16.0.9",
+    "@types/yargs": "^12.0.1",
+    "fetch-mock": "^7.2.5",
+    "jsdom": "^13.0.0",
+    "react": "^16.6.3",
+    "react-dom": "^16.6.3",
     "xhr-mock": "^2.4.1"
   },
   "dependencies": {
-    "fs-extra": "^7.0.0",
-    "mock-webstorage": "^1.0.4",
-    "node-fetch": "^2.2.0",
+    "fs-extra": "^7.0.1",
+    "mock-webstorage": "^1.1.0",
+    "node-fetch": "^2.3.0",
     "parse5": "^5.1.0",
     "source-map-support": "^0.5.9",
-    "yargs": "^12.0.1"
+    "yargs": "^12.0.2"
   }
 }
