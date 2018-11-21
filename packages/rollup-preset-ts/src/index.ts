@@ -2,6 +2,7 @@ import {InputOptions, OutputOptions, WatcherOptions, Plugin} from 'rollup'
 import * as path from 'path'
 import typescript from 'rollup-plugin-typescript2'
 import uglify from 'rollup-plugin-uglify'
+import jsonPlugin from 'rollup-plugin-json'
 import resolve from 'rollup-plugin-node-resolve'
 import globals from 'rollup-plugin-node-globals'
 import replace from 'rollup-plugin-replace'
@@ -79,6 +80,7 @@ export default function rollupConfig(
                 commonjs({
                     namedExports
                 }),
+                jsonPlugin(),
                 assets({
                     name: pkg.json.name,
                     pkgRoot: pkg.pkgRoot,
