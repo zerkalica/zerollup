@@ -1,6 +1,6 @@
 {
   "name": "@zerollup/rollup-preset-ts",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "license": "MIT",
   "description": "Universal rollup config preset",
   "author": {

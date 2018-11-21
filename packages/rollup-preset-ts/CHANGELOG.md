@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.6.3](https://github.com/zerkalica/zerollup/compare/v1.6.2...v1.6.3) (2018-11-21)
+
+
+### Bug Fixes
+
+* **rollup-preset-ts:** browser enabled in node-resolve plugin ([047c751](https://github.com/zerkalica/zerollup/commit/047c751))
+
+
+
+
+
 ## [1.6.2](https://github.com/zerkalica/zerollup/compare/v1.6.1...v1.6.2) (2018-11-16)
 
 
