@@ -1,4 +1,5 @@
 import * as path from 'path'
+import * as fs from 'fs'
 import * as ts from 'typescript'
 import {ImportPathsResolver, createTraverseVisitor} from '@zerollup/ts-helpers'
 
@@ -33,15 +34,20 @@ function createFixNode(sf: ts.SourceFile): FixNode {
     }
 }
 
+interface Config {
+    for: string
+}
+
 interface ImportPathVisitorContext {
     resolver: ImportPathsResolver
     fixNode: FixNode
-    sf: ts.SourceFile
+    sf: ts.SourceFile,
+    config: Config
 }
 
 function importPathVisitor(
     node: ts.Node,
-    {fixNode, resolver, sf}: ImportPathVisitorContext
+    {fixNode, resolver, sf, config}: ImportPathVisitorContext
 ): ts.Node | void {
     let importValue: string
     let nodeToFix: ts.Node
@@ -70,7 +76,12 @@ function importPathVisitor(
         path.dirname(sf.fileName)
     )
     if (!newImports) return
-    const newImport = newImports[0]
+    let newImport = newImports[0]
+    if (config && config.for == "browser" && !newImport.endsWith(".js")) {
+        var source = path.join(path.dirname(sf.fileName),newImport);
+        if (fs.existsSync(source+".min.js")) newImport += ".min.js";
+        else if (fs.existsSync(source+".js")) newImport += ".js";
+    }
 
     if (nodeToFix) fixNode(nodeToFix, newImport)
     const newSpec = ts.createLiteral(newImport)
@@ -140,7 +151,7 @@ function importPathVisitor(
     return newNode
 }
 
-export default function transformPaths(program?: ts.Program) {
+export default function transformPaths(program?: ts.Program, config?:Config) {
     const plugin = {
         before(
             transformationContext: ts.TransformationContext
@@ -153,7 +164,8 @@ export default function transformPaths(program?: ts.Program) {
                 const ctx: ImportPathVisitorContext = {
                     sf,
                     resolver,
-                    fixNode: createFixNode(sf)
+                    fixNode: createFixNode(sf),
+                    config
                 }
 
                 const visitor = createTraverseVisitor(
