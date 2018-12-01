@@ -34,7 +34,7 @@
     "alias"
   ],
   "peerDependencies": {
-    "typescript": "=>2.9.1"
+    "typescript": ">=2.9.1"
   },
   "dependencies": {
     "@zerollup/ts-helpers": "^1.4.4"
