@@ -1,14 +1,18 @@
 language: node_js
 node_js:
 - stable
+
 notifications:
   email:
     on_success: change
     on_failure: always
+
 before_install:
-- ".ci/lerna.sh"
+- . ./.ci/lerna.sh
+
 script:
 - npm run publish -- --git-remote=ci
+
 env:
   global:
   - secure: M3jehZcDd02/0kC/w0y4SnJLdMTJGjlwXFM5UEdqrdi33CKikBncVOGJFLZcVfjA0xD+6tJctakMOtRlkm9g4ZMbGvzH8m8Ndo8Hjp/yQOcrxKJV5w78R4TCnFdBdwWGP5LVGtOuKREX15FCRv56IYv9mjHueOua/zTIvmC+wHs5P2Cp3kHlTYqkgVZm3sUX21p35cdyAiz4qx9uTdbJeeY69IjCVA7Py895y8gkHlwdp2et+OFNCTvHyLe+uXMqBZz3/Vcpm+WgTVzC5kaoUoT/d2I3P0EhstkU0Tl3vdrJUJIMgLMHbhx8bjYKzGRQ+5JzZEK59aHDwkP5ljQ+Vaj4mfePQ9TZysubfH4I7yD41zcAKR2q4WsuYaLNBEUaFym+cRW5+LDRsz1jQWsLpw7ElrYFQfv9mB6b9XxonmAeMH3+wvgzixjoxknhJBojxp6SAbVDT8eZNQUifsXLYWtiXtqa9sE8AP+fmw0X138Ufe4hK9el8utv5vhtAbZJ1KmVlTUH5hOJKgr3mY0V5Av/igR/5bnbxU6gbVPvDlrQzErsITV7PHORHS7OEQVocIZUXmPgrsrwb5t470HKofHWzqUkCrl8CSHZOKSthTKLw+3f8lWeXIUM8SIxvkhMJxHQTRwQOTcZkA0r1BLnqj4lOhw5kVu6R4Y6B7qp2/o=
