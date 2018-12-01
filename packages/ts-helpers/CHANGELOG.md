@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.6.5](https://github.com/zerkalica/zerollup/compare/v1.6.4...v1.6.5) (2018-12-01)
+
+**Note:** Version bump only for package @zerollup/ts-helpers
+
+
+
+
+
 <a name="1.4.4"></a>
 ## [1.4.4](https://github.com/zerkalica/zerollup/compare/v1.4.3...v1.4.4) (2018-06-26)
 
