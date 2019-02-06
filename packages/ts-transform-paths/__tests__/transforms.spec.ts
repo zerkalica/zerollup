@@ -257,6 +257,9 @@ exports.application = application_1.default;`,
             module: ts.ModuleKind.ESNext,
             paths: {
                 'someRoot/*': ['lib/*'],
+                '*': [
+                    './types/*'
+                ],
             },
         },
     }
