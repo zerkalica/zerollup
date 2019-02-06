@@ -18,10 +18,10 @@ export class ImportPathsResolver {
         const paths = opts.paths || {}
         const baseUrl = opts.baseUrl ? opts.baseUrl.replace(winSepRegex, '\/') : null
 
-        const mapBaseUrl = baseUrl
+        const mapBaseUrl: ((v: string) => string) | void = baseUrl
             ? sub => (sub[0] === '/'
                 ? sub
-                : `${baseUrl}/${sub}`
+                : `${baseUrl}/${sub.substring(0, 2) === './' ? sub.substring(2) : sub}`
             )
             : null
 

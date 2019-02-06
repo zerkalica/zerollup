@@ -4,6 +4,7 @@ function createResolver(opts?: TSOptions) {
     return new ImportPathsResolver({
         paths: {
             'someRoot/*': ['lib/*/src'],
+            '*': ['./types/*'],
         },
         baseUrl: '.',
         ...opts,
@@ -26,5 +27,13 @@ describe('ImportPathsResolver', () => {
         )).toEqual([
             '../lib/some/src'
         ])
+    })
+
+    it('should not resolve relative paths to default alias', () => {
+        const resolver = createResolver()
+        expect(resolver.getImportSuggestions(
+            './some',
+            './bla/index.ts',
+        )).toBeUndefined()
     })
 })
