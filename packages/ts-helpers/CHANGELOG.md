@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.7.0](https://github.com/zerkalica/zerollup/compare/v1.6.6...v1.7.0) (2019-02-09)
+
+
+### Features
+
+* **ts-helpers:** added exclude option to resolver, [#10](https://github.com/zerkalica/zerollup/issues/10) ([a54901e](https://github.com/zerkalica/zerollup/commit/a54901e))
+
+
+
+
+
 ## [1.6.6](https://github.com/zerkalica/zerollup/compare/v1.6.5...v1.6.6) (2019-02-06)
 
 
