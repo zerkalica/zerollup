@@ -35,7 +35,17 @@ function createFixNode(sf: ts.SourceFile): FixNode {
 }
 
 interface Config {
-    for: string
+    /**
+        Add a browser mode -- meaning that path resolution includes
+        determining exact FILE being imported (with extension) as this
+        is required by browsers when not using browserfy or rollup or any of the other packaging tools
+     */
+    for?: string | void
+
+    /**
+        Disable plugin path resolving for given paths keys
+     */
+    exclude?: string[] | void
 }
 
 interface ImportPathVisitorContext {
@@ -173,9 +183,12 @@ export default function transformPaths(program?: ts.Program, config?: Config) {
         before(
             transformationContext: ts.TransformationContext
         ): ts.Transformer<ts.SourceFile> {
-            const resolver = new ImportPathsResolver(
-                transformationContext.getCompilerOptions()
-            )
+            const options = transformationContext.getCompilerOptions()
+            const resolver = new ImportPathsResolver({
+                paths: options.paths,
+                baseUrl: options.baseUrl,
+                exclude: config && config.exclude,
+            })
 
             return (sf: ts.SourceFile) => {
                 const ctx: ImportPathVisitorContext = {

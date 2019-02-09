@@ -20,7 +20,10 @@ my-lib/tsconfig.json:
             "my-lib/*": ["src/*"]
         },
         "plugins": [
-            { "transform": "@zerollup/ts-transform-paths" }
+            {
+                "transform": "@zerollup/ts-transform-paths",
+                "exclude": ["*"]
+            }
         ]
     }
 }
@@ -49,6 +52,24 @@ export * from './some';
 ```
 
 For more examples see [zerollup demo lib](https://github.com/zerkalica/zerollup-demo/tree/master/packages/lib1).
+
+## Plugin options
+
+```ts
+interface Config {
+    /**
+        Add a browser mode -- meaning that path resolution includes
+        determining exact FILE being imported (with extension) as this
+        is required by browsers when not using browserfy or rollup or any of the other packaging tools
+     */
+    for?: string | void
+
+    /**
+        Disable plugin path resolving for given paths keys
+     */
+    exclude?: string[] | void
+}
+```
 
 ## Limitations
 
