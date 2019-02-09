@@ -36,4 +36,24 @@ describe('ImportPathsResolver', () => {
             './bla/index.ts',
         )).toBeUndefined()
     })
+
+    it('should exclude some paths tokens', () => {
+        const resolver = createResolver({
+            exclude: ['*'],
+        })
+        expect(resolver.getImportSuggestions(
+            'pkg_test',
+            './bla/index.ts',
+        )).toBeUndefined()
+    })
+
+    it('should parse *', () => {
+        const resolver = createResolver()
+        expect(resolver.getImportSuggestions(
+            'pkg_test',
+            './bla/index.ts',
+        )).toEqual([
+            '../../types/pkg_test'
+        ])
+    })
 })
