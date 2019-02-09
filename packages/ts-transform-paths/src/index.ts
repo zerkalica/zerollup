@@ -41,7 +41,7 @@ interface Config {
 interface ImportPathVisitorContext {
     resolver: ImportPathsResolver
     fixNode: FixNode
-    sf: ts.SourceFile,
+    sf: ts.SourceFile
     config: Config
 }
 
@@ -52,7 +52,11 @@ function importPathVisitor(
     let importValue: string
     let nodeToFix: ts.Node
     if (ts.isCallExpression(node)) {
-        if (node.expression.getText() !== 'require' || node.arguments.length !== 1) return
+        if (
+            node.expression.getText() !== 'require' ||
+            node.arguments.length !== 1
+        )
+            return
         const arg = node.arguments[0]
         if (!ts.isStringLiteral(arg)) return
         importValue = arg.getText()
@@ -77,10 +81,10 @@ function importPathVisitor(
     )
     if (!newImports) return
     let newImport = newImports[0]
-    if (config && config.for == "browser" && !newImport.endsWith(".js")) {
-        var source = path.join(path.dirname(sf.fileName),newImport);
-        if (fs.existsSync(source+".min.js")) newImport += ".min.js";
-        else if (fs.existsSync(source+".js")) newImport += ".js";
+    if (config && config.for === 'browser' && !newImport.endsWith('.js')) {
+        const source = path.join(path.dirname(sf.fileName), newImport)
+        if (fs.existsSync(source + '.min.js')) newImport += '.min.js'
+        else if (fs.existsSync(source + '.js')) newImport += '.js'
     }
 
     if (nodeToFix) fixNode(nodeToFix, newImport)
@@ -90,14 +94,22 @@ function importPathVisitor(
 
     if (ts.isImportTypeNode(node)) {
         newNode = ts.updateImportTypeNode(
-            node, ts.createLiteralTypeNode(newSpec), node.qualifier, node.typeArguments, node.isTypeOf
+            node,
+            ts.createLiteralTypeNode(newSpec),
+            node.qualifier,
+            node.typeArguments,
+            node.isTypeOf
         )
         newNode.flags = node.flags
     }
 
     if (ts.isImportDeclaration(node)) {
         newNode = ts.updateImportDeclaration(
-            node, node.decorators, node.modifiers, node.importClause, newSpec
+            node,
+            node.decorators,
+            node.modifiers,
+            node.importClause,
+            newSpec
         )
 
         /**
@@ -126,7 +138,11 @@ function importPathVisitor(
 
     if (ts.isExportDeclaration(node)) {
         const exportNode = ts.updateExportDeclaration(
-            node, node.decorators, node.modifiers, node.exportClause, newSpec
+            node,
+            node.decorators,
+            node.modifiers,
+            node.exportClause,
+            newSpec
         )
         if (exportNode.flags !== node.flags) {
             /**
@@ -144,14 +160,15 @@ function importPathVisitor(
         }
     }
 
-    if (ts.isCallExpression(node)) newNode = ts.updateCall(
-        node, node.expression, node.typeArguments, [newSpec]
-    )
+    if (ts.isCallExpression(node))
+        newNode = ts.updateCall(node, node.expression, node.typeArguments, [
+            newSpec
+        ])
 
     return newNode
 }
 
-export default function transformPaths(program?: ts.Program, config?:Config) {
+export default function transformPaths(program?: ts.Program, config?: Config) {
     const plugin = {
         before(
             transformationContext: ts.TransformationContext
