@@ -104,10 +104,10 @@ export class AssetsCollector {
                     if (!main) return
                     const dist = path.join(dir, path.dirname(main), this.pathPrefix)
 
-                    return <any>Promise.all([dist, <Promise<string[]>>globby(dist + '/**/*')])
+                    return Promise.all([dist, <Promise<string[]>>globby(dist + '/**/*')])
                 })
         }))
-            .then((records: ([string, string[]])[]) => {
+            .then((records) => {
                 for (let rec of records) {
                     if (!rec) continue
                     const [dist, files] = rec

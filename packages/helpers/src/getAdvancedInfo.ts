@@ -3,7 +3,6 @@ import {NormalizedPkg} from './getPackageJson'
 import {getMainConfig, MainConfig} from './getMainConfig'
 import {getSettingsConfigs, SettingsConfig} from './getSettingsConfigs'
 import {getNamedExports} from './getNamedExports'
-import {Env} from './nameHelpers'
 
 export interface AdvancedInfo {
     pkg: NormalizedPkg
