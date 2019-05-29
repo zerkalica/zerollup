@@ -78,6 +78,10 @@ function importPathVisitor(
         nodeToFix = node.moduleSpecifier
     } else if (ts.isImportTypeNode(node)) {
         importValue = `"${(node.argument as any).literal.text}"`
+    } else if (ts.isModuleDeclaration(node)) {
+        if (!ts.isStringLiteral(node.name)) return
+        importValue = `"${node.name.text}"`
+        nodeToFix = node.name
     } else {
         return
     }
@@ -175,6 +179,16 @@ function importPathVisitor(
         newNode = ts.updateCall(node, node.expression, node.typeArguments, [
             newSpec
         ])
+
+    if (ts.isModuleDeclaration(node)) {
+        newNode = ts.updateModuleDeclaration(
+            node,
+            node.decorators,
+            node.modifiers,
+            newSpec,
+            node.body
+        )
+    }
 
     return newNode
 }
