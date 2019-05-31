@@ -199,17 +199,70 @@ __export(require("./lib/Some2"));`,
         },
 
         {
-            title: 'only dts',
+            title: 'declare',
             files: [
                 {
                     path: 'index.ts',
-                    content: `export {Some} from "someRoot/Some"`,
+                    content: `
+import { Event, EventsMap } from 'someRoot/mod_a'
+export interface MouseEvent extends Event {
+    point: { x: number, y: number }
+}
+declare module 'someRoot/mod_a' {
+    interface EventsMap {
+        mouse: MouseEvent;
+    }
+}
+`.trim(),
                 },
-                interfaceLib,
+                {
+                    path: './lib/mod_a.ts',
+                    content: `
+export interface Event { }
+export interface EventsMap {
+    any: Event;
+}
+`.trim(),
+                },
             ],
-            emitOnlyDtsFiles: true,
-            esnext: `export { Some } from "./lib/Some";`,
-            commonjs: 'export { Some } from "./lib/Some";'
+            esnext: ``,
+            commonjs: `"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });`,
+            declaration: `import { Event } from "./lib/mod_a";
+export interface MouseEvent extends Event {
+    point: {
+        x: number;
+        y: number;
+    };
+}
+declare module "./lib/mod_a" {
+    interface EventsMap {
+        mouse: MouseEvent;
+    }
+}`,
+        },
+
+        {
+            title: 'mixed non-default export',
+            files: [
+                {
+                    path: 'index.ts',
+                    content: `export {Some, SomeImpl} from "someRoot/Some"`,
+                },
+                {
+                    path: './lib/Some.ts',
+                    content: `export interface Some { self: string }
+export class SomeImpl implements Some {
+    self: string = '123'
+}`,
+                },
+            ],
+            esnext: `export { SomeImpl } from "./lib/Some";`,
+            commonjs: `"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var Some_1 = require("./lib/Some");
+exports.SomeImpl = Some_1.SomeImpl;`,
+            declaration: `export { Some, SomeImpl } from "./lib/Some";`,
         },
 
         {
@@ -270,7 +323,7 @@ exports.application = application_1.default;`,
                 ...opts,
                 compilerOptions: {...opts.compilerOptions, ...item.compilerOptions},
                 files: item.files,
-                emitOnlyDtsFiles: item.emitOnlyDtsFiles,
+                emitOnlyDtsFiles: false,
             })
 
             expect(data.outputFiles[0].text.trim()).toEqual(item.esnext.trim())
@@ -283,7 +336,7 @@ exports.application = application_1.default;`,
             const data = transpile({
                 ...opts,
                 files: item.files,
-                emitOnlyDtsFiles: item.emitOnlyDtsFiles,
+                emitOnlyDtsFiles: false,
                 compilerOptions: {...opts.compilerOptions, ...item.compilerOptions, module: ts.ModuleKind.CommonJS},
             })
 
