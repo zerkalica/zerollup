@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.7.3](https://github.com/zerkalica/zerollup/compare/v1.7.2...v1.7.3) (2019-05-31)
+
+
+### Bug Fixes
+
+* **ts-transform-paths:** moduleSpecifier null check [#13](https://github.com/zerkalica/zerollup/issues/13) ([50c033c](https://github.com/zerkalica/zerollup/commit/50c033c))
+
+
+
+
+
 ## [1.7.2](https://github.com/zerkalica/zerollup/compare/v1.7.1...v1.7.2) (2019-05-31)
 
 **Note:** Version bump only for package zerollup
