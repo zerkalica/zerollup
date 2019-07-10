@@ -6,9 +6,10 @@ Works everywhere, no more [tspath](https://github.com/duffman/tspath), [rollup-p
 
 Why? Problem described [here](https://github.com/Microsoft/TypeScript/issues/23701): d.ts files not working, if absolute paths used in npm-packaged library.
 
-## Setup
 
-For setup transform plugin use [ttypescript](https://github.com/cevek/ttypescript). This is a wrapper around typescript with transformer plugin support in tsconfig.json.
+## Setup For [ttypescript](https://github.com/cevek/ttypescript)
+
+[ttypescript](https://github.com/cevek/ttypescript) is a wrapper around typescript with transformer plugin support in tsconfig.json.
 
 my-lib/tsconfig.json:
 
@@ -53,6 +54,33 @@ export * from './some';
 
 For more examples see [zerollup demo lib](https://github.com/zerkalica/zerollup-demo/tree/master/packages/lib1).
 
+
+## Setup For [rollup-plugin-typescript2](https://github.com/ezolenko/rollup-plugin-typescript2)
+
+install:
+```shell
+$ npm i -D @zerollup/ts-transform-paths
+```
+
+add to configure file rollup.config.js
+```js
+import typescript from 'rollup-plugin-typescript2'
+import transformPaths from '@zerollup/ts-transform-paths'
+
+export default {
+    input: 'src/lib.ts',
+    output: [{ file : 'dist/lib.js', name : 'mylib', format : 'iife', sourcemap : true }],
+    plugins: typescript({
+        useTsconfigDeclarationDir : true,
+        cacheRoot : '.cache',
+        tsconfig : 'tsconfig.json',
+        transformers: [service => transformPaths(service.getProgram())]
+        // transformers: [service => transformPaths(service.getProgram(), { exclude: ['*'] })] // has config
+    })
+}
+```
+
+
 ## Plugin options
 
 ```ts
@@ -70,6 +98,7 @@ interface Config {
     exclude?: string[] | void
 }
 ```
+
 
 ## Limitations
 
