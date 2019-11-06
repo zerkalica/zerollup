@@ -5,6 +5,7 @@ import {HelpersError} from '../interfaces'
 import {getConfigs, Configs} from './getConfigs'
 import {detectInputs} from './detectInputs'
 
+//@ts-ignore
 import getBuiltins from 'builtins'
 
 export class GetPackageJsonError extends HelpersError {}
@@ -59,18 +60,18 @@ export interface NormalizedPkg {
     declarationDir: string
     globalName: string
     srcDir: string
-    configs?: Configs | void
+    configs?: Configs | undefined
     inputs: string[]
     targets: Target[]
     external: string[]
 }
 
-const allSections: SectionRec[] = [
+const allSections = [
     {key: 'module', format: 'es', ext: 'mjs'},
     {key: 'main', format: 'cjs', ext: 'cjs.js'},
     {key: 'umd:main', format: 'umd', ext: 'js'},
     {key: 'iife:main', format: 'iife', ext: 'js'}
-]
+] as const
 
 const builtins = getBuiltins()
 
@@ -79,7 +80,7 @@ function normalizePkg(pkg: Pkg, pkgPath: string): Promise<NormalizedPkg> {
     const targets: Target[] = allSections
         .filter(sec => !!pkg[sec.key])
         .map(({key, format, ext}) => {
-            const val = pkg[key]
+            const val = pkg[key]!
             return <Target> {
                 key,
                 format,

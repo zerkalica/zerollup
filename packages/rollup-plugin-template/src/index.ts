@@ -27,7 +27,7 @@ export default class TemplatePluginFactory<Config> {
     bundleCollector(pluginOpts: {env: string}): Plugin {
         const {opts, bundles} = this
         let resolve: (v: BundleRec[]) => void
-        const bundlePromise: Promise<BundleRec[]> = new Promise((res: (string) => void) => {
+        const bundlePromise = new Promise<BundleRec[]>((res: (v: BundleRec[]) => void) => {
             resolve = res
         })
         bundles.push(bundlePromise)
@@ -42,10 +42,11 @@ export default class TemplatePluginFactory<Config> {
                     if ((opts.allowedExts || defaultExts).indexOf(getExt(key)) === -1) continue
                     const chunk = bundle[key]
                     if (!chunk) continue
-                    let data: string
+                    let data: string | undefined
                     if (typeof chunk === 'string') data = chunk
                     else if (chunk instanceof Buffer) data = chunk.toString()
-                    else if (typeof chunk === 'object') data = chunk.code
+                    else if (chunk && chunk.type === 'chunk') data = chunk.code
+                    else if (chunk && chunk.type === 'asset') data = chunk.fileName
                     if (data) {
                         recs.push({
                             data,
@@ -88,7 +89,7 @@ export default class TemplatePluginFactory<Config> {
 
                 const configData: string = chunk instanceof Buffer
                     ? chunk.toString()
-                    : (typeof chunk === 'object' ? chunk.code : chunk)
+                    : chunk && chunk.type === 'chunk' ? chunk.code : ''
 
                 return bundlesPromises
                     .then(bundles => {

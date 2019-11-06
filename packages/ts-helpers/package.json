@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/zerkalica/zerollup/issues"
   },
-  "homepage": "https://github.com/zerkalica/zerollup/packages/ts-helpers/#readme",
+  "homepage": "https://github.com/zerkalica/zerollup/tree/master/packages/ts-helpers/#readme",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",
@@ -34,10 +34,10 @@
     "plugin"
   ],
   "peerDependencies": {
-    "typescript": ">=2.8.3"
+    "typescript": ">=3.7.2"
   },
   "dependencies": {
-    "resolve": "^1.8.1"
+    "resolve": "^1.12.0"
   },
   "devDependencies": {
     "@types/resolve": "0.0.8"

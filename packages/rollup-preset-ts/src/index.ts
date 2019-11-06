@@ -1,16 +1,24 @@
 import {InputOptions, OutputOptions, WatcherOptions, Plugin} from 'rollup'
 import * as path from 'path'
 import typescript from 'rollup-plugin-typescript2'
+// @ts-ignore
 import uglify from 'rollup-plugin-uglify'
+// @ts-ignore
 import jsonPlugin from 'rollup-plugin-json'
 import resolve from 'rollup-plugin-node-resolve'
+// @ts-ignore
 import globals from 'rollup-plugin-node-globals'
 import replace from 'rollup-plugin-replace'
 import commonjs from 'rollup-plugin-commonjs'
+// @ts-ignore
 import sourcemaps from 'rollup-plugin-sourcemaps'
+// @ts-ignore
 import builtins from 'rollup-plugin-node-builtins'
+// @ts-ignore
 import serve from 'rollup-plugin-serve'
+// @ts-ignore
 import livereload from 'rollup-plugin-livereload'
+// @ts-ignore
 import {minify} from 'uglify-es'
 
 import notify from '@zerollup/rollup-plugin-notify'

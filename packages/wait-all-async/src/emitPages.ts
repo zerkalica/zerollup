@@ -62,7 +62,7 @@ export interface EmitPagesOptions {
  * Prerender pages and return array of page data
  */
 export function emitPages(opts: EmitPagesOptions): Promise<OutputPage[]> {
-    const render = renders.get(opts.engine) || defaultRender
+    const render = renders.get(opts.engine || 'jsdom') || defaultRender
 
     return Promise.all((opts.page || ['index.html']).map(page => {
         const pageUrl = normalizeUrl(page)

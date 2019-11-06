@@ -12,7 +12,7 @@ export interface LernaJson {
     packages: string[]
 }
 
-function pathExistsUpLoop([config, exists, step]) {
+function pathExistsUpLoop([config, exists, step]: [string, boolean, number]) {
     if (exists) return config
     const newStep = step - 1
     if (newStep <= 0) return
@@ -39,11 +39,11 @@ function getLernaPackages(repoRoot: string): Promise<{pkgFiles: string[], repoRo
         )
 }
 
-function getGlobals(pkgs: NormalizedPkg[]): Record<string, string> {
+function getGlobals(pkgs: NormalizedPkg[]) {
     return pkgs.reduce((acc, {json: {name}, globalName}) => {
         acc[name] = globalName
         return acc
-    }, {})
+    }, {} as Record<string, string>)
 }
 
 function getAliases(
@@ -76,8 +76,8 @@ function getAliases(
 }
 
 export function sortPackages({json: p1}: NormalizedPkg, {json: p2}: NormalizedPkg): number {
-    const deps1 = {...p1.dependencies, ...p1.devDependencies, ...p1.peerDependencies}
-    const deps2 = {...p2.dependencies, ...p2.devDependencies, ...p2.peerDependencies}
+    const deps1: Record<string, string> = {...p1.dependencies, ...p1.devDependencies, ...p1.peerDependencies}
+    const deps2: Record<string, string> = {...p2.dependencies, ...p2.devDependencies, ...p2.peerDependencies}
     if (deps1[p2.name] || p1.name > p2.name) return 1
     if (deps2[p1.name] || p1.name < p2.name) return -1
     return 0
@@ -94,8 +94,8 @@ export function getPackageSet(
     {pkgRoot, selectedNames: selNames, oneOfHost, env: rawEnv}: {
         pkgRoot: string
         env: string
-        oneOfHost?: string[] | void
-        selectedNames?: string[] | void
+        oneOfHost?: string[] | undefined
+        selectedNames?: string[] | undefined
     }
 ): Promise<PackageSetInfo> {
     const env: Env = getEnv(rawEnv)

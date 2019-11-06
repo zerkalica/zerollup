@@ -4,7 +4,7 @@ import {Tokenizer, regExpEscape} from './Tokenizer'
 export interface TSOptions {
     paths?: Record<string, string[]>
     baseUrl?: string
-    exclude?: string[] | void
+    exclude?: string[] | undefined
 }
 
 export const winSepRegex = new RegExp(regExpEscape(path.sep), 'g')
@@ -19,12 +19,12 @@ export class ImportPathsResolver {
         const paths = opts.paths || {}
         const baseUrl = opts.baseUrl ? opts.baseUrl.replace(winSepRegex, '\/') : null
 
-        const mapBaseUrl: ((v: string) => string) | void = baseUrl
+        const mapBaseUrl: ((v: string) => string) | undefined = baseUrl
             ? sub => (sub[0] === '/'
                 ? sub
                 : `${baseUrl}/${sub.substring(0, 2) === './' ? sub.substring(2) : sub}`
             )
-            : null
+            : undefined
 
         this.tokenizers = Object.keys(paths)
             .filter(key => !opts.exclude || !opts.exclude.includes(key))
@@ -34,7 +34,7 @@ export class ImportPathsResolver {
             ))
     }
 
-    getImportSuggestions(oldImport: string, fileName: string): string[] | void {
+    getImportSuggestions(oldImport: string, fileName: string): string[] | undefined {
         for (let tokenizer of this.tokenizers) {
             const match = tokenizer.parse(oldImport)
             if (match) {

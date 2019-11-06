@@ -4,7 +4,7 @@ const savedSetTimeout = setTimeout
 const savedClearTimeout = clearTimeout
 
 export class AsyncCounter implements Counter {
-    private handler: NodeJS.Timer | void
+    private handler: NodeJS.Timer | undefined = undefined
     private handlers: Set<any> = new Set()
 
     constructor(
@@ -12,7 +12,7 @@ export class AsyncCounter implements Counter {
         private resolve: (e?: Error) => void,
         timeout: number = 4000
     ) {
-        this.handler = savedSetTimeout(this.onTimeout, timeout) as any
+        this.handler = savedSetTimeout(this.onTimeout, timeout)
     }
 
     increment(handler: any) {
@@ -27,8 +27,8 @@ export class AsyncCounter implements Counter {
     }
 
     private onTimeout = () => {
-        this.handler = null
-        const names = []
+        this.handler = undefined
+        const names: string[] = []
         const handlers = this.handlers
         this.handlers = new Set()
         try {
@@ -44,7 +44,7 @@ export class AsyncCounter implements Counter {
     private doResolve() {
         if (this.handler) savedClearTimeout(this.handler)
         this.handlers = new Set()
-        this.handler = null
+        this.handler = undefined
         this.resolve()
     }
 }

@@ -67,7 +67,7 @@ export class TestHost implements ts.LanguageServiceHost {
             : (
                 fs.existsSync(fileName)
                     ? fs.readFileSync(fileName).toString()
-                    : undefined
+                    : ''
             )
 
         const snap = ts.ScriptSnapshot.fromString(content)

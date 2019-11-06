@@ -66,7 +66,7 @@ export function waitAllAsync(opts: WaitAllAsyncOptions): Promise<void> {
      */
     return new FakePromise((
         resolve: () => void,
-        reject: (Error) => void
+        reject: (e: Error) => void
     ) => {
         const patcher = new Patcher(
             resolve,

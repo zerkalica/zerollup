@@ -45,7 +45,7 @@ export function patchPromise(counter: Counter) {
         counter.increment(this)
         const done = () => counter.decrement(this)
 
-        const result = origThen.call(this, success, error)
+        const result: Promise<any> = origThen.call(this, success, error)
         origThen.call(result, done, done)
 
         return result
@@ -72,14 +72,14 @@ export function createPatchTimeout(setName: string, clearName: string) {
             throw new Error(`No ${setName} found in target`)
         }
 
-        function newSet(...args: any[]) {
+        function newSet(this: any, ...args: any[]) {
             let handler: any
             const callback = args[0]
             if (!callback || typeof callback !== 'function') {
                 throw new Error(`No callback`)
             }
     
-            function newCallback() {
+            function newCallback(this: any) {
                 try {
                     return callback.apply(this, arguments)
                 } finally {
@@ -95,9 +95,9 @@ export function createPatchTimeout(setName: string, clearName: string) {
         }
         counter.target[setName] = newSet
     
-        function newClear(handler: any) {
-            const result = origClear.apply(this, arguments)
-            counter.decrement(handler)
+        function newClear(this: any, ...args: any[]) {
+            const result = origClear.apply(this, args)
+            counter.decrement(args[0])
             return result
         }
         counter.target[clearName] = newClear

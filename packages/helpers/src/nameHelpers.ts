@@ -46,12 +46,12 @@ export function fixPath(name: string): string {
 
 export function packagesToGlobalNames(
     external: string[],
-    excludeMap: {[pkgName: string]: string} = {}
-): {[pkgName: string]: string} {
+    excludeMap: Record<string, string> = {}
+) {
     return external.reduce((globalsMap, pkgName) => {
         globalsMap[pkgName] = excludeMap[pkgName] || normalizeUmdName(pkgName)
         return globalsMap
-    }, {})
+    }, {} as Record<string, string>)
 }
 
 export function cutExt(input: string): string {

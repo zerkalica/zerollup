@@ -1,5 +1,6 @@
 .rpt2_cache*
 logs
+*.lock
 *.log
 pids
 *.pid

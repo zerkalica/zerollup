@@ -7,7 +7,7 @@ export default function notify(
     }  = {}
 ): rollup.Plugin {
     const name = '@zerollup/rollup-plugin-notify'
-    let handler
+    let handler: NodeJS.Timeout | null = null
     return {
         name,
         watchChange(id: string) {

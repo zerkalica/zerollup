@@ -14,7 +14,7 @@ export interface AdvancedInfo {
 export function getAdvancedInfo(
     {pkg, aliases, globals, oneOfHost}: {
         pkg: NormalizedPkg
-        oneOfHost?: string[] | void
+        oneOfHost?: string[] | undefined
         aliases: Record<string, string>
         globals: Record<string, string>
     }

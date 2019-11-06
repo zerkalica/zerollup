@@ -1,11 +1,11 @@
 import MockWebStorage from 'mock-webstorage'
-import nodeFetch from 'node-fetch'
+import nodeFetch, {Response, Request, Headers} from 'node-fetch'
 
 export function defaultNodeDomSetup(window: Window | any) {
     if (!window.fetch) window.fetch = typeof fetch === 'undefined' ? nodeFetch : fetch
-    if (!window.Response) window.Response = nodeFetch.Response
-    if (!window.Request) window.Request = nodeFetch.Request
-    if (!window.Headers) window.Headers = nodeFetch.Headers
+    if (!window.Response) window.Response = Response
+    if (!window.Request) window.Request = Request
+    if (!window.Headers) window.Headers = Headers
 
     if (!window.requestAnimationFrame || !window.cancelAnimationFrame) {
         window.cancelAnimationFrame = (handler: any) => clearTimeout(handler)

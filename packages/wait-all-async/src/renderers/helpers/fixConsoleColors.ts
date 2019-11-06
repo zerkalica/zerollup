@@ -14,18 +14,18 @@ function stripColors(args: any[]): any[] {
 }
 
 function createWrapper<F extends Function>(origMethod: F): F {
-    return function(...args: any[]) {
+    return function(this: any, ...args: any[]) {
         const newArgs = stripColors(args)
         return origMethod.apply(this, newArgs)
     } as any
 }
 
-const patchedConsoleMethods = ['log', 'error', 'debug', 'info']
+const patchedConsoleMethods = ['log', 'error', 'debug', 'info'] as const
 
 export function fixConsoleColors(console: Console): Console {
     const newConsole = Object.create(console)
     for (let method of patchedConsoleMethods) {
-        newConsole[method] = createWrapper(console[method])
+        newConsole[method] = createWrapper(console[method].bind(console))
     }
 
     return newConsole

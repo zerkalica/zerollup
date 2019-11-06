@@ -2,7 +2,7 @@ import {access, readFile, writeFile, constants} from 'fs-extra'
 import {emitPages} from './emitPages'
 import {RenderType, SandboxSetup} from './renderers'
 import * as path from 'path'
-import {parse, DefaultTreeParentNode, DefaultTreeElement, DefaultTreeNode, DefaultTreeTextNode} from 'parse5'
+import {parse, AST} from 'parse5'
 import {normalizeUrl, protoRegExp} from './FakePromise'
 
 export interface WritePagesOptions {
@@ -55,7 +55,7 @@ export interface WritePagesOptions {
     setup?: string
 }
 
-function defaultTemplate(id: string | void, bundle: string) {
+function defaultTemplate(id: string | undefined, bundle: string) {
     return `
 <html>
     <head>
@@ -72,26 +72,27 @@ function defaultTemplate(id: string | void, bundle: string) {
 }
 
 function walk(
-    node: DefaultTreeParentNode,
-    callback: (node: DefaultTreeParentNode) => void | boolean
-): void | boolean {
+    node: AST.Default.Element,
+    callback: (node: AST.Default.Element) => boolean
+): boolean {
     if (callback(node) === false) return false
 
-    let childNode: DefaultTreeNode
+    let childNode: AST.Default.Node | undefined
     let i: number = 0
 
     if (node.childNodes !== undefined) childNode = node.childNodes[i]
 
     while (childNode !== undefined) {
-        if (walk(childNode as DefaultTreeElement, callback) === false) return false
+        if (walk(childNode as AST.Default.Element, callback) === false) return false
         childNode = node.childNodes[++i]
     }
+    return false
 }
 
 function bundleFromTemplate(html: string): {urls: string[], code: string} {
     const acc = {
         code: '',
-        urls: [],
+        urls: [] as string[],
     }
 
     /**
@@ -100,27 +101,27 @@ function bundleFromTemplate(html: string): {urls: string[], code: string} {
      */
     const accPrerendering = {
         code: '',
-        urls: [],
+        urls: [] as string[],
     }
 
-
-    walk(parse(html) as DefaultTreeParentNode, (node: DefaultTreeElement) => {
-        if (node.tagName !== 'script') return
+    walk(parse(html) as AST.Default.Element, (node: AST.Default.Element): boolean => {
+        if (node.tagName !== 'script') return false
         let hasPrerenderTag = false
-        let url: void | string = undefined
+        let url: undefined | string = undefined
         for (let attr of node.attrs) {
             if (attr.name === 'src') url = attr.value
             if (attr.name === 'data-prerender') hasPrerenderTag = true
         }
         if (url) acc.urls.push(url)
         if (hasPrerenderTag && url) accPrerendering.urls.push(url)
-        const child = node.childNodes[0] as DefaultTreeTextNode
-        if (!child || child.nodeName !== '#text' || !child.value) return
+        const child = node.childNodes[0] as AST.Default.TextNode
+        if (!child || child.nodeName !== '#text' || !child.value) return false
         const code = child.value.trim()
-        if (!code) return
+        if (!code) return false
 
         if (hasPrerenderTag) accPrerendering.code += accPrerendering.code + ';\n' + code
         acc.code += acc.code + ';\n' + code
+        return false
     })
 
     return accPrerendering.code || accPrerendering.urls.length > 0 ? accPrerendering : acc
@@ -137,12 +138,11 @@ function interopRequire(module: string): any {
  * Loads template, evals bundle code, wait async tasks and write prerendered pages.
  */
 export function writePages(opts: WritePagesOptions): Promise<void> {
-    let templatePromise: Promise<string>
-    let bundlePromise: Promise<string>
+    let templatePromise: Promise<string> | undefined
+    let bundlePromise: Promise<string> | undefined
     const cwd = process.cwd()
-
-    if (!opts.template && !opts.bundle) throw new Error(`Need one of template or bundle in config`)
-    if (opts.template && !opts.bundle) {
+    const {bundle} = opts
+    if (opts.template) {
         templatePromise = readFile(opts.template).then(data => data.toString())
 
         bundlePromise = templatePromise.then(template => {
@@ -159,13 +159,15 @@ export function writePages(opts: WritePagesOptions): Promise<void> {
                     .then(() => readFile(bundleFile))
                     .catch(e => {
                         console.warn(e)
+                        return undefined
                     })
             ))
-                .then((data: Buffer[]) => data.filter(Boolean).join(';\n') + ';\n' + htmlData.code)
+                .then((data: (Buffer | undefined)[]) => data.filter(Boolean).join(';\n') + ';\n' + htmlData.code)
         })
     } else {
-        templatePromise = Promise.resolve(defaultTemplate(opts.id, opts.bundle))
-        bundlePromise = readFile(opts.bundle).then(data => data.toString())
+        if (!bundle) throw new Error(`Need one of template or bundle in config`)
+        templatePromise = Promise.resolve(defaultTemplate(opts.id, bundle))
+        bundlePromise = readFile(bundle).then(data => data.toString())
     }
     const output = opts.output || cwd
 

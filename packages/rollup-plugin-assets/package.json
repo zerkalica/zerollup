@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/zerkalica/zerollup/issues"
   },
-  "homepage": "https://github.com/zerkalica/zerollup/packages/rollup-plugin-assets/#readme",
+  "homepage": "https://github.com/zerkalica/zerollup/packages/tree/master/rollup-plugin-assets/#readme",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",
@@ -35,14 +35,14 @@
     "assets path"
   ],
   "peerDependencies": {
-    "rollup": "=>0.57.1"
+    "rollup": "*"
   },
   "dependencies": {
     "@zerollup/helpers": "^1.7.1",
-    "fs-extra": "^7.0.1",
-    "rollup-pluginutils": "^2.3.3"
+    "fs-extra": "^8.1.0",
+    "rollup-pluginutils": "^2.8.2"
   },
   "devDependencies": {
-    "@types/fs-extra": "^5.0.4"
+    "@types/fs-extra": "^8.0.1"
   }
 }

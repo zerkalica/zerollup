@@ -1,4 +1,5 @@
 import * as fsExtra from 'fs-extra'
+// @ts-ignore
 import nodeEval from 'node-eval'
 
 function getModuleExports(moduleId: string): Promise<string[]> {

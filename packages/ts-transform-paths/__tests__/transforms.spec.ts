@@ -14,26 +14,26 @@ describe('transforms', () => {
             files: [
                 {
                     path: 'index.ts',
-                    content: `import {Some} from "someRoot/Some"
-import A from "someRoot/Some"
+                    content: `import {A, Some} from "someRoot/Some"
 const a = new A()
-export default Some`,
+export {Some}
+`,
                 },
                 {
                     path: './lib/Some.ts',
                     content: `export interface Some { self: string }
-export default class A {}
+export class A {}
 `,
                 },
             ],
-            esnext: `import A from "./lib/Some";
+            esnext: `import { A } from "./lib/Some";
 const a = new A();`,
             commonjs: `"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Some_1 = require("./lib/Some");
-const a = new Some_1.default();`,
+const a = new Some_1.A();`,
             declaration: `import { Some } from "./lib/Some";
-export default Some;`,
+export { Some };`,
         },
 
         {
@@ -94,7 +94,7 @@ exports.B = B;`,
                 {
                     path: 'index.ts',
                     content: `import {Some} from "someRoot/Some"
-export default Some`,
+export {Some}`,
                 },
                 interfaceLib,
             ],
@@ -102,7 +102,7 @@ export default Some`,
             commonjs: `"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });`,
             declaration: `import { Some } from "./lib/Some";
-export default Some;`,
+export { Some };`,
         },
 
         {
@@ -266,12 +266,43 @@ exports.SomeImpl = Some_1.SomeImpl;`,
         },
 
         {
+            title: 'asterisk import maps only project files',
+            compilerOptions: {
+                paths: {
+                    '*': ['some/*'],
+                } as ts.MapLike<string[]>,
+            },
+            files: [
+                {
+                    path: 'index.ts',
+                    content: `import {app} from 'app'
+import * as fs from 'fs'
+export { app, fs }`,
+                },
+                {
+                    path: './some/app.ts',
+                    content: `export const app = 'test'`,
+                },
+            ],
+            esnext: `import { app } from "./some/app";
+import * as fs from 'fs';
+export { app, fs };`,
+            commonjs: `"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const app_1 = require("./some/app");
+exports.app = app_1.app;
+const fs = require("fs");
+exports.fs = fs;`,
+        },
+
+        {
             title: 'same modules',
             compilerOptions: {
                 paths: {
                     'app/*': ['src/app/*'],
-                    app: ['src/app/index'],
-                },
+                    'app': ['src/app/index'],
+                    // '*': ['types/*'],
+                } as ts.MapLike<string[]>,
             },
             files: [
                 {
@@ -282,9 +313,10 @@ import application from 'application'
 export {app, appRootPath, application}
 `,
                 },
-                {path: 'node_modules/application.ts', content: `export default 'test'`,},
                 {path: 'node_modules/app-root-path.ts', content: `export default 'test'`,},
+                {path: 'node_modules/application.ts', content: `export default 'test'`,},
                 {path: 'node_modules/app.ts', content: `export default 'test'`,},
+                {path: 'src/app/index.ts', content: `export default 'test2'`,},
             ],
             esnext: `import app from "./src/app/index";
 import appRootPath from 'app-root-path';
@@ -305,7 +337,7 @@ exports.application = application_1.default;`,
         transformers: () => ({
             before: [transformPathPlugin().before],
             afterDeclarations: [transformPathPlugin().afterDeclarations],
-        }),
+        } as ts.CustomTransformers),
         compilerOptions: {
             module: ts.ModuleKind.ESNext,
             paths: {
@@ -313,7 +345,7 @@ exports.application = application_1.default;`,
                 '*': [
                     './types/*'
                 ],
-            },
+            } as ts.MapLike<string[]>,
         },
     }
 
@@ -325,7 +357,7 @@ exports.application = application_1.default;`,
                 files: item.files,
                 emitOnlyDtsFiles: false,
             })
-
+            // console.log(data.outputFiles[0].text.trim())
             expect(data.outputFiles[0].text.trim()).toEqual(item.esnext.trim())
             if (item.declaration) {
                 expect(data.outputFiles[1].text.trim()).toEqual(item.declaration.trim())

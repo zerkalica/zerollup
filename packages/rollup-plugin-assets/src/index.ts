@@ -1,4 +1,4 @@
-import {Plugin, OutputOptions, OutputBundle} from 'rollup'
+import {Plugin, OutputOptions, OutputBundle, LoadHook} from 'rollup'
 import {readFile} from 'fs-extra'
 import * as path from 'path'
 import {createFilter} from 'rollup-pluginutils'
@@ -46,10 +46,10 @@ export default function assets(
 
     return {
         name,
-        load(id: string): void | string {
+        load(id: string): ReturnType<LoadHook> {
             if (!filter(id)) {
                 collector.addToSearch(id)
-                return
+                return null
             }
 
             const relativeUrl = collector.addResource(id)

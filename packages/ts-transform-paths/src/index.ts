@@ -1,15 +1,31 @@
-import * as path from 'path'
-import * as fs from 'fs'
-import * as ts from 'typescript'
-import {ImportPathsResolver, createTraverseVisitor} from '@zerollup/ts-helpers'
+import path from 'path'
+import ts from 'typescript'
+import {
+    ImportPathsResolver,
+    createTraverseVisitor,
+} from '@zerollup/ts-helpers'
 
 const importPathRegex = /^(['"\s]+)(.+)(['"\s]+)$/
 
 export type FixNode = (fixNode: ts.Node, newImport: string) => ts.Node
 
-function createFixNode(sf: ts.SourceFile): FixNode {
+export type SourceFile = ts.SourceFile & {
+    resolvedModules?: Map<
+        string,
+        { isExternalLibraryImport: boolean; resolvedFileName: string }
+    >
+}
+
+type Host = Pick<ts.Program, 'getSourceFile'>
+
+export type TransformationContext = ts.TransformationContext & {
+    getEmitHost?: () => ts.ModuleResolutionHost & Host
+}
+
+function createFixNode(sf: SourceFile): FixNode {
     const posMap = new Map<string, number>()
     return function fixNode(fixNode: ts.Node, newImport: string): ts.Node {
+
         /**
          * This hack needed for properly d.ts paths rewrite.
          * moduleSpecifier value obtained by moduleSpecifier.pos from original source file text.
@@ -36,31 +52,29 @@ function createFixNode(sf: ts.SourceFile): FixNode {
 
 interface Config {
     /**
-        Add a browser mode -- meaning that path resolution includes
-        determining exact FILE being imported (with extension) as this
-        is required by browsers when not using browserfy or rollup or any of the other packaging tools
-     */
-    for?: string | void
-
-    /**
         Disable plugin path resolving for given paths keys
      */
-    exclude?: string[] | void
+    exclude?: string[] | undefined
+
+    /**
+     * Try to load min.js and .js versions of each mapped import: for use ts without bundler
+     */
+    tryLoadJs?: boolean
 }
 
 interface ImportPathVisitorContext {
     resolver: ImportPathsResolver
     fixNode: FixNode
-    sf: ts.SourceFile
-    config: Config
+    sf: SourceFile
+    normalizeImport?(fileName: string): string | undefined
 }
 
 function importPathVisitor(
     node: ts.Node,
-    {fixNode, resolver, sf, config}: ImportPathVisitorContext
-): ts.Node | void {
+    { fixNode, resolver, sf, normalizeImport }: ImportPathVisitorContext
+): ts.Node | undefined {
     let importValue: string
-    let nodeToFix: ts.Node
+    let nodeToFix: ts.Node | undefined
     if (ts.isCallExpression(node)) {
         if (
             node.expression.getText() !== 'require' ||
@@ -72,8 +86,9 @@ function importPathVisitor(
         importValue = arg.getText()
         nodeToFix = arg
     } else if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
-        if (!node.moduleSpecifier || !ts.isStringLiteral(node.moduleSpecifier)) return
-         // do not use getFullText() here, bug in watch mode, https://github.com/zerkalica/zerollup/issues/12
+        if (!node.moduleSpecifier || !ts.isStringLiteral(node.moduleSpecifier))
+            return
+        // do not use getFullText() here, bug in watch mode, https://github.com/zerkalica/zerollup/issues/12
         importValue = `"${node.moduleSpecifier.text}"`
         nodeToFix = node.moduleSpecifier
     } else if (ts.isImportTypeNode(node)) {
@@ -89,23 +104,23 @@ function importPathVisitor(
     const matches = importValue.match(importPathRegex)
     if (!matches) return
 
-    const [, prefix, oldImport, suffix] = matches
+    const [,,oldImport,] = matches
     const newImports = resolver.getImportSuggestions(
         oldImport,
         path.dirname(sf.fileName)
     )
     if (!newImports) return
-    let newImport = newImports[0]
-    if (config && config.for === 'browser' && !newImport.endsWith('.js')) {
-        const source = path.join(path.dirname(sf.fileName), newImport)
-        if (fs.existsSync(source + '.min.js')) newImport += '.min.js'
-        else if (fs.existsSync(source + '.js')) newImport += '.js'
+    let newImport: string | undefined = newImports[0]
+
+    if (normalizeImport) {
+        newImport = normalizeImport(newImport)
+        if (!newImport) return
     }
 
     if (nodeToFix) fixNode(nodeToFix, newImport)
     const newSpec = ts.createLiteral(newImport)
 
-    let newNode: ts.Node | void
+    let newNode: ts.Node | undefined
 
     if (ts.isImportTypeNode(node)) {
         newNode = ts.updateImportTypeNode(
@@ -165,9 +180,11 @@ function importPathVisitor(
              */
             const ms = exportNode.moduleSpecifier
             const oms = node.moduleSpecifier
-            ms.pos = oms.pos
-            ms.end = oms.end
-            ms.parent = oms.parent
+            if (ms && oms) {
+                ms.pos = oms.pos
+                ms.end = oms.end
+                ms.parent = oms.parent
+            }
 
             newNode = exportNode
 
@@ -177,7 +194,7 @@ function importPathVisitor(
 
     if (ts.isCallExpression(node))
         newNode = ts.updateCall(node, node.expression, node.typeArguments, [
-            newSpec
+            newSpec,
         ])
 
     if (ts.isModuleDeclaration(node)) {
@@ -193,24 +210,48 @@ function importPathVisitor(
     return newNode
 }
 
-export default function transformPaths(program?: ts.Program, config?: Config) {
+const exts = ['min.js', 'js'] as const
+
+export default function transformPaths(
+    program?: ts.Program,
+    {exclude = undefined, tryLoadJs = false}: Config = {}
+) {
+    function normalizeHostImport(
+        this: Host | undefined,
+        fileExists: undefined | ((name: string) => boolean),
+        moduleName: string
+    ): string | undefined {
+        if (!this) return moduleName
+        if (fileExists && tryLoadJs)
+            for (let ext of exts)
+                if (fileExists(`${moduleName}.${ext}`)) return `${moduleName}.${ext}`
+
+        const mod = moduleName[0] === '.' ? moduleName.substring(2) : moduleName
+        if (this.getSourceFile(`${mod}.ts`) || this.getSourceFile(`${mod}.tsx`)) return moduleName    
+    }
+
     const plugin = {
         before(
-            transformationContext: ts.TransformationContext
-        ): ts.Transformer<ts.SourceFile> {
+            transformationContext: TransformationContext
+        ): ts.Transformer<SourceFile> {
             const options = transformationContext.getCompilerOptions()
             const resolver = new ImportPathsResolver({
                 paths: options.paths,
                 baseUrl: options.baseUrl,
-                exclude: config && config.exclude,
+                exclude,
             })
+            const emitHost =
+                transformationContext.getEmitHost &&
+                transformationContext.getEmitHost()
+            const fileExists = emitHost ? emitHost.fileExists.bind(emitHost) : undefined
+            const normalizeImport = normalizeHostImport.bind(program || emitHost, fileExists)
 
-            return (sf: ts.SourceFile) => {
+            return function transformer(sf: SourceFile) {
                 const ctx: ImportPathVisitorContext = {
                     sf,
                     resolver,
                     fixNode: createFixNode(sf),
-                    config
+                    normalizeImport,
                 }
 
                 const visitor = createTraverseVisitor(
@@ -222,10 +263,10 @@ export default function transformPaths(program?: ts.Program, config?: Config) {
             }
         },
         afterDeclarations(
-            transformationContext: ts.TransformationContext
-        ): ts.Transformer<ts.SourceFile> {
+            transformationContext: TransformationContext
+        ): ts.Transformer<SourceFile> {
             return plugin.before(transformationContext)
-        }
+        },
     }
 
     return plugin

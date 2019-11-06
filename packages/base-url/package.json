@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/zerkalica/zerollup/issues"
   },
-  "homepage": "https://github.com/zerkalica/zerollup/packages/base-url/#readme",
+  "homepage": "https://github.com/zerkalica/zerollup/tree/master/packages/base-url/#readme",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",

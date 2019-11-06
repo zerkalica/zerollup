@@ -15,7 +15,7 @@ function PromiseSubclass<T>(
 PromiseSubclass.prototype = Object.create(Promise.prototype)
 PromiseSubclass.prototype.constructor = PromiseSubclass
 const oldThen = Promise.prototype.then
-PromiseSubclass.prototype.then = function then(resolve, reject) {
+PromiseSubclass.prototype.then = function then(resolve: (value: any) => void, reject: (error: any) => void) {
     return convert(oldThen.call(this, resolve, reject))
 }
 

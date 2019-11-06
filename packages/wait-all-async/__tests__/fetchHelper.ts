@@ -5,9 +5,11 @@ import fetchMock from 'fetch-mock'
 import xhrMock from 'xhr-mock'
 
 export function setupBrowser(window: any) {
-    Object.keys(fetchMock.config).forEach(key => {
+    const keys = Object.keys(fetchMock.config) as (keyof typeof fetchMock.config)[]
+
+    for (let key of keys) {
         if (window[key]) fetchMock.config[key] = window[key]
-    })
+    }
 }
 
 export const url = 'http://localhost/testapi'
