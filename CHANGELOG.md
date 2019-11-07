@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.7.4](https://github.com/zerkalica/zerollup/compare/v1.7.3...v1.7.4) (2019-11-07)
+
+
+### Bug Fixes
+
+* strict mode, paths fix ([e945be6](https://github.com/zerkalica/zerollup/commit/e945be66862191e5ae164ed6ba275c6d1f47832d)), closes [#16](https://github.com/zerkalica/zerollup/issues/16) [#17](https://github.com/zerkalica/zerollup/issues/17)
+
+
+
+
+
 ## [1.7.3](https://github.com/zerkalica/zerollup/compare/v1.7.2...v1.7.3) (2019-05-31)
 
 

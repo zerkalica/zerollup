@@ -1,6 +1,6 @@
 {
   "name": "@zerollup/rollup-plugin-assets",
-  "version": "1.7.1",
+  "version": "1.7.4",
   "license": "MIT",
   "description": "Rollup assets plugin",
   "author": {
@@ -38,7 +38,7 @@
     "rollup": "*"
   },
   "dependencies": {
-    "@zerollup/helpers": "^1.7.1",
+    "@zerollup/helpers": "^1.7.4",
     "fs-extra": "^8.1.0",
     "rollup-pluginutils": "^2.8.2"
   },

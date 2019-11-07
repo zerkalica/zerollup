@@ -1,6 +1,6 @@
 {
   "name": "@zerollup/rollup-plugin-notify",
-  "version": "1.6.2",
+  "version": "1.7.4",
   "license": "MIT",
   "description": "Rollup notify plugin",
   "author": {
