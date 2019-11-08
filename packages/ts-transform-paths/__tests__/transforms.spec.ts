@@ -8,7 +8,36 @@ describe('transforms', () => {
         content: `export interface Some { self: string }`,
     }
 
-    const files = [
+    const files2 = [
+      {
+          compilerOptions: {
+            paths: {
+              'some/*': ['./lib/*'],
+            }
+          },
+          title: 'import',
+          files: [
+              {
+                  path: 'index.ts',
+                  content: `import {Some} from "./lib/Some"
+export {Some}
+`,
+              },
+              {
+                  path: './lib/Some.ts',
+                  content: `export interface Some { self: string }
+`,
+              },
+          ],
+          esnext: ``,
+          commonjs: `"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });`,
+          declaration: `import { Some } from "./lib/Some";
+export { Some };`,
+      },
+    ]
+
+      const files = [
         {
             title: 'double import',
             files: [
