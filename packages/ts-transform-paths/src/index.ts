@@ -70,8 +70,8 @@ function importPathVisitor(
     if (!node.moduleSpecifier || !ts.isStringLiteral(node.moduleSpecifier))
       return
     // do not use getFullText() here, bug in watch mode, https://github.com/zerkalica/zerollup/issues/12
-    importValue = node.moduleSpecifier.text
-    // importValue = stripQuotes(node.moduleSpecifier.getText(sf))
+    // importValue = node.moduleSpecifier.text
+    importValue = stripQuotes(node.moduleSpecifier.getText(sf))
     nodeToFix = node.moduleSpecifier
   } else if (
     ts.isImportTypeNode(node) &&
