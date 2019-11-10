@@ -21,7 +21,7 @@ Since 1.7.4 plugin rewrites paths only in internal project files, not for packag
 ```ts
 // tsconfig.json
 {
-  "compulerOptions": {
+  "compilerOptions": {
     "baseUrl": "src"
     "plugins": [{ "transform": "@zerollup/ts-transform-paths" }],
     "paths": { "*": ["*"] },
