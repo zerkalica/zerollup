@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.7.5](https://github.com/zerkalica/zerollup/compare/v1.7.4...v1.7.5) (2019-11-10)
+
+
+### Bug Fixes
+
+* **ts-transform-paths:** readme, code optimisations ([392f93b](https://github.com/zerkalica/zerollup/commit/392f93b53f5f7587dc6887d0f60ff45253a6dd5c))
+* **ts-transform-paths:** restore resolver, closes [#18](https://github.com/zerkalica/zerollup/issues/18) ([679311f](https://github.com/zerkalica/zerollup/commit/679311f9bf969312c8be2c1f1b43415da17fa0c5))
+
+
+
+
+
 ## [1.7.4](https://github.com/zerkalica/zerollup/compare/v1.7.3...v1.7.4) (2019-11-07)
 
 
