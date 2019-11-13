@@ -1,6 +1,6 @@
 {
   "name": "@zerollup/rollup-plugin-template",
-  "version": "1.7.4",
+  "version": "1.7.6",
   "license": "MIT",
   "description": "Rollup template plugin",
   "author": {
@@ -39,6 +39,6 @@
   },
   "dependencies": {
     "@zerollup/helpers": "^1.7.4",
-    "@zerollup/wait-all-async": "^1.7.4"
+    "@zerollup/wait-all-async": "^1.7.6"
   }
 }
