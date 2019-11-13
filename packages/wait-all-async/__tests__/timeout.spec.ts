@@ -1,3 +1,4 @@
+// @jest-environment jsdom
 import {waitAllAsync} from '../src'
 
 describe('timeout related', () => {

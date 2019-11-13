@@ -3,7 +3,9 @@ import path from 'path'
 import { ImportPathsResolver } from '@zerollup/ts-helpers'
 import { Config, EmitHost, TransformationContext } from './Types'
 
-const exts = ['min.js', 'js'] as const
+const jsExts = ['min.js', 'js'] as const
+
+const tsParts = ['.ts', '.tsx', '/index.ts', '/index.tsx'] as const
 
 export class ImportPathInternalResolver {
   protected resolver: ImportPathsResolver
@@ -31,7 +33,7 @@ export class ImportPathInternalResolver {
     if (!newImports || newImports.length === 0) return
     const newImport = newImports[0]
     if (this.config.tryLoadJs && emitHost && emitHost.fileExists) {
-      for (let ext of exts) {
+      for (let ext of jsExts) {
         const importWithExtension = `${newImport}.${ext}`
         if (emitHost.fileExists(path.join(currentDir, importWithExtension))) {
           return importWithExtension
@@ -44,11 +46,9 @@ export class ImportPathInternalResolver {
 
     const host = this.program || emitHost
     if (!host) return newImport
-
-    if (
-      host.getSourceFile(`${newImportPath}.ts`) ||
-      host.getSourceFile(`${newImportPath}.tsx`)
-    )
-      return newImport
+    for (let part of tsParts) {
+      if (host.getSourceFile(`${newImportPath}${part}`)) return newImport
+    }
   }
 }
+

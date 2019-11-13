@@ -1,3 +1,4 @@
+// @jest-environment jsdom
 import {createJsDomRender} from '../src'
 import * as jsdom from 'jsdom'
 import {setupBrowser, setup, teardown, template, url, urlError, testObject, testString} from './fetchHelper'
