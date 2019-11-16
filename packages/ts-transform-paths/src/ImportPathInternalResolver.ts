@@ -5,7 +5,7 @@ import { Config, EmitHost, TransformationContext } from './Types'
 
 const jsExts = ['min.js', 'js'] as const
 
-const tsParts = ['.ts', '.tsx', '/index.ts', '/index.tsx'] as const
+const tsParts = ['d.ts', 'd.tsx','.ts', '.tsx', '/index.ts', '/index.tsx', '/index.d.ts', '/index.d.tsx'] as const
 
 export class ImportPathInternalResolver {
   protected resolver: ImportPathsResolver
