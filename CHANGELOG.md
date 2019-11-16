@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.7.7](https://github.com/zerkalica/zerollup/compare/v1.7.6...v1.7.7) (2019-11-16)
+
+
+### Bug Fixes
+
+* **ts-transform-paths:** improve own import detector [#18](https://github.com/zerkalica/zerollup/issues/18) ([29eb2f7](https://github.com/zerkalica/zerollup/commit/29eb2f7e7f93a3eb67610f2a0beb5c60171dbb90))
+
+
+
+
+
 ## [1.7.6](https://github.com/zerkalica/zerollup/compare/v1.7.5...v1.7.6) (2019-11-13)
 
 
