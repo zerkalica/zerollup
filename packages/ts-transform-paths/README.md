@@ -108,7 +108,32 @@ export default {
     })
 }
 ```
+## Setup For [ts-loader](https://github.com/TypeStrong/ts-loader)
 
+```js
+const tsTransformPaths = require('@zerollup/ts-transform-paths');
+
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.(ts|tsx)$/,
+        loader: 'ts-loader',
+        options: {
+          getCustomTransformers: (program) => {
+            const transformer = tsTransformPaths(program);
+ 
+            return {
+              before: [transformer.before], // for updating paths in generated code
+              afterDeclarations: [transformer.afterDeclarations] // for updating paths in declaration files
+            };
+          }
+        }
+      }
+    ]
+  }
+};
+```
 
 ## Plugin options
 
