@@ -5,7 +5,7 @@ import { Config, EmitHost, TransformationContext } from './Types'
 
 const jsExts = ['min.js', 'js'] as const
 
-const tsParts = ['d.ts', 'd.tsx','.ts', '.tsx', '/index.ts', '/index.tsx', '/index.d.ts', '/index.d.tsx'] as const
+const tsParts = ['d.ts', 'd.tsx','.ts', '.tsx', '/index.ts', '/index.tsx', '/index.d.ts', '/index.d.tsx', ''] as const
 
 export class ImportPathInternalResolver {
   protected resolver: ImportPathsResolver
@@ -30,24 +30,25 @@ export class ImportPathInternalResolver {
   resolveImport(oldImport: string, currentDir: string): string | undefined {
     const { emitHost } = this
     const newImports = this.resolver.getImportSuggestions(oldImport, currentDir)
-    if (!newImports || newImports.length === 0) return
-    const newImport = newImports[0]
-    if (this.config.tryLoadJs && emitHost && emitHost.fileExists) {
-      for (let ext of jsExts) {
-        const importWithExtension = `${newImport}.${ext}`
-        if (emitHost.fileExists(path.join(currentDir, importWithExtension))) {
-          return importWithExtension
+    if (!newImports) return
+    for (let newImport of newImports) {
+      if (this.config.tryLoadJs && emitHost && emitHost.fileExists) {
+        for (let ext of jsExts) {
+          const importWithExtension = `${newImport}.${ext}`
+          if (emitHost.fileExists(path.join(currentDir, importWithExtension))) {
+            return importWithExtension
+          }
         }
       }
-    }
 
-    let newImportPath = path.join(currentDir, newImport)
-    if (newImportPath[0] === '.') newImportPath = newImportPath.substring(2)
+      let newImportPath = path.join(currentDir, newImport)
+      if (newImportPath[0] === '.') newImportPath = newImportPath.substring(2)
 
-    const host = this.program || emitHost
-    if (!host) return newImport
-    for (let part of tsParts) {
-      if (host.getSourceFile(`${newImportPath}${part}`)) return newImport
+      const host = this.program || emitHost
+      if (!host) return newImport
+      for (let part of tsParts) {
+        if (host.getSourceFile(`${newImportPath}${part}`)) return newImport
+      }
     }
   }
 }

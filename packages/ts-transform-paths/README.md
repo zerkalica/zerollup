@@ -108,7 +108,7 @@ export default {
     })
 }
 ```
-## Setup For [ts-loader](https://github.com/TypeStrong/ts-loader)
+## Setup For webpack [ts-loader](https://github.com/TypeStrong/ts-loader)
 
 ```js
 const tsTransformPaths = require('@zerollup/ts-transform-paths');
@@ -143,20 +143,5 @@ interface Config {
         Disable plugin path resolving for given paths keys
      */
     exclude?: string[] | void
-}
-```
-
-## Limitations
-
-Only first element in paths substitutions array used.
-
-my-lib/tsconfig.json:
-```json
-{
-    "compilerOptions": {
-        "paths": {
-            "my-lib/*": ["src/*", "not_used_substitution/*"]
-        }
-    }
 }
 ```
