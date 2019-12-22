@@ -34,7 +34,7 @@ export function transformPaths(program?: ts.Program, config: Config = {}) {
 
     afterDeclarations(
       transformationContext: TransformationContext
-    ): ts.Transformer<ts.SourceFile> {
+    ): ts.Transformer<ts.SourceFile> | ts.CustomTransformers {
       return plugin.before(transformationContext)
     },
   }
