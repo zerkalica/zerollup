@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.7.9](https://github.com/zerkalica/zerollup/compare/v1.7.8...v1.7.9) (2019-12-22)
+
+**Note:** Version bump only for package @zerollup/rollup-preset-ts
+
+
+
+
+
 ## [1.7.8](https://github.com/zerkalica/zerollup/compare/v1.7.7...v1.7.8) (2019-12-02)
 
 **Note:** Version bump only for package @zerollup/rollup-preset-ts
