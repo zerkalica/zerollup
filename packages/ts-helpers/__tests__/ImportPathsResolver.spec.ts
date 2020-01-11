@@ -37,7 +37,15 @@ describe('ImportPathsResolver', () => {
         )).toBeUndefined()
     })
 
-    it('should exclude some paths tokens', () => {
+    it('should not resolve relative paths to parent directory', () => {
+      const resolver = createResolver()
+      expect(resolver.getImportSuggestions(
+          '../some',
+          './bla/index.ts',
+      )).toBeUndefined()
+    })
+
+  it('should exclude some paths tokens', () => {
         const resolver = createResolver({
             exclude: ['*'],
         })

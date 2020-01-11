@@ -35,6 +35,7 @@ export class ImportPathsResolver {
     }
 
     getImportSuggestions(oldImport: string, fileName: string): string[] | undefined {
+        if (oldImport.substr(0, 1) === '.') return
         for (let tokenizer of this.tokenizers) {
             const match = tokenizer.parse(oldImport)
             if (match) {
