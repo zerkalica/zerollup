@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.7.10](https://github.com/zerkalica/zerollup/compare/v1.7.9...v1.7.10) (2020-01-11)
+
+
+### Bug Fixes
+
+* **ts-helpers:** Original relative path should be preferred over mapped, closes [#24](https://github.com/zerkalica/zerollup/issues/24) ([f770398](https://github.com/zerkalica/zerollup/commit/f770398cba977c44bcda2841f4a3ba984deab7b0))
+
+
+
+
+
 ## [1.7.9](https://github.com/zerkalica/zerollup/compare/v1.7.8...v1.7.9) (2019-12-22)
 
 **Note:** Version bump only for package zerollup
