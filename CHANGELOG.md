@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.7.11](https://github.com/zerkalica/zerollup/compare/v1.7.10...v1.7.11) (2020-01-12)
+
+
+### Bug Fixes
+
+* **ts-helpers:** strict relative import detection [#24](https://github.com/zerkalica/zerollup/issues/24) ([042be81](https://github.com/zerkalica/zerollup/commit/042be810199205a610e69156948c74785cb4a5f2))
+
+
+
+
+
 ## [1.7.10](https://github.com/zerkalica/zerollup/compare/v1.7.9...v1.7.10) (2020-01-11)
 
 
