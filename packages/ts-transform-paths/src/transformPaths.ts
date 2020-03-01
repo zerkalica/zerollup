@@ -1,11 +1,11 @@
 import ts from 'typescript'
 import { createTraverseVisitor } from '@zerollup/ts-helpers'
-import { Config, TransformationContext } from './Types'
+import { Config, defaultConfig, TransformationContext } from './Types'
 import { ImportPathInternalResolver } from './ImportPathInternalResolver'
 import { createFixNode } from './createFixNode'
 import { importPathVisitor } from './importPathVisitor'
 
-export function transformPaths(program?: ts.Program, config: Config = {}) {
+export function transformPaths(program?: ts.Program, config: Config = defaultConfig) {
   const plugin = {
     before(
       transformationContext: TransformationContext

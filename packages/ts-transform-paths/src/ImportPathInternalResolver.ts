@@ -3,9 +3,9 @@ import path from 'path'
 import { ImportPathsResolver } from '@zerollup/ts-helpers'
 import { Config, EmitHost, TransformationContext } from './Types'
 
-const jsExts = ['min.js', 'js'] as const
+const fileExistsParts = ['.min.js', '.js', ''] as const
 
-const tsParts = ['d.ts', 'd.tsx','.ts', '.tsx', '/index.ts', '/index.tsx', '/index.d.ts', '/index.d.tsx', ''] as const
+const tsParts = ['.d.ts','.ts', '.tsx', '/index.ts', '/index.tsx', '/index.d.ts', ''] as const
 
 export class ImportPathInternalResolver {
   protected resolver: ImportPathsResolver
@@ -28,28 +28,35 @@ export class ImportPathInternalResolver {
   }
 
   resolveImport(oldImport: string, currentDir: string): string | undefined {
-    const { emitHost } = this
+    const { emitHost, config } = this
     const newImports = this.resolver.getImportSuggestions(oldImport, currentDir)
     if (!newImports) return
     for (let newImport of newImports) {
-      if (this.config.tryLoadJs && emitHost && emitHost.fileExists) {
-        for (let ext of jsExts) {
-          const importWithExtension = `${newImport}.${ext}`
-          if (emitHost.fileExists(path.join(currentDir, importWithExtension))) {
-            return importWithExtension
+      const host = this.program ?? emitHost
+
+      if (host) {
+        let newImportPath = path.join(currentDir, newImport)
+        if (newImportPath[0] === '.') newImportPath = newImportPath.substring(2)
+        for (let part of tsParts) {
+          if (host.getSourceFile(`${newImportPath}${part}`)) return newImport
+        }  
+      }
+
+      if (emitHost && emitHost.fileExists) {
+        if (config.tryLoadJs) {
+          for (let ext of fileExistsParts) {
+            const importWithExtension = `${newImport}${ext}`
+            if (emitHost.fileExists(path.join(currentDir, importWithExtension)))
+              return importWithExtension
           }
+        }
+        if (config.fileCkeckExists) {
+          if (emitHost.fileExists(path.join(currentDir, newImport))) return newImport
         }
       }
 
-      let newImportPath = path.join(currentDir, newImport)
-      if (newImportPath[0] === '.') newImportPath = newImportPath.substring(2)
-
-      const host = this.program || emitHost
       if (!host) return newImport
-      for (let part of tsParts) {
-        if (host.getSourceFile(`${newImportPath}${part}`)) return newImport
-      }
+
     }
   }
 }
-

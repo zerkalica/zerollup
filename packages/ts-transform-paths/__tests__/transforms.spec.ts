@@ -367,6 +367,39 @@ exports.appRootPath = app_root_path_1.default;
 const application_1 = require("application");
 exports.application = application_1.default;`,
     },
+
+    {
+      title: 'css',
+      compilerOptions: {
+        paths: {
+          '*': ['some/*'],
+        } as ts.MapLike<string[]>,
+      },
+      files: [
+        {
+          path: 'index.ts',
+          content: `import {app} from 'app'
+import 'styles/normalize.css'
+export { app }`,
+        },
+        {
+          path: 'some/styles/normalize.css',
+          content: `// css`,
+        },
+        {
+          path: './some/app.ts',
+          content: `export const app = 'test'`,
+        },
+      ],
+      esnext: `import { app } from "./some/app";
+import "./some/styles/normalize.css";
+export { app };`,
+      commonjs: `"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const app_1 = require("./some/app");
+exports.app = app_1.app;
+require("./some/styles/normalize.css");`,
+    },
   ]
 
   const opts = {
