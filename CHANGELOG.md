@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.7.13](https://github.com/zerkalica/zerollup/compare/v1.7.12...v1.7.13) (2020-03-23)
+
+
+### Bug Fixes
+
+* **ts-helpers:** substitude baseUrl, closes [#28](https://github.com/zerkalica/zerollup/issues/28) ([f22c2b8](https://github.com/zerkalica/zerollup/commit/f22c2b8bbe650c9ac19132f61fb8e631fc2719e3))
+
+
+
+
+
 ## [1.7.12](https://github.com/zerkalica/zerollup/compare/v1.7.11...v1.7.12) (2020-03-01)
 
 
