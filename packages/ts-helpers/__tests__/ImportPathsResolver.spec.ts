@@ -52,7 +52,7 @@ describe('ImportPathsResolver', () => {
         expect(resolver.getImportSuggestions(
             'pkg_test',
             './bla/index.ts',
-        )).toBeUndefined()
+        )).toEqual(['../../pkg_test'])
     })
 
     it('should parse *', () => {

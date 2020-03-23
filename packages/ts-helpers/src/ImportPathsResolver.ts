@@ -12,12 +12,13 @@ export const posixSepRegex = /\//g
 
 export class ImportPathsResolver {
     private tokenizers: Tokenizer[]
+    protected baseUrl: string
 
     constructor(
         opts: TSOptions
     ) {
         const paths = opts.paths || {}
-        const baseUrl = opts.baseUrl ? opts.baseUrl.replace(winSepRegex, '\/') : null
+        const baseUrl = this.baseUrl = opts.baseUrl ? opts.baseUrl.replace(winSepRegex, '\/') : ''
 
         const mapBaseUrl: ((v: string) => string) | undefined = baseUrl
             ? sub => (sub[0] === '/'
@@ -49,5 +50,9 @@ export class ImportPathsResolver {
                 })
             }
         }
+
+        const defaultPath = path.relative(fileName, this.baseUrl + '/' + oldImport)
+
+        return [ defaultPath.startsWith('.') ? defaultPath : ('./' + defaultPath) ]
     }
 }
