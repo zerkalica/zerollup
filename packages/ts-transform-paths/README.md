@@ -88,26 +88,44 @@ For more examples see [zerollup demo lib](https://github.com/zerkalica/zerollup-
 
 install:
 ```shell
-$ npm i -D @zerollup/ts-transform-paths
+$ npm i -D @zerollup/ts-transform-paths ttypescript
 ```
 
 add to configure file rollup.config.js
 ```js
-import typescript from 'rollup-plugin-typescript2'
-import transformPaths from '@zerollup/ts-transform-paths'
+import ttypescript from 'ttypescript'
+import tsPlugin from 'rollup-plugin-typescript2'
 
 export default {
     input: 'src/lib.ts',
     output: [{ file : 'dist/lib.js', name : 'mylib', format : 'iife', sourcemap : true }],
-    plugins: typescript({
-        useTsconfigDeclarationDir : true,
-        cacheRoot : '.cache',
-        tsconfig : 'tsconfig.json',
-        transformers: [service => transformPaths(service.getProgram())]
-        // transformers: [service => transformPaths(service.getProgram(), { exclude: ['*'] })] // has config
-    })
+    plugins: [
+        tsPlugin({
+            typescript: ttypescript
+        })
+    ]
 }
 ```
+
+And setup tsconfig.json
+
+```json
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "my-lib/*": ["src/*"]
+        },
+        "plugins": [
+            {
+                "transform": "@zerollup/ts-transform-paths",
+                "exclude": ["*"]
+            }
+        ]
+    }
+}
+```
+
 ## Setup For webpack [ts-loader](https://github.com/TypeStrong/ts-loader)
 
 ```js
