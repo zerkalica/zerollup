@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.7.14](https://github.com/zerkalica/zerollup/compare/v1.7.13...v1.7.14) (2020-03-26)
+
+
+### Bug Fixes
+
+* **ts-helpers:** better relative path detection, [#28](https://github.com/zerkalica/zerollup/issues/28) ([bf395ca](https://github.com/zerkalica/zerollup/commit/bf395cae8d09694f35701931cb7c3cd0ddaf1501))
+
+
+
+
+
 ## [1.7.13](https://github.com/zerkalica/zerollup/compare/v1.7.12...v1.7.13) (2020-03-23)
 
 

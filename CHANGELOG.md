@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.7.14](https://github.com/zerkalica/zerollup/compare/v1.7.13...v1.7.14) (2020-03-26)
+
+
+### Bug Fixes
+
+* **ts-helpers:** better relative path detection, [#28](https://github.com/zerkalica/zerollup/issues/28) ([bf395ca](https://github.com/zerkalica/zerollup/commit/bf395cae8d09694f35701931cb7c3cd0ddaf1501))
+* **ts-transform-paths:** setup rollup with ttypescript ([767576b](https://github.com/zerkalica/zerollup/commit/767576befc2cc7f3cab0372c638955c001e6b28b))
+
+
+
+
+
 ## [1.7.13](https://github.com/zerkalica/zerollup/compare/v1.7.12...v1.7.13) (2020-03-23)
 
 
