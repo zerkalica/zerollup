@@ -36,7 +36,7 @@ export class ImportPathsResolver {
     }
 
     getImportSuggestions(oldImport: string, fileName: string): string[] | undefined {
-        if (oldImport === '.' && oldImport.startsWith('./') || oldImport.startsWith('../')) return
+        if (isRelative(oldImport)) return
 
         for (let tokenizer of this.tokenizers) {
             const match = tokenizer.parse(oldImport)
@@ -47,13 +47,18 @@ export class ImportPathsResolver {
                         p.replace(posixSepRegex, path.sep)
                     ).replace(winSepRegex, '\/')
 
-                    return newPath.startsWith('./') ? newPath : ('./' + newPath)
+                    return isRelative(newPath) ? newPath : ('./' + newPath)
                 })
             }
         }
 
         const defaultPath = path.relative(fileName, this.baseUrl + '/' + oldImport)
 
-        return [ defaultPath.startsWith('./') ? defaultPath : ('./' + defaultPath) ]
+        return [ isRelative(defaultPath) ? defaultPath : ('./' + defaultPath) ]
     }
+}
+
+
+function isRelative(fileName: string) {
+  return fileName === '.' || fileName.startsWith('./') || fileName.startsWith('../')
 }
