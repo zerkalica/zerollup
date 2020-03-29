@@ -38,8 +38,9 @@ export class ImportPathInternalResolver {
         let newImportPath = path.join(currentDir, newImport)
         if (newImportPath[0] === '.') newImportPath = newImportPath.substring(2)
         for (let part of tsParts) {
+          if (!config.fileCkeckExists) return newImport;
           if (host.getSourceFile(`${newImportPath}${part}`)) return newImport
-        }  
+        }
       }
 
       if (emitHost && emitHost.fileExists) {
