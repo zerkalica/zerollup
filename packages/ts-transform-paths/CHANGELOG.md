@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.7.17](https://github.com/zerkalica/zerollup/compare/v1.7.16...v1.7.17) (2020-04-04)
+
+
+### Bug Fixes
+
+* **ts-transform-paths:** disable path rewrite in d.ts option: disableForDeclarations ([e6d3de3](https://github.com/zerkalica/zerollup/commit/e6d3de37e601275db7d9165488df29fc6da11fa5))
+
+
+
+
+
 ## [1.7.16](https://github.com/zerkalica/zerollup/compare/v1.7.15...v1.7.16) (2020-04-04)
 
 
