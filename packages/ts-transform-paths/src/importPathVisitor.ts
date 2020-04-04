@@ -5,7 +5,7 @@ import { ImportPathInternalResolver } from './ImportPathInternalResolver'
 
 export interface ImportPathVisitorContext {
   sf: ts.SourceFile
-  fixNode: FixNode
+  fixNode?: FixNode | undefined
   resolver: ImportPathInternalResolver
 }
 
@@ -63,7 +63,7 @@ export function importPathVisitor(
 
   if (!newImport || newImport === importValue) return
 
-  if (nodeToFix) fixNode(nodeToFix, newImport)
+  if (nodeToFix && fixNode) fixNode(nodeToFix, newImport)
   const newSpec = ts.createLiteral(newImport)
 
   let newNode: ts.Node | undefined
