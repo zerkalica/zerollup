@@ -12,19 +12,15 @@ export interface Config {
    * @default false
    */
   tryLoadJs?: boolean
-
-  /**
-   * Use emitHost.fileExists to detect if import file exists. Usable for imports like some/Button.css
-   * @default true
-   */
-  fileCkeckExists?: boolean
 }
 
-export const defaultConfig: Config = {
-  fileCkeckExists: true
-}
+export const defaultConfig: Config = {}
 
-export type EmitHost = ts.ModuleResolutionHost & Pick<ts.Program, 'getSourceFile'>
+type FileExists = Partial<Pick<ts.ModuleResolutionHost, 'fileExists'>>
+
+export type EmitHost = FileExists
+
+export type Program = ts.Program & FileExists
 
 export type TransformationContext = ts.TransformationContext & {
   getEmitHost?: () => EmitHost

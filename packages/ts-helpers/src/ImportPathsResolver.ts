@@ -58,7 +58,6 @@ export class ImportPathsResolver {
     }
 }
 
-
 function isRelative(fileName: string) {
   return fileName === '.' || fileName.startsWith('./') || fileName.startsWith('../')
 }
