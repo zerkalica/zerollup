@@ -52,7 +52,7 @@ export class ImportPathsResolver {
             }
         }
 
-        const defaultPath = path.relative(fileName, this.baseUrl + '/' + oldImport)
+        const defaultPath = path.relative(fileName, this.baseUrl + '/' + oldImport).replace(winSepRegex, '\/')
 
         return [ isRelative(defaultPath) ? defaultPath : ('./' + defaultPath) ]
     }
