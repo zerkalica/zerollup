@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.7.18](https://github.com/zerkalica/zerollup/compare/v1.7.17...v1.7.18) (2020-06-08)
+
+
+### Bug Fixes
+
+* **ts-helpers:** closes [#33](https://github.com/zerkalica/zerollup/issues/33), replace window slashes to unix ([21f7503](https://github.com/zerkalica/zerollup/commit/21f7503a30c245af984521e1dbcc9907fd9bb44d))
+
+
+
+
+
 ## [1.7.17](https://github.com/zerkalica/zerollup/compare/v1.7.16...v1.7.17) (2020-04-04)
 
 
